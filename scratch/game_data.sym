@@ -1,0 +1,89 @@
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+  0 __str_0                                                         0000016E R
+  0 __str_1                                                         000001A4 R
+  0 __str_10                                                        000002B1 R
+  0 __str_11                                                        000002CD R
+  0 __str_12                                                        000002D8 R
+  0 __str_13                                                        00000307 R
+  0 __str_14                                                        00000314 R
+  0 __str_15                                                        00000330 R
+  0 __str_16                                                        00000341 R
+  0 __str_17                                                        0000035C R
+  0 __str_18                                                        000003D3 R
+  0 __str_19                                                        0000043B R
+  0 __str_2                                                         000001EF R
+  0 __str_20                                                        00000498 R
+  0 __str_21                                                        000004EB R
+  0 __str_3                                                         0000020E R
+  0 __str_4                                                         00000215 R
+  0 __str_5                                                         00000225 R
+  0 __str_6                                                         0000023D R
+  0 __str_7                                                         00000281 R
+  0 __str_8                                                         00000287 R
+  0 __str_9                                                         000002A6 R
+  0 _g_GameDatabase                                                 0000015A GR
+  0 _s_cmd_0                                                        0000012A R
+  0 _s_cmd_1                                                        00000150 R
+  0 _s_cmd_inst_0                                                   00000112 R
+  0 _s_cmd_inst_1                                                   00000130 R
+  0 _s_commands                                                     00000156 R
+  0 _s_func_0                                                       00000080 R
+  0 _s_func_1                                                       000000A8 R
+  0 _s_func_2                                                       000000C4 R
+  0 _s_func_3                                                       000000E0 R
+  0 _s_func_4                                                       00000104 R
+  0 _s_func_inst_0                                                  00000074 R
+  0 _s_func_inst_1                                                  00000084 R
+  0 _s_func_inst_2                                                  000000AC R
+  0 _s_func_inst_3                                                  000000C8 R
+  0 _s_func_inst_4                                                  000000E4 R
+  0 _s_functions                                                    00000108 R
+  0 _s_messages                                                     00000015 R
+  0 _s_msg_0                                                        00000000 R
+  0 _s_msg_1                                                        00000003 R
+  0 _s_msg_2                                                        00000006 R
+  0 _s_msg_3                                                        00000009 R
+  0 _s_msg_4                                                        0000000C R
+  0 _s_msg_5                                                        0000000F R
+  0 _s_msg_6                                                        00000012 R
+  0 _s_obj_0                                                        00000023 R
+  0 _s_obj_1                                                        0000002A R
+  0 _s_obj_2                                                        00000031 R
+  0 _s_obj_3                                                        00000038 R
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 2
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 _s_obj_4                                                        0000003F R
+  0 _s_objects                                                      00000046 R
+  0 _s_pos_0                                                        00000050 R
+  0 _s_pos_1                                                        00000057 R
+  0 _s_pos_2                                                        0000005E R
+  0 _s_pos_3                                                        00000065 R
+  0 _s_positions                                                    0000006C R
+
+
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 3
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size      4FF   flags    0
+   1 _DATA                                      size        0   flags    0
+   2 _INITIALIZED                               size        0   flags    0
+   3 _DABS                                      size        0   flags    8
+   4 _HOME                                      size        0   flags    0
+   5 _GSINIT                                    size        0   flags    0
+   6 _GSFINAL                                   size        0   flags    0
+   7 _INITIALIZER                               size        0   flags    0
+   8 _CABS                                      size        0   flags    8
+

@@ -1,0 +1,66 @@
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+  0 _Interpreter_CallFunction                                       0000045A GR
+  0 _Interpreter_DescribeCurrentRoom                                0000029B GR
+  0 _Interpreter_Execute                                            000004D4 GR
+  0 _Interpreter_GetMessageText                                     00000000 GR
+  0 _Interpreter_GetObjectName                                      00000210 GR
+  1 _Interpreter_GetObjectName_s_obj_name_buf_10000_103             00000000 R
+    _UI_ClearCenter                                                 ******** GX
+    _UI_NewLineCenter                                               ******** GX
+    _UI_PauseSeconds                                                ******** GX
+    _UI_PrintCenter                                                 ******** GX
+    _UI_PrintCharCenter                                             ******** GX
+    _UI_PrintNumberCenter                                           ******** GX
+  0 ___str_0                                                        00000096 R
+  0 ___str_13                                                       0000029A R
+  0 ___str_14                                                       00000446 R
+  0 ___str_15                                                       00000457 R
+  0 ___str_16                                                       00001099 R
+  0 ___str_17                                                       000010AA R
+  0 ___str_18                                                       000010AD R
+  0 ___str_19                                                       000010CD R
+  0 ___str_20                                                       000010E5 R
+  0 ___str_21                                                       00001107 R
+  0 ___str_22                                                       00001113 R
+  0 ___str_23                                                       00001120 R
+  0 ___str_24                                                       00001124 R
+    __modsint                                                       ******** GX
+  0 __str_1                                                         00000097 R
+  0 __str_10                                                        000001B7 R
+  0 __str_11                                                        000001D2 R
+  0 __str_12                                                        000001F4 R
+  0 __str_2                                                         000000AE R
+  0 __str_3                                                         000000C8 R
+  0 __str_4                                                         00000115 R
+  0 __str_5                                                         0000012E R
+  0 __str_6                                                         00000151 R
+  0 __str_7                                                         00000169 R
+  0 __str_8                                                         0000017F R
+  0 __str_9                                                         00000194 R
+  0 _g_SystemMessages                                               00000068 R
+    _rand                                                           ******** GX
+
+
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 2
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size     1126   flags    0
+   1 _DATA                                      size       18   flags    0
+   2 _INITIALIZED                               size        0   flags    0
+   3 _DABS                                      size        0   flags    8
+   4 _HOME                                      size        0   flags    0
+   5 _GSINIT                                    size        0   flags    0
+   6 _GSFINAL                                   size        0   flags    0
+   7 _INITIALIZER                               size        0   flags    0
+   8 _CABS                                      size        0   flags    8
+

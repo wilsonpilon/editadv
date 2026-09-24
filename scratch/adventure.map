@@ -1,0 +1,145 @@
+ASxxxx Linker V05.50.4-SDLD,  page 1.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+.  .ABS.                            00000000    00000000 =           0. bytes (ABS,CON)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+     00000000  .__.ABS.                           divsigned
+     00000000  l__CABS                         
+     00000000  l__DABS                         
+     00000000  l__GSFINAL                      
+     00000000  l__GSINIT                       
+     00000000  l__HOME                         
+     00000000  s__CABS                         
+     00000000  s__DABS                         
+     00000006  l__INITIALIZED                  
+     00000006  l__INITIALIZER                  
+     00000121  l__DATA                         
+     00002AE1  l__CODE                         
+     00004000  s__CODE                         
+     0000C000  s__DATA                         
+     0000C121  s__INITIALIZED                  
+     0000C127  s__GSFINAL                      
+     0000C127  s__GSINIT                       
+     0000C127  s__HOME                         
+     0000C127  s__INITIALIZER                  
+
+ASxxxx Linker V05.50.4-SDLD,  page 2.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_CODE                               00004000    00002AE1 =       10977. bytes (REL,CON)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+     00004000  _main                              main
+     00004163  _g_GameDatabase                    game_data
+     00004508  _Game_Init                         game_loop
+     00004719  _Game_Run                          game_loop
+     00004E8C  _Interpreter_GetMessageText        interpreter
+     0000509C  _Interpreter_GetObjectName         interpreter
+     00005127  _Interpreter_DescribeCurrentRoom   interpreter
+     000052E6  _Interpreter_CallFunction          interpreter
+     00005360  _Interpreter_Execute               interpreter
+     000061ED  _Parser_IsNoiseWord                parser
+     000063A0  _Parser_Parse                      parser
+     000066A7  _UI_Init                           ui
+     000066B3  _UI_DrawLayout                     ui
+     000066DE  _UI_SetTopText                     ui
+     0000670D  _UI_ClearCenter                    ui
+     00006734  _UI_NewLineCenter                  ui
+     00006774  _UI_PrintCharCenter                ui
+     0000679D  _UI_PrintCenter                    ui
+     000067AC  _UI_PrintNumberCenter              ui
+     00006838  _UI_ReadLine                       ui
+     00006905  _UI_PauseSeconds                   ui
+     00006924  _rand                              rand
+     000069A6  _srand                             rand
+     000069B3  __moduchar                         modunsigned
+     000069BA  __moduint                          modunsigned
+     000069BF  __divuchar                         divunsigned
+     000069C1  __divu8                            divunsigned
+     000069C4  __divu16                           divunsigned
+     000069C4  __divuint                          divunsigned
+     000069F3  _strncat                           _strncat
+     00006A50  _strlen                            strlen
+     00006A5C  _strcmp                            _strcmp
+     00006A99  __modschar                         modsigned
+     00006AA1  __modsint                          modsigned
+     00006AA7  __divschar                         divsigned
+     00006AA9  __div8                             divsigned
+     00006AAD  __div_signexte                     divsigned
+     00006AB1  __div16                            divsigned
+     00006AB1  __divsint                          divsigned
+     00006AD7  __get_remainder                    divsigned
+
+ASxxxx Linker V05.50.4-SDLD,  page 3.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_DATA                               0000C000    00000121 =         289. bytes (REL,CON)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+ASxxxx Linker V05.50.4-SDLD,  page 4.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_INITIALIZED                        0000C121    00000006 =           6. bytes (REL,CON)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+ASxxxx Linker V05.50.4-SDLD,  page 5.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_INITIALIZER                        0000C127    00000006 =           6. bytes (REL,CON)
+
+         Value  Global                             Global Defined In Module
+         -----  --------------------------------   ------------------------
+ASxxxx Linker V05.50.4-SDLD,  page 6.
+
+Files Linked                              [ module(s) ]
+
+scratch/main.rel                          [ main ]
+scratch/game_data.rel                     [ game_data ]
+scratch/game_loop.rel                     [ game_loop ]
+scratch/interpreter.rel                   [ interpreter ]
+scratch/parser.rel                        [ parser ]
+scratch/ui.rel                            [ ui ]
+
+
+Libraries Linked                          [ object file ]
+
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ rand.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ modunsigned.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ divunsigned.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ _strncat.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ strlen.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ _strcmp.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ modsigned.rel ]
+E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80/z80.lib
+                                          [ divsigned.rel ]
+
+ASxxxx Linker V05.50.4-SDLD,  page 7.
+
+User Base Address Definitions
+
+_CODE = 0x4000
+_DATA = 0xc000
+
+

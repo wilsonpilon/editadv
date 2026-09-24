@@ -1,0 +1,25 @@
+XL4
+H 9 areas 4 global symbols
+M main
+O -mz80 sdcccall(1)
+S .__.ABS. Def00000000
+S _Game_Run Ref00000000
+S _g_GameDatabase Ref00000000
+A _CODE size 9 flags 0 addr 0
+S _main Def00000000
+A _DATA size 109 flags 0 addr 0
+A _INITIALIZED size 0 flags 0 addr 0
+A _DABS size 0 flags 8 addr 0
+A _HOME size 0 flags 0 addr 0
+A _GSINIT size 0 flags 0 addr 0
+A _GSFINAL size 0 flags 0 addr 0
+A _INITIALIZER size 0 flags 0 addr 0
+A _CABS size 0 flags 8 addr 0
+T 00 00 00 00
+R 00 00 01 00
+T 00 00 00 00
+R 00 00 01 00
+T 00 00 00 00
+R 00 00 00 00
+T 00 00 00 00 11 00 00 21 00 00 C3 00 00
+R 00 00 00 00 00 05 01 00 02 08 02 00 02 0B 01 00

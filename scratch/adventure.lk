@@ -1,0 +1,14 @@
+-mjwx
+-i scratch/adventure.ihx
+-b _CODE = 0x4000
+-b _DATA = 0xc000
+-k E:\editadv\MSXgl\tools\sdcc\bin\..\lib\z80
+-l z80
+scratch/main.rel
+scratch/game_data.rel
+scratch/game_loop.rel
+scratch/interpreter.rel
+scratch/parser.rel
+scratch/ui.rel
+
+-e

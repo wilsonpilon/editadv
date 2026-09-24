@@ -1,0 +1,643 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ISO C Compiler
+                                      3 ; Version 4.6.0 #16555 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module ui
+                                      6 	
+                                      7 	.optsdcc -mz80 sdcccall(1)
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _UI_Init
+                                     12 	.globl _UI_DrawLayout
+                                     13 	.globl _UI_SetTopText
+                                     14 	.globl _UI_ClearCenter
+                                     15 	.globl _UI_NewLineCenter
+                                     16 	.globl _UI_PrintCharCenter
+                                     17 	.globl _UI_PrintCenter
+                                     18 	.globl _UI_PrintNumberCenter
+                                     19 	.globl _UI_ReadLine
+                                     20 	.globl _UI_PauseSeconds
+                                     21 ;--------------------------------------------------------
+                                     22 ; special function registers
+                                     23 ;--------------------------------------------------------
+                                     24 ;--------------------------------------------------------
+                                     25 ; ram data
+                                     26 ;--------------------------------------------------------
+                                     27 	.area _DATA
+                                     28 ;--------------------------------------------------------
+                                     29 ; ram data
+                                     30 ;--------------------------------------------------------
+                                     31 	.area _INITIALIZED
+    00000000                         32 _g_CenterCursorX:
+    00000000                         33 	.ds 1
+    00000001                         34 _g_CenterCursorY:
+    00000001                         35 	.ds 1
+                                     36 ;--------------------------------------------------------
+                                     37 ; absolute ram data
+                                     38 ;--------------------------------------------------------
+                                     39 	.area _DABS (ABS)
+                                     40 	.area _DABS (ABS)
+                                     41 ;--------------------------------------------------------
+                                     42 ; global & static initialisations
+                                     43 ;--------------------------------------------------------
+                                     44 	.area _HOME
+                                     45 	.area _GSINIT
+                                     46 	.area _GSFINAL
+                                     47 	.area _GSINIT
+                                     48 ;--------------------------------------------------------
+                                     49 ; Home
+                                     50 ;--------------------------------------------------------
+                                     51 	.area _HOME
+                                     52 	.area _HOME
+                                     53 ;--------------------------------------------------------
+                                     54 ; code
+                                     55 ;--------------------------------------------------------
+                                     56 	.area _CODE
+                                     57 ;engine/src/ui.c:12: static void Bios_InitText(void) __naked
+                                     58 ;	---------------------------------
+                                     59 ; Function Bios_InitText
+                                     60 ; ---------------------------------
+    00000000                         61 _Bios_InitText:
+                                     62 ;engine/src/ui.c:17: __endasm;
+    00000000 CD 5F 00         [17]   63 	call 0x005F
+    00000003 C9               [10]   64 	ret
+                                     65 ;engine/src/ui.c:18: }
+                                     66 ;engine/src/ui.c:20: static void Bios_Cls(void) __naked
+                                     67 ;	---------------------------------
+                                     68 ; Function Bios_Cls
+                                     69 ; ---------------------------------
+    00000004                         70 _Bios_Cls:
+                                     71 ;engine/src/ui.c:25: __endasm;
+    00000004 CD C3 00         [17]   72 	call 0x00C3
+    00000007 C9               [10]   73 	ret
+                                     74 ;engine/src/ui.c:26: }
+                                     75 ;engine/src/ui.c:28: static void Bios_SetCursor(u8 col, u8 row) __naked
+                                     76 ;	---------------------------------
+                                     77 ; Function Bios_SetCursor
+                                     78 ; ---------------------------------
+    00000008                         79 _Bios_SetCursor:
+                                     80 ;engine/src/ui.c:43: __endasm;
+    00000008 21 02 00         [10]   81 	ld hl, #2
+    0000000B 39               [11]   82 	add hl, sp
+    0000000C 7E               [ 7]   83 	ld a, (hl)
+    0000000D 3C               [ 4]   84 	inc a
+    0000000E 67               [ 4]   85 	ld h, a
+    0000000F 23               [ 6]   86 	inc hl
+    00000010 7E               [ 7]   87 	ld a, (hl)
+    00000011 3C               [ 4]   88 	inc a
+    00000012 6F               [ 4]   89 	ld l, a
+    00000013 CD C6 00         [17]   90 	call 0x00C6
+    00000016 C9               [10]   91 	ret
+                                     92 ;engine/src/ui.c:44: }
+                                     93 ;engine/src/ui.c:46: static void Bios_Chput(char c) __naked
+                                     94 ;	---------------------------------
+                                     95 ; Function Bios_Chput
+                                     96 ; ---------------------------------
+    00000017                         97 _Bios_Chput:
+                                     98 ;engine/src/ui.c:55: __endasm;
+    00000017 21 02 00         [10]   99 	ld hl, #2
+    0000001A 39               [11]  100 	add hl, sp
+    0000001B 7E               [ 7]  101 	ld a, (hl)
+    0000001C CD A2 00         [17]  102 	call 0x00A2
+    0000001F C9               [10]  103 	ret
+                                    104 ;engine/src/ui.c:56: }
+                                    105 ;engine/src/ui.c:58: static char Bios_Chget(void) __naked
+                                    106 ;	---------------------------------
+                                    107 ; Function Bios_Chget
+                                    108 ; ---------------------------------
+    00000020                        109 _Bios_Chget:
+                                    110 ;engine/src/ui.c:64: __endasm;
+    00000020 CD 9F 00         [17]  111 	call 0x009F
+    00000023 6F               [ 4]  112 	ld l, a
+    00000024 C9               [10]  113 	ret
+                                    114 ;engine/src/ui.c:65: }
+                                    115 ;engine/src/ui.c:67: static void Bios_WaitFrame(void) __naked
+                                    116 ;	---------------------------------
+                                    117 ; Function Bios_WaitFrame
+                                    118 ; ---------------------------------
+    00000025                        119 _Bios_WaitFrame:
+                                    120 ;engine/src/ui.c:73: __endasm;
+    00000025 FB               [ 4]  121 	ei
+    00000026 76               [ 4]  122 	halt
+    00000027 C9               [10]  123 	ret
+                                    124 ;engine/src/ui.c:74: }
+                                    125 ;engine/src/ui.c:87: void UI_Init(void)
+                                    126 ;	---------------------------------
+                                    127 ; Function UI_Init
+                                    128 ; ---------------------------------
+    00000028                        129 _UI_Init::
+                                    130 ;engine/src/ui.c:94: Bios_InitText();
+    00000028 CDr00r00         [17]  131 	call	_Bios_InitText
+                                    132 ;engine/src/ui.c:95: Bios_Cls();
+    0000002B CDr04r00         [17]  133 	call	_Bios_Cls
+                                    134 ;engine/src/ui.c:97: UI_DrawLayout();
+    0000002E CDr34r00         [17]  135 	call	_UI_DrawLayout
+                                    136 ;engine/src/ui.c:98: UI_ClearCenter();
+                                    137 ;engine/src/ui.c:99: }
+    00000031 C3r8Er00         [10]  138 	jp	_UI_ClearCenter
+                                    139 ;engine/src/ui.c:105: void UI_DrawLayout(void)
+                                    140 ;	---------------------------------
+                                    141 ; Function UI_DrawLayout
+                                    142 ; ---------------------------------
+    00000034                        143 _UI_DrawLayout::
+                                    144 ;engine/src/ui.c:115: Bios_SetCursor(0, SCREEN_ROW_DIVIDER_1);
+    00000034 2E 01            [ 7]  145 	ld	l, #0x01
+    00000036 AF               [ 4]  146 	xor	a, a
+    00000037 CDr08r00         [17]  147 	call	_Bios_SetCursor
+                                    148 ;engine/src/ui.c:116: for (x = 0; x < SCREEN_TEXT_WIDTH; x++) Bios_Chput('-');
+    0000003A 0E 00            [ 7]  149 	ld	c, #0x00
+    0000003C                        150 00103$:
+    0000003C C5               [11]  151 	push	bc
+    0000003D 3E 2D            [ 7]  152 	ld	a, #0x2d
+    0000003F CDr17r00         [17]  153 	call	_Bios_Chput
+    00000042 C1               [10]  154 	pop	bc
+    00000043 0C               [ 4]  155 	inc	c
+    00000044 79               [ 4]  156 	ld	a, c
+    00000045 D6 28            [ 7]  157 	sub	a, #0x28
+    00000047 38 F3            [12]  158 	jr	c, 00103$
+                                    159 ;engine/src/ui.c:118: Bios_SetCursor(0, SCREEN_ROW_DIVIDER_2);
+    00000049 2E 15            [ 7]  160 	ld	l, #0x15
+    0000004B AF               [ 4]  161 	xor	a, a
+    0000004C CDr08r00         [17]  162 	call	_Bios_SetCursor
+                                    163 ;engine/src/ui.c:119: for (x = 0; x < SCREEN_TEXT_WIDTH; x++) Bios_Chput('-');
+    0000004F 0E 00            [ 7]  164 	ld	c, #0x00
+    00000051                        165 00105$:
+    00000051 C5               [11]  166 	push	bc
+    00000052 3E 2D            [ 7]  167 	ld	a, #0x2d
+    00000054 CDr17r00         [17]  168 	call	_Bios_Chput
+    00000057 C1               [10]  169 	pop	bc
+    00000058 0C               [ 4]  170 	inc	c
+    00000059 79               [ 4]  171 	ld	a, c
+    0000005A D6 28            [ 7]  172 	sub	a, #0x28
+    0000005C 38 F3            [12]  173 	jr	c, 00105$
+                                    174 ;engine/src/ui.c:121: }
+    0000005E C9               [10]  175 	ret
+                                    176 ;engine/src/ui.c:126: void UI_SetTopText(const char* text)
+                                    177 ;	---------------------------------
+                                    178 ; Function UI_SetTopText
+                                    179 ; ---------------------------------
+    0000005F                        180 _UI_SetTopText::
+                                    181 ;engine/src/ui.c:138: Bios_SetCursor(0, SCREEN_ROW_TOP_START);
+    0000005F E5               [11]  182 	push	hl
+    00000060 AF               [ 4]  183 	xor	a, a
+    00000061 6F               [ 4]  184 	ld	l, a
+    00000062 CDr08r00         [17]  185 	call	_Bios_SetCursor
+    00000065 E1               [10]  186 	pop	hl
+                                    187 ;engine/src/ui.c:139: for (x = 0; x < SCREEN_TEXT_WIDTH; x++) Bios_Chput(' ');
+    00000066 0E 00            [ 7]  188 	ld	c, #0x00
+    00000068                        189 00107$:
+    00000068 E5               [11]  190 	push	hl
+    00000069 C5               [11]  191 	push	bc
+    0000006A 3E 20            [ 7]  192 	ld	a, #0x20
+    0000006C CDr17r00         [17]  193 	call	_Bios_Chput
+    0000006F C1               [10]  194 	pop	bc
+    00000070 E1               [10]  195 	pop	hl
+    00000071 0C               [ 4]  196 	inc	c
+    00000072 79               [ 4]  197 	ld	a, c
+    00000073 D6 28            [ 7]  198 	sub	a, #0x28
+    00000075 38 F1            [12]  199 	jr	c, 00107$
+                                    200 ;engine/src/ui.c:140: if (text != NULL)
+    00000077 7C               [ 4]  201 	ld	a, h
+    00000078 B5               [ 4]  202 	or	a, l
+    00000079 C8               [11]  203 	ret	z
+                                    204 ;engine/src/ui.c:142: Bios_SetCursor(1, SCREEN_ROW_TOP_START);
+    0000007A E5               [11]  205 	push	hl
+    0000007B 2E 00            [ 7]  206 	ld	l, #0x00
+    0000007D 3E 01            [ 7]  207 	ld	a, #0x01
+    0000007F CDr08r00         [17]  208 	call	_Bios_SetCursor
+    00000082 E1               [10]  209 	pop	hl
+                                    210 ;engine/src/ui.c:143: while (*text) Bios_Chput(*text++);
+    00000083                        211 00102$:
+    00000083 7E               [ 7]  212 	ld	a, (hl)
+    00000084 B7               [ 4]  213 	or	a, a
+    00000085 C8               [11]  214 	ret	z
+    00000086 23               [ 6]  215 	inc	hl
+    00000087 E5               [11]  216 	push	hl
+    00000088 CDr17r00         [17]  217 	call	_Bios_Chput
+    0000008B E1               [10]  218 	pop	hl
+                                    219 ;engine/src/ui.c:148: }
+    0000008C 18 F5            [12]  220 	jr	00102$
+                                    221 ;engine/src/ui.c:153: void UI_ClearCenter(void)
+                                    222 ;	---------------------------------
+                                    223 ; Function UI_ClearCenter
+                                    224 ; ---------------------------------
+    0000008E                        225 _UI_ClearCenter::
+                                    226 ;engine/src/ui.c:163: for (y = SCREEN_ROW_CENTER_START; y <= SCREEN_ROW_CENTER_END; y++)
+    0000008E 2E 02            [ 7]  227 	ld	l, #0x02
+    00000090                        228 00105$:
+                                    229 ;engine/src/ui.c:165: Bios_SetCursor(0, y);
+    00000090 E5               [11]  230 	push	hl
+    00000091 AF               [ 4]  231 	xor	a, a
+    00000092 CDr08r00         [17]  232 	call	_Bios_SetCursor
+    00000095 E1               [10]  233 	pop	hl
+                                    234 ;engine/src/ui.c:166: for (x = 0; x < SCREEN_TEXT_WIDTH; x++) Bios_Chput(' ');
+    00000096 26 00            [ 7]  235 	ld	h, #0x00
+    00000098                        236 00103$:
+    00000098 E5               [11]  237 	push	hl
+    00000099 3E 20            [ 7]  238 	ld	a, #0x20
+    0000009B CDr17r00         [17]  239 	call	_Bios_Chput
+    0000009E E1               [10]  240 	pop	hl
+    0000009F 24               [ 4]  241 	inc	h
+    000000A0 7C               [ 4]  242 	ld	a, h
+    000000A1 D6 28            [ 7]  243 	sub	a, #0x28
+    000000A3 38 F3            [12]  244 	jr	c, 00103$
+                                    245 ;engine/src/ui.c:163: for (y = SCREEN_ROW_CENTER_START; y <= SCREEN_ROW_CENTER_END; y++)
+    000000A5 2C               [ 4]  246 	inc	l
+    000000A6 3E 14            [ 7]  247 	ld	a, #0x14
+    000000A8 95               [ 4]  248 	sub	a, l
+    000000A9 30 E5            [12]  249 	jr	nc, 00105$
+                                    250 ;engine/src/ui.c:171: g_CenterCursorX = 0;
+    000000AB AF               [ 4]  251 	xor	a, a
+    000000AC 32r00r00         [13]  252 	ld	(#_g_CenterCursorX), a
+                                    253 ;engine/src/ui.c:172: g_CenterCursorY = SCREEN_ROW_CENTER_START;
+    000000AF 21r01r00         [10]  254 	ld	hl, #_g_CenterCursorY
+    000000B2 36 02            [10]  255 	ld	(hl), #0x02
+                                    256 ;engine/src/ui.c:173: }
+    000000B4 C9               [10]  257 	ret
+                                    258 ;engine/src/ui.c:178: void UI_NewLineCenter(void)
+                                    259 ;	---------------------------------
+                                    260 ; Function UI_NewLineCenter
+                                    261 ; ---------------------------------
+    000000B5                        262 _UI_NewLineCenter::
+                                    263 ;engine/src/ui.c:180: g_CenterCursorX = 0;
+    000000B5 AF               [ 4]  264 	xor	a, a
+    000000B6 32r00r00         [13]  265 	ld	(#_g_CenterCursorX), a
+                                    266 ;engine/src/ui.c:181: g_CenterCursorY++;
+    000000B9 21r01r00         [10]  267 	ld	hl, #_g_CenterCursorY
+    000000BC 34               [11]  268 	inc	(hl)
+                                    269 ;engine/src/ui.c:183: if (g_CenterCursorY > SCREEN_ROW_CENTER_END)
+    000000BD 3E 14            [ 7]  270 	ld	a, #0x14
+    000000BF 21r01r00         [10]  271 	ld	hl, #_g_CenterCursorY
+    000000C2 96               [ 7]  272 	sub	a, (hl)
+    000000C3 D0               [11]  273 	ret	nc
+                                    274 ;engine/src/ui.c:191: Bios_SetCursor(0, SCREEN_ROW_CENTER_END);
+    000000C4 2E 14            [ 7]  275 	ld	l, #0x14
+    000000C6 AF               [ 4]  276 	xor	a, a
+    000000C7 CDr08r00         [17]  277 	call	_Bios_SetCursor
+                                    278 ;engine/src/ui.c:193: const char* msg = "-- Pressione tecla --";
+    000000CA 21rDFr00         [10]  279 	ld	hl, #___str_0+0
+                                    280 ;engine/src/ui.c:194: while (*msg) Bios_Chput(*msg++);
+    000000CD                        281 00101$:
+    000000CD 7E               [ 7]  282 	ld	a, (hl)
+    000000CE B7               [ 4]  283 	or	a, a
+    000000CF 28 08            [12]  284 	jr	z, 00103$
+    000000D1 23               [ 6]  285 	inc	hl
+    000000D2 E5               [11]  286 	push	hl
+    000000D3 CDr17r00         [17]  287 	call	_Bios_Chput
+    000000D6 E1               [10]  288 	pop	hl
+    000000D7 18 F4            [12]  289 	jr	00101$
+    000000D9                        290 00103$:
+                                    291 ;engine/src/ui.c:196: Bios_Chget();
+    000000D9 CDr20r00         [17]  292 	call	_Bios_Chget
+                                    293 ;engine/src/ui.c:197: UI_ClearCenter();
+                                    294 ;engine/src/ui.c:203: }
+    000000DC C3r8Er00         [10]  295 	jp	_UI_ClearCenter
+    000000DF                        296 ___str_0:
+    000000DF 2D 2D 20 50 72 65 73   297 	.ascii "-- Pressione tecla --"
+             73 69 6F 6E 65 20 74
+             65 63 6C 61 20 2D 2D
+    000000F4 00                     298 	.db 0x00
+                                    299 ;engine/src/ui.c:208: void UI_PrintCharCenter(char c)
+                                    300 ;	---------------------------------
+                                    301 ; Function UI_PrintCharCenter
+                                    302 ; ---------------------------------
+    000000F5                        303 _UI_PrintCharCenter::
+                                    304 ;engine/src/ui.c:210: if (c == '\n' || c == '\r')
+    000000F5 4F               [ 4]  305 	ld	c, a
+    000000F6 D6 0A            [ 7]  306 	sub	a, #0x0a
+    000000F8 CArB5r00         [10]  307 	jp	z, _UI_NewLineCenter
+    000000FB 79               [ 4]  308 	ld	a, c
+    000000FC D6 0D            [ 7]  309 	sub	a, #0x0d
+                                    310 ;engine/src/ui.c:212: UI_NewLineCenter();
+                                    311 ;engine/src/ui.c:213: return;
+    000000FE CArB5r00         [10]  312 	jp	z, _UI_NewLineCenter
+                                    313 ;engine/src/ui.c:220: Bios_SetCursor(g_CenterCursorX, g_CenterCursorY);
+    00000101 C5               [11]  314 	push	bc
+    00000102 3Ar01r00         [13]  315 	ld	a, (_g_CenterCursorY)
+    00000105 6F               [ 4]  316 	ld	l, a
+    00000106 3Ar00r00         [13]  317 	ld	a, (_g_CenterCursorX)
+    00000109 CDr08r00         [17]  318 	call	_Bios_SetCursor
+    0000010C C1               [10]  319 	pop	bc
+                                    320 ;engine/src/ui.c:221: Bios_Chput(c);
+    0000010D 79               [ 4]  321 	ld	a, c
+    0000010E CDr17r00         [17]  322 	call	_Bios_Chput
+                                    323 ;engine/src/ui.c:226: g_CenterCursorX++;
+    00000111 21r00r00         [10]  324 	ld	hl, #_g_CenterCursorX
+    00000114 34               [11]  325 	inc	(hl)
+                                    326 ;engine/src/ui.c:227: if (g_CenterCursorX >= SCREEN_TEXT_WIDTH)
+    00000115 3Ar00r00         [13]  327 	ld	a, (_g_CenterCursorX+0)
+    00000118 D6 28            [ 7]  328 	sub	a, #0x28
+                                    329 ;engine/src/ui.c:229: UI_NewLineCenter();
+    0000011A D2rB5r00         [10]  330 	jp	nc, _UI_NewLineCenter
+                                    331 ;engine/src/ui.c:231: }
+    0000011D C9               [10]  332 	ret
+                                    333 ;engine/src/ui.c:236: void UI_PrintCenter(const char* text)
+                                    334 ;	---------------------------------
+                                    335 ; Function UI_PrintCenter
+                                    336 ; ---------------------------------
+    0000011E                        337 _UI_PrintCenter::
+    0000011E EB               [ 4]  338 	ex	de, hl
+                                    339 ;engine/src/ui.c:238: if (text == NULL) return;
+    0000011F 7A               [ 4]  340 	ld	a, d
+    00000120 B3               [ 4]  341 	or	a, e
+                                    342 ;engine/src/ui.c:240: while (*text)
+    00000121 C8               [11]  343 	ret	z
+    00000122                        344 00103$:
+    00000122 1A               [ 7]  345 	ld	a, (de)
+    00000123 B7               [ 4]  346 	or	a, a
+    00000124 C8               [11]  347 	ret	z
+                                    348 ;engine/src/ui.c:242: UI_PrintCharCenter(*text);
+    00000125 D5               [11]  349 	push	de
+    00000126 CDrF5r00         [17]  350 	call	_UI_PrintCharCenter
+    00000129 D1               [10]  351 	pop	de
+                                    352 ;engine/src/ui.c:243: text++;
+    0000012A 13               [ 6]  353 	inc	de
+                                    354 ;engine/src/ui.c:245: }
+    0000012B 18 F5            [12]  355 	jr	00103$
+                                    356 ;engine/src/ui.c:250: void UI_PrintNumberCenter(u8 value)
+                                    357 ;	---------------------------------
+                                    358 ; Function UI_PrintNumberCenter
+                                    359 ; ---------------------------------
+    0000012D                        360 _UI_PrintNumberCenter::
+    0000012D DD E5            [15]  361 	push	ix
+    0000012F DD 21 00 00      [14]  362 	ld	ix,	#0
+    00000133 DD 39            [15]  363 	add	ix, sp
+    00000135 21 FB FF         [10]  364 	ld	hl, #-5
+    00000138 39               [11]  365 	add	hl, sp
+    00000139 F9               [ 6]  366 	ld	sp, hl
+                                    367 ;engine/src/ui.c:256: buf[idx++] = '0' + (value / 100);
+                                    368 ;engine/src/ui.c:254: if (value >= 100)
+    0000013A 4F               [ 4]  369 	ld	c,a
+    0000013B 5F               [ 4]  370 	ld	e,a
+    0000013C D6 64            [ 7]  371 	sub	a, #0x64
+    0000013E 38 34            [12]  372 	jr	c, 00105$
+                                    373 ;engine/src/ui.c:256: buf[idx++] = '0' + (value / 100);
+    00000140 D5               [11]  374 	push	de
+    00000141 2E 64            [ 7]  375 	ld	l, #0x64
+    00000143 7B               [ 4]  376 	ld	a, e
+    00000144 CDr00r00         [17]  377 	call	__divuchar
+    00000147 7B               [ 4]  378 	ld	a, e
+    00000148 D1               [10]  379 	pop	de
+    00000149 C6 30            [ 7]  380 	add	a, #0x30
+    0000014B DD 77 FB         [19]  381 	ld	-5 (ix), a
+                                    382 ;engine/src/ui.c:257: value %= 100;
+    0000014E 2E 64            [ 7]  383 	ld	l, #0x64
+    00000150 7B               [ 4]  384 	ld	a, e
+    00000151 CDr00r00         [17]  385 	call	__moduchar
+                                    386 ;engine/src/ui.c:258: buf[idx++] = '0' + (value / 10);
+    00000154 D5               [11]  387 	push	de
+    00000155 2E 0A            [ 7]  388 	ld	l, #0x0a
+    00000157 7B               [ 4]  389 	ld	a, e
+    00000158 CDr00r00         [17]  390 	call	__divuchar
+    0000015B 7B               [ 4]  391 	ld	a, e
+    0000015C D1               [10]  392 	pop	de
+    0000015D C6 30            [ 7]  393 	add	a, #0x30
+    0000015F DD 77 FC         [19]  394 	ld	-4 (ix), a
+                                    395 ;engine/src/ui.c:259: buf[idx++] = '0' + (value % 10);
+    00000162 DD 36 FF 03      [19]  396 	ld	-1 (ix), #0x03
+    00000166 2E 0A            [ 7]  397 	ld	l, #0x0a
+    00000168 7B               [ 4]  398 	ld	a, e
+    00000169 CDr00r00         [17]  399 	call	__moduchar
+    0000016C 7B               [ 4]  400 	ld	a, e
+    0000016D C6 30            [ 7]  401 	add	a, #0x30
+    0000016F DD 77 FD         [19]  402 	ld	-3 (ix), a
+    00000172 18 2F            [12]  403 	jr	00106$
+    00000174                        404 00105$:
+                                    405 ;engine/src/ui.c:261: else if (value >= 10)
+    00000174 79               [ 4]  406 	ld	a, c
+    00000175 D6 0A            [ 7]  407 	sub	a, #0x0a
+    00000177 38 20            [12]  408 	jr	c, 00102$
+                                    409 ;engine/src/ui.c:263: buf[idx++] = '0' + (value / 10);
+    00000179 D5               [11]  410 	push	de
+    0000017A 2E 0A            [ 7]  411 	ld	l, #0x0a
+    0000017C 7B               [ 4]  412 	ld	a, e
+    0000017D CDr00r00         [17]  413 	call	__divuchar
+    00000180 7B               [ 4]  414 	ld	a, e
+    00000181 D1               [10]  415 	pop	de
+    00000182 C6 30            [ 7]  416 	add	a, #0x30
+    00000184 DD 77 FB         [19]  417 	ld	-5 (ix), a
+                                    418 ;engine/src/ui.c:264: buf[idx++] = '0' + (value % 10);
+    00000187 DD 36 FF 02      [19]  419 	ld	-1 (ix), #0x02
+    0000018B 2E 0A            [ 7]  420 	ld	l, #0x0a
+    0000018D 7B               [ 4]  421 	ld	a, e
+    0000018E CDr00r00         [17]  422 	call	__moduchar
+    00000191 7B               [ 4]  423 	ld	a, e
+    00000192 C6 30            [ 7]  424 	add	a, #0x30
+    00000194 DD 77 FC         [19]  425 	ld	-4 (ix), a
+    00000197 18 0A            [12]  426 	jr	00106$
+    00000199                        427 00102$:
+                                    428 ;engine/src/ui.c:268: buf[idx++] = '0' + value;
+    00000199 DD 36 FF 01      [19]  429 	ld	-1 (ix), #0x01
+    0000019D 79               [ 4]  430 	ld	a, c
+    0000019E C6 30            [ 7]  431 	add	a, #0x30
+    000001A0 DD 77 FB         [19]  432 	ld	-5 (ix), a
+    000001A3                        433 00106$:
+                                    434 ;engine/src/ui.c:270: buf[idx] = '\0';
+    000001A3 21 00 00         [10]  435 	ld	hl, #0
+    000001A6 39               [11]  436 	add	hl, sp
+    000001A7 EB               [ 4]  437 	ex	de, hl
+    000001A8 DD 6E FF         [19]  438 	ld	l, -1 (ix)
+    000001AB 26 00            [ 7]  439 	ld	h, #0x00
+    000001AD 19               [11]  440 	add	hl, de
+    000001AE 36 00            [10]  441 	ld	(hl), #0x00
+                                    442 ;engine/src/ui.c:271: UI_PrintCenter(buf);
+    000001B0 EB               [ 4]  443 	ex	de, hl
+    000001B1 CDr1Er01         [17]  444 	call	_UI_PrintCenter
+                                    445 ;engine/src/ui.c:272: }
+    000001B4 DD F9            [10]  446 	ld	sp, ix
+    000001B6 DD E1            [14]  447 	pop	ix
+    000001B8 C9               [10]  448 	ret
+                                    449 ;engine/src/ui.c:277: void UI_ReadLine(char* buffer, u8 max_len)
+                                    450 ;	---------------------------------
+                                    451 ; Function UI_ReadLine
+                                    452 ; ---------------------------------
+    000001B9                        453 _UI_ReadLine::
+    000001B9 DD E5            [15]  454 	push	ix
+    000001BB DD 21 00 00      [14]  455 	ld	ix,	#0
+    000001BF DD 39            [15]  456 	add	ix, sp
+    000001C1 F5               [11]  457 	push	af
+    000001C2 F5               [11]  458 	push	af
+    000001C3 DD 75 FE         [19]  459 	ld	-2 (ix), l
+    000001C6 DD 74 FF         [19]  460 	ld	-1 (ix), h
+                                    461 ;engine/src/ui.c:279: u8 len = 0;
+    000001C9 0E 00            [ 7]  462 	ld	c, #0x00
+                                    463 ;engine/src/ui.c:282: if (max_len == 0 || buffer == NULL) return;
+    000001CB DD 7E 04         [19]  464 	ld	a, 4 (ix)
+    000001CE B7               [ 4]  465 	or	a, a
+    000001CF CAr7Fr02         [10]  466 	jp	z, 00128$
+    000001D2 DD 7E FF         [19]  467 	ld	a, -1 (ix)
+    000001D5 DD B6 FE         [19]  468 	or	a, -2 (ix)
+    000001D8 CAr7Fr02         [10]  469 	jp	z, 00128$
+                                    470 ;engine/src/ui.c:292: Bios_SetCursor(0, SCREEN_ROW_BOTTOM_START);
+    000001DB C5               [11]  471 	push	bc
+    000001DC 2E 16            [ 7]  472 	ld	l, #0x16
+    000001DE AF               [ 4]  473 	xor	a, a
+    000001DF CDr08r00         [17]  474 	call	_Bios_SetCursor
+    000001E2 C1               [10]  475 	pop	bc
+                                    476 ;engine/src/ui.c:293: for (x = 0; x < SCREEN_TEXT_WIDTH; x++) Bios_Chput(' ');
+    000001E3 06 00            [ 7]  477 	ld	b, #0x00
+    000001E5                        478 00126$:
+    000001E5 C5               [11]  479 	push	bc
+    000001E6 3E 20            [ 7]  480 	ld	a, #0x20
+    000001E8 CDr17r00         [17]  481 	call	_Bios_Chput
+    000001EB C1               [10]  482 	pop	bc
+    000001EC 04               [ 4]  483 	inc	b
+    000001ED 78               [ 4]  484 	ld	a, b
+    000001EE D6 28            [ 7]  485 	sub	a, #0x28
+    000001F0 38 F3            [12]  486 	jr	c, 00126$
+                                    487 ;engine/src/ui.c:294: Bios_SetCursor(0, SCREEN_ROW_BOTTOM_START);
+    000001F2 C5               [11]  488 	push	bc
+    000001F3 2E 16            [ 7]  489 	ld	l, #0x16
+    000001F5 AF               [ 4]  490 	xor	a, a
+    000001F6 CDr08r00         [17]  491 	call	_Bios_SetCursor
+                                    492 ;engine/src/ui.c:295: Bios_Chput('>');
+    000001F9 3E 3E            [ 7]  493 	ld	a, #0x3e
+    000001FB CDr17r00         [17]  494 	call	_Bios_Chput
+                                    495 ;engine/src/ui.c:296: Bios_Chput(' ');
+    000001FE 3E 20            [ 7]  496 	ld	a, #0x20
+    00000200 CDr17r00         [17]  497 	call	_Bios_Chput
+    00000203 C1               [10]  498 	pop	bc
+                                    499 ;engine/src/ui.c:299: while (TRUE)
+    00000204                        500 00124$:
+                                    501 ;engine/src/ui.c:305: ch = Bios_Chget();
+    00000204 C5               [11]  502 	push	bc
+    00000205 CDr20r00         [17]  503 	call	_Bios_Chget
+    00000208 5F               [ 4]  504 	ld	e, a
+    00000209 C1               [10]  505 	pop	bc
+                                    506 ;engine/src/ui.c:332: buffer[len] = ch;
+    0000020A DD 7E FE         [19]  507 	ld	a, -2 (ix)
+    0000020D 81               [ 4]  508 	add	a, c
+    0000020E DD 77 FC         [19]  509 	ld	-4 (ix), a
+    00000211 DD 7E FF         [19]  510 	ld	a, -1 (ix)
+    00000214 CE 00            [ 7]  511 	adc	a, #0x00
+    00000216 DD 77 FD         [19]  512 	ld	-3 (ix), a
+                                    513 ;engine/src/ui.c:308: if (ch == 13 || ch == 10) // ENTER
+    00000219 7B               [ 4]  514 	ld	a, e
+    0000021A D6 0D            [ 7]  515 	sub	a, #0x0d
+    0000021C 28 5D            [12]  516 	jr	z, 00125$
+    0000021E 7B               [ 4]  517 	ld	a, e
+    0000021F D6 0A            [ 7]  518 	sub	a, #0x0a
+    00000221 28 58            [12]  519 	jr	z, 00125$
+                                    520 ;engine/src/ui.c:312: else if (ch == 8 || ch == 127) // Backspace / DEL
+    00000223 7B               [ 4]  521 	ld	a, e
+    00000224 FE 08            [ 7]  522 	cp	a, #0x08
+    00000226 28 04            [12]  523 	jr	z, 00115$
+    00000228 D6 7F            [ 7]  524 	sub	a, #0x7f
+    0000022A 20 16            [12]  525 	jr	nz, 00116$
+    0000022C                        526 00115$:
+                                    527 ;engine/src/ui.c:314: if (len > 0)
+    0000022C 79               [ 4]  528 	ld	a, c
+    0000022D B7               [ 4]  529 	or	a, a
+    0000022E 28 D4            [12]  530 	jr	z, 00124$
+                                    531 ;engine/src/ui.c:316: len--;
+    00000230 0D               [ 4]  532 	dec	c
+                                    533 ;engine/src/ui.c:321: Bios_SetCursor(2 + len, SCREEN_ROW_BOTTOM_START);
+    00000231 79               [ 4]  534 	ld	a, c
+    00000232 C6 02            [ 7]  535 	add	a, #0x02
+    00000234 C5               [11]  536 	push	bc
+    00000235 2E 16            [ 7]  537 	ld	l, #0x16
+    00000237 CDr08r00         [17]  538 	call	_Bios_SetCursor
+                                    539 ;engine/src/ui.c:322: Bios_Chput(' ');
+    0000023A 3E 20            [ 7]  540 	ld	a, #0x20
+    0000023C CDr17r00         [17]  541 	call	_Bios_Chput
+    0000023F C1               [10]  542 	pop	bc
+    00000240 18 C2            [12]  543 	jr	00124$
+    00000242                        544 00116$:
+                                    545 ;engine/src/ui.c:326: else if (ch >= 32 && ch < 127 && len < (max_len - 1) && len < (SCREEN_TEXT_WIDTH - 4))
+    00000242 7B               [ 4]  546 	ld	a, e
+    00000243 FE 20            [ 7]  547 	cp	a, #0x20
+    00000245 38 BD            [12]  548 	jr	c, 00124$
+    00000247 D6 7F            [ 7]  549 	sub	a, #0x7f
+    00000249 30 B9            [12]  550 	jr	nc, 00124$
+    0000024B DD 46 04         [19]  551 	ld	b, 4 (ix)
+    0000024E 05               [ 4]  552 	dec	b
+    0000024F 79               [ 4]  553 	ld	a, c
+    00000250 B8               [ 4]  554 	cp	a, b
+    00000251 30 B1            [12]  555 	jr	nc, 00124$
+    00000253 D6 24            [ 7]  556 	sub	a, #0x24
+    00000255 30 AD            [12]  557 	jr	nc, 00124$
+                                    558 ;engine/src/ui.c:328: if (ch >= 'a' && ch <= 'z')
+    00000257 7B               [ 4]  559 	ld	a, e
+    00000258 D6 61            [ 7]  560 	sub	a, #0x61
+    0000025A 38 09            [12]  561 	jr	c, 00108$
+    0000025C 3E 7A            [ 7]  562 	ld	a, #0x7a
+    0000025E 93               [ 4]  563 	sub	a, e
+    0000025F 38 04            [12]  564 	jr	c, 00108$
+                                    565 ;engine/src/ui.c:330: ch = ch - ('a' - 'A');
+    00000261 7B               [ 4]  566 	ld	a, e
+    00000262 C6 E0            [ 7]  567 	add	a, #0xe0
+    00000264 5F               [ 4]  568 	ld	e, a
+    00000265                        569 00108$:
+                                    570 ;engine/src/ui.c:332: buffer[len] = ch;
+    00000265 E1               [10]  571 	pop	hl
+    00000266 E5               [11]  572 	push	hl
+    00000267 73               [ 7]  573 	ld	(hl), e
+                                    574 ;engine/src/ui.c:337: Bios_SetCursor(2 + len, SCREEN_ROW_BOTTOM_START);
+    00000268 79               [ 4]  575 	ld	a, c
+    00000269 C6 02            [ 7]  576 	add	a, #0x02
+    0000026B C5               [11]  577 	push	bc
+    0000026C D5               [11]  578 	push	de
+    0000026D 2E 16            [ 7]  579 	ld	l, #0x16
+    0000026F CDr08r00         [17]  580 	call	_Bios_SetCursor
+    00000272 D1               [10]  581 	pop	de
+                                    582 ;engine/src/ui.c:338: Bios_Chput(ch);
+    00000273 7B               [ 4]  583 	ld	a, e
+    00000274 CDr17r00         [17]  584 	call	_Bios_Chput
+    00000277 C1               [10]  585 	pop	bc
+                                    586 ;engine/src/ui.c:340: len++;
+    00000278 0C               [ 4]  587 	inc	c
+    00000279 18 89            [12]  588 	jr	00124$
+    0000027B                        589 00125$:
+                                    590 ;engine/src/ui.c:343: buffer[len] = '\0';
+    0000027B E1               [10]  591 	pop	hl
+    0000027C 36 00            [10]  592 	ld	(hl), #0x00
+    0000027E E5               [11]  593 	push	hl
+    0000027F                        594 00128$:
+                                    595 ;engine/src/ui.c:357: }
+    0000027F DD F9            [10]  596 	ld	sp, ix
+    00000281 DD E1            [14]  597 	pop	ix
+    00000283 E1               [10]  598 	pop	hl
+    00000284 33               [ 6]  599 	inc	sp
+    00000285 E9               [ 4]  600 	jp	(hl)
+                                    601 ;engine/src/ui.c:362: void UI_PauseSeconds(u8 seconds)
+                                    602 ;	---------------------------------
+                                    603 ; Function UI_PauseSeconds
+                                    604 ; ---------------------------------
+    00000286                        605 _UI_PauseSeconds::
+                                    606 ;engine/src/ui.c:368: u16 i, frames = (u16)seconds * 60;
+    00000286 4F               [ 4]  607 	ld	c, a
+    00000287 06 00            [ 7]  608 	ld	b, #0x00
+    00000289 69               [ 4]  609 	ld	l, c
+    0000028A 60               [ 4]  610 	ld	h, b
+    0000028B 29               [11]  611 	add	hl, hl
+    0000028C 09               [11]  612 	add	hl, bc
+    0000028D 29               [11]  613 	add	hl, hl
+    0000028E 09               [11]  614 	add	hl, bc
+    0000028F 29               [11]  615 	add	hl, hl
+    00000290 09               [11]  616 	add	hl, bc
+    00000291 29               [11]  617 	add	hl, hl
+    00000292 29               [11]  618 	add	hl, hl
+                                    619 ;engine/src/ui.c:369: for (i = 0; i < frames; i++) Bios_WaitFrame();
+    00000293 01 00 00         [10]  620 	ld	bc, #0x0000
+    00000296                        621 00103$:
+    00000296 79               [ 4]  622 	ld	a, c
+    00000297 95               [ 4]  623 	sub	a, l
+    00000298 78               [ 4]  624 	ld	a, b
+    00000299 9C               [ 4]  625 	sbc	a, h
+    0000029A D0               [11]  626 	ret	nc
+    0000029B E5               [11]  627 	push	hl
+    0000029C C5               [11]  628 	push	bc
+    0000029D CDr25r00         [17]  629 	call	_Bios_WaitFrame
+    000002A0 C1               [10]  630 	pop	bc
+    000002A1 E1               [10]  631 	pop	hl
+    000002A2 03               [ 6]  632 	inc	bc
+                                    633 ;engine/src/ui.c:373: }
+    000002A3 18 F1            [12]  634 	jr	00103$
+                                    635 	.area _CODE
+                                    636 	.area _INITIALIZER
+    00000000                        637 __xinit__g_CenterCursorX:
+    00000000 00                     638 	.db #0x00	; 0
+    00000001                        639 __xinit__g_CenterCursorY:
+    00000001 02                     640 	.db #0x02	; 2
+                                    641 	.area _CABS (ABS)

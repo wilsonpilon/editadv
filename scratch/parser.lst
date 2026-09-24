@@ -1,0 +1,1047 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ISO C Compiler
+                                      3 ; Version 4.6.0 #16555 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module parser
+                                      6 	
+                                      7 	.optsdcc -mz80 sdcccall(1)
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _strlen
+                                     12 	.globl _strcmp
+                                     13 	.globl _strncat
+                                     14 	.globl _Parser_IsNoiseWord
+                                     15 	.globl _Parser_Parse
+                                     16 ;--------------------------------------------------------
+                                     17 ; special function registers
+                                     18 ;--------------------------------------------------------
+                                     19 ;--------------------------------------------------------
+                                     20 ; ram data
+                                     21 ;--------------------------------------------------------
+                                     22 	.area _DATA
+                                     23 ;--------------------------------------------------------
+                                     24 ; ram data
+                                     25 ;--------------------------------------------------------
+                                     26 	.area _INITIALIZED
+                                     27 ;--------------------------------------------------------
+                                     28 ; absolute ram data
+                                     29 ;--------------------------------------------------------
+                                     30 	.area _DABS (ABS)
+                                     31 	.area _DABS (ABS)
+                                     32 ;--------------------------------------------------------
+                                     33 ; global & static initialisations
+                                     34 ;--------------------------------------------------------
+                                     35 	.area _HOME
+                                     36 	.area _GSINIT
+                                     37 	.area _GSFINAL
+                                     38 	.area _GSINIT
+                                     39 ;--------------------------------------------------------
+                                     40 ; Home
+                                     41 ;--------------------------------------------------------
+                                     42 	.area _HOME
+                                     43 	.area _HOME
+                                     44 ;--------------------------------------------------------
+                                     45 ; code
+                                     46 ;--------------------------------------------------------
+                                     47 	.area _CODE
+                                     48 ;engine/src/parser.c:55: static bool MatchWord(const char* word, const char* synonyms)
+                                     49 ;	---------------------------------
+                                     50 ; Function MatchWord
+                                     51 ; ---------------------------------
+    00000000                         52 _MatchWord:
+    00000000 DD E5            [15]   53 	push	ix
+    00000002 DD 21 00 00      [14]   54 	ld	ix,	#0
+    00000006 DD 39            [15]   55 	add	ix, sp
+    00000008 F5               [11]   56 	push	af
+    00000009 F5               [11]   57 	push	af
+    0000000A F5               [11]   58 	push	af
+    0000000B 4D               [ 4]   59 	ld	c, l
+    0000000C 44               [ 4]   60 	ld	b, h
+    0000000D DD 73 FD         [19]   61 	ld	-3 (ix), e
+    00000010 DD 72 FE         [19]   62 	ld	-2 (ix), d
+                                     63 ;engine/src/parser.c:61: if (word == NULL || synonyms == NULL) return FALSE;
+    00000013 78               [ 4]   64 	ld	a, b
+    00000014 B1               [ 4]   65 	or	a, c
+    00000015 28 08            [12]   66 	jr	z, 00101$
+    00000017 DD 7E FE         [19]   67 	ld	a, -2 (ix)
+    0000001A DD B6 FD         [19]   68 	or	a, -3 (ix)
+    0000001D 20 04            [12]   69 	jr	nz, 00102$
+    0000001F                         70 00101$:
+    0000001F AF               [ 4]   71 	xor	a, a
+    00000020 C3rABr00         [10]   72 	jp	00128$
+    00000023                         73 00102$:
+                                     74 ;engine/src/parser.c:63: while (word[wlen]) wlen++;
+    00000023 16 00            [ 7]   75 	ld	d, #0x00
+    00000025                         76 00104$:
+    00000025 6A               [ 4]   77 	ld	l, d
+    00000026 26 00            [ 7]   78 	ld	h, #0x00
+    00000028 09               [11]   79 	add	hl, bc
+    00000029 7E               [ 7]   80 	ld	a, (hl)
+    0000002A B7               [ 4]   81 	or	a, a
+    0000002B 28 03            [12]   82 	jr	z, 00160$
+    0000002D 14               [ 4]   83 	inc	d
+    0000002E 18 F5            [12]   84 	jr	00104$
+    00000030                         85 00160$:
+    00000030 5A               [ 4]   86 	ld	e, d
+                                     87 ;engine/src/parser.c:64: if (wlen == 0) return FALSE;
+    00000031 7A               [ 4]   88 	ld	a, d
+    00000032 B7               [ 4]   89 	or	a,a
+    00000033 28 76            [12]   90 	jr	z, 00128$
+                                     91 ;engine/src/parser.c:66: p = synonyms;
+    00000035 FD E5            [15]   92 	push	iy
+    00000037 E3               [19]   93 	ex	(sp), hl
+    00000038 DD 6E FD         [19]   94 	ld	l, -3 (ix)
+    0000003B E3               [19]   95 	ex	(sp), hl
+    0000003C E3               [19]   96 	ex	(sp), hl
+    0000003D DD 66 FE         [19]   97 	ld	h, -2 (ix)
+    00000040 E3               [19]   98 	ex	(sp), hl
+    00000041 FD E1            [14]   99 	pop	iy
+                                    100 ;engine/src/parser.c:67: while (*p)
+    00000043                        101 00122$:
+    00000043 FD 7E 00         [19]  102 	ld	a, (iy)
+    00000046 B7               [ 4]  103 	or	a, a
+    00000047 28 61            [12]  104 	jr	z, 00124$
+                                    105 ;engine/src/parser.c:69: start = p;
+    00000049 E1               [10]  106 	pop	hl
+    0000004A FD E5            [15]  107 	push	iy
+                                    108 ;engine/src/parser.c:70: while (*p && *p != '/') p++;
+    0000004C FD E5            [15]  109 	push	iy
+    0000004E E1               [10]  110 	pop	hl
+    0000004F                        111 00110$:
+    0000004F 7E               [ 7]  112 	ld	a, (hl)
+    00000050 B7               [ 4]  113 	or	a, a
+    00000051 28 07            [12]  114 	jr	z, 00161$
+    00000053 FE 2F            [ 7]  115 	cp	a, #0x2f
+    00000055 28 03            [12]  116 	jr	z, 00161$
+    00000057 23               [ 6]  117 	inc	hl
+    00000058 18 F5            [12]  118 	jr	00110$
+    0000005A                        119 00161$:
+    0000005A E5               [11]  120 	push	hl
+    0000005B FD E1            [14]  121 	pop	iy
+                                    122 ;engine/src/parser.c:71: slen = (u8)(p - start);
+    0000005D DD 56 FA         [19]  123 	ld	d, -6 (ix)
+    00000060 7D               [ 4]  124 	ld	a, l
+    00000061 92               [ 4]  125 	sub	a, d
+                                    126 ;engine/src/parser.c:73: if (wlen == slen)
+    00000062 93               [ 4]  127 	sub	a, e
+    00000063 20 3A            [12]  128 	jr	nz, 00119$
+                                    129 ;engine/src/parser.c:76: bool match = TRUE;
+    00000065 16 01            [ 7]  130 	ld	d, #0x01
+                                    131 ;engine/src/parser.c:77: for (i = 0; i < wlen; i++)
+    00000067 DD 36 FF 00      [19]  132 	ld	-1 (ix), #0x00
+    0000006B                        133 00126$:
+    0000006B DD 7E FF         [19]  134 	ld	a, -1 (ix)
+    0000006E 93               [ 4]  135 	sub	a, e
+    0000006F 30 26            [12]  136 	jr	nc, 00115$
+                                    137 ;engine/src/parser.c:79: if (word[i] != start[i])
+    00000071 DD 6E FF         [19]  138 	ld	l, -1 (ix)
+    00000074 26 00            [ 7]  139 	ld	h, #0x00
+    00000076 09               [11]  140 	add	hl, bc
+    00000077 7E               [ 7]  141 	ld	a, (hl)
+    00000078 DD 77 FC         [19]  142 	ld	-4 (ix), a
+    0000007B DD 7E FA         [19]  143 	ld	a, -6 (ix)
+    0000007E DD 86 FF         [19]  144 	add	a, -1 (ix)
+    00000081 6F               [ 4]  145 	ld	l, a
+    00000082 DD 7E FB         [19]  146 	ld	a, -5 (ix)
+    00000085 CE 00            [ 7]  147 	adc	a, #0x00
+    00000087 67               [ 4]  148 	ld	h, a
+    00000088 7E               [ 7]  149 	ld	a, (hl)
+    00000089 DD 96 FC         [19]  150 	sub	a, -4 (ix)
+    0000008C 28 04            [12]  151 	jr	z, 00127$
+                                    152 ;engine/src/parser.c:81: match = FALSE;
+    0000008E 16 00            [ 7]  153 	ld	d, #0x00
+                                    154 ;engine/src/parser.c:82: break;
+    00000090 18 05            [12]  155 	jr	00115$
+    00000092                        156 00127$:
+                                    157 ;engine/src/parser.c:77: for (i = 0; i < wlen; i++)
+    00000092 DD 34 FF         [23]  158 	inc	-1 (ix)
+    00000095 18 D4            [12]  159 	jr	00126$
+    00000097                        160 00115$:
+                                    161 ;engine/src/parser.c:85: if (match) return TRUE;
+    00000097 7A               [ 4]  162 	ld	a, d
+    00000098 B7               [ 4]  163 	or	a, a
+    00000099 28 04            [12]  164 	jr	z, 00119$
+    0000009B 3E 01            [ 7]  165 	ld	a, #0x01
+    0000009D 18 0C            [12]  166 	jr	00128$
+    0000009F                        167 00119$:
+                                    168 ;engine/src/parser.c:88: if (*p == '/') p++;
+    0000009F FD 7E 00         [19]  169 	ld	a, (iy)
+    000000A2 FE 2F            [ 7]  170 	cp	a, #0x2f
+    000000A4 20 9D            [12]  171 	jr	nz, 00122$
+    000000A6 FD 23            [10]  172 	inc	iy
+    000000A8 18 99            [12]  173 	jr	00122$
+    000000AA                        174 00124$:
+                                    175 ;engine/src/parser.c:91: return FALSE;
+    000000AA AF               [ 4]  176 	xor	a, a
+    000000AB                        177 00128$:
+                                    178 ;engine/src/parser.c:92: }
+    000000AB DD F9            [10]  179 	ld	sp, ix
+    000000AD DD E1            [14]  180 	pop	ix
+    000000AF C9               [10]  181 	ret
+    000000B0                        182 _g_DefaultVerbs:
+    000000B0rF4r00                  183 	.dw __str_0
+    000000B2rFCr00                  184 	.dw __str_1
+    000000B4r02r01                  185 	.dw __str_2
+    000000B6r0Ar01                  186 	.dw __str_3
+    000000B8r12r01                  187 	.dw __str_4
+    000000BAr18r01                  188 	.dw __str_5
+    000000BCr21r01                  189 	.dw __str_6
+    000000BEr27r01                  190 	.dw __str_7
+    000000C0r2Cr01                  191 	.dw __str_8
+    000000C2r31r01                  192 	.dw __str_9
+    000000C4r37r01                  193 	.dw __str_10
+    000000C6r3Dr01                  194 	.dw __str_11
+    000000C8r44r01                  195 	.dw __str_12
+    000000CAr50r01                  196 	.dw __str_13
+    000000CCr62r01                  197 	.dw __str_14
+    000000CEr65r01                  198 	.dw __str_15
+    000000D0r6Dr01                  199 	.dw __str_16
+    000000D2r73r01                  200 	.dw __str_17
+    000000D4r79r01                  201 	.dw __str_18
+    000000D6r7Fr01                  202 	.dw __str_19
+    000000D8r92r01                  203 	.dw __str_20
+    000000DArA7r01                  204 	.dw __str_21
+    000000DCrAEr01                  205 	.dw __str_22
+    000000DErB5r01                  206 	.dw __str_23
+    000000E0rBBr01                  207 	.dw __str_24
+    000000E2rC0r01                  208 	.dw __str_25
+    000000E4rC7r01                  209 	.dw __str_26
+    000000E6rDAr01                  210 	.dw __str_27
+    000000E8rEDr01                  211 	.dw __str_28
+    000000EArFCr01                  212 	.dw __str_29
+    000000ECr0Br02                  213 	.dw __str_30
+    000000EEr19r02                  214 	.dw __str_31
+    000000F0r25r02                  215 	.dw __str_32
+    000000F2r35r02                  216 	.dw __str_33
+    000000F4                        217 __str_0:
+    000000F4 4E 4F 52 54 45 2F 4E   218 	.ascii "NORTE/N"
+    000000FB 00                     219 	.db 0x00
+    000000FC                        220 __str_1:
+    000000FC 53 55 4C 2F 53         221 	.ascii "SUL/S"
+    00000101 00                     222 	.db 0x00
+    00000102                        223 __str_2:
+    00000102 4C 45 53 54 45 2F 4C   224 	.ascii "LESTE/L"
+    00000109 00                     225 	.db 0x00
+    0000010A                        226 __str_3:
+    0000010A 4F 45 53 54 45 2F 4F   227 	.ascii "OESTE/O"
+    00000111 00                     228 	.db 0x00
+    00000112                        229 __str_4:
+    00000112 47 52 41 56 45         230 	.ascii "GRAVE"
+    00000117 00                     231 	.db 0x00
+    00000118                        232 __str_5:
+    00000118 52 45 43 55 50 45 52   233 	.ascii "RECUPERE"
+             45
+    00000120 00                     234 	.db 0x00
+    00000121                        235 __str_6:
+    00000121 45 4E 54 52 45         236 	.ascii "ENTRE"
+    00000126 00                     237 	.db 0x00
+    00000127                        238 __str_7:
+    00000127 53 55 42 41            239 	.ascii "SUBA"
+    0000012B 00                     240 	.db 0x00
+    0000012C                        241 __str_8:
+    0000012C 53 41 49 41            242 	.ascii "SAIA"
+    00000130 00                     243 	.db 0x00
+    00000131                        244 __str_9:
+    00000131 44 45 53 43 41         245 	.ascii "DESCA"
+    00000136 00                     246 	.db 0x00
+    00000137                        247 __str_10:
+    00000137 48 4F 52 41 53         248 	.ascii "HORAS"
+    0000013C 00                     249 	.db 0x00
+    0000013D                        250 __str_11:
+    0000013D 51 55 41 4E 54 4F      251 	.ascii "QUANTO"
+    00000143 00                     252 	.db 0x00
+    00000144                        253 __str_12:
+    00000144 54 45 4D 4F 53 2F 49   254 	.ascii "TEMOS/INV/I"
+             4E 56 2F 49
+    0000014F 00                     255 	.db 0x00
+    00000150                        256 __str_13:
+    00000150 52 45 43 4F 4D 45 43   257 	.ascii "RECOMECE/REINICIE"
+             45 2F 52 45 49 4E 49
+             43 49 45
+    00000161 00                     258 	.db 0x00
+    00000162                        259 __str_14:
+    00000162 48 41                  260 	.ascii "HA"
+    00000164 00                     261 	.db 0x00
+    00000165                        262 __str_15:
+    00000165 47 41 52 49 4D 50 45   263 	.ascii "GARIMPE"
+    0000016C 00                     264 	.db 0x00
+    0000016D                        265 __str_16:
+    0000016D 50 45 4E 53 45         266 	.ascii "PENSE"
+    00000172 00                     267 	.db 0x00
+    00000173                        268 __str_17:
+    00000173 47 52 49 54 45         269 	.ascii "GRITE"
+    00000178 00                     270 	.db 0x00
+    00000179                        271 __str_18:
+    00000179 43 4F 52 52 41         272 	.ascii "CORRA"
+    0000017E 00                     273 	.db 0x00
+    0000017F                        274 __str_19:
+    0000017F 50 45 47 55 45 2F 50   275 	.ascii "PEGUE/PEGAR/APANHE"
+             45 47 41 52 2F 41 50
+             41 4E 48 45
+    00000191 00                     276 	.db 0x00
+    00000192                        277 __str_20:
+    00000192 43 4F 4C 4F 51 55 45   278 	.ascii "COLOQUE/PONHA/GUARDE"
+             2F 50 4F 4E 48 41 2F
+             47 55 41 52 44 45
+    000001A6 00                     279 	.db 0x00
+    000001A7                        280 __str_21:
+    000001A7 54 52 4F 51 55 45      281 	.ascii "TROQUE"
+    000001AD 00                     282 	.db 0x00
+    000001AE                        283 __str_22:
+    000001AE 43 4F 4D 50 52 45      284 	.ascii "COMPRE"
+    000001B4 00                     285 	.db 0x00
+    000001B5                        286 __str_23:
+    000001B5 52 4F 55 42 45         287 	.ascii "ROUBE"
+    000001BA 00                     288 	.db 0x00
+    000001BB                        289 __str_24:
+    000001BB 54 49 52 45            290 	.ascii "TIRE"
+    000001BF 00                     291 	.db 0x00
+    000001C0                        292 __str_25:
+    000001C0 51 55 45 42 52 45      293 	.ascii "QUEBRE"
+    000001C6 00                     294 	.db 0x00
+    000001C7                        295 __str_26:
+    000001C7 53 4F 4C 54 45 2F 4C   296 	.ascii "SOLTE/LARGUE/DEIXE"
+             41 52 47 55 45 2F 44
+             45 49 58 45
+    000001D9 00                     297 	.db 0x00
+    000001DA                        298 __str_27:
+    000001DA 45 58 41 4D 49 4E 45   299 	.ascii "EXAMINE/OLHE/VER/L"
+             2F 4F 4C 48 45 2F 56
+             45 52 2F 4C
+    000001EC 00                     300 	.db 0x00
+    000001ED                        301 __str_28:
+    000001ED 50 52 4F 43 55 52 45   302 	.ascii "PROCURE/BUSQUE"
+             2F 42 55 53 51 55 45
+    000001FB 00                     303 	.db 0x00
+    000001FC                        304 __str_29:
+    000001FC 4F 46 45 52 45 43 41   305 	.ascii "OFERECA/DOE/DE"
+             2F 44 4F 45 2F 44 45
+    0000020A 00                     306 	.db 0x00
+    0000020B                        307 __str_30:
+    0000020B 46 41 43 41 2F 43 4F   308 	.ascii "FACA/CONSTRUA"
+             4E 53 54 52 55 41
+    00000218 00                     309 	.db 0x00
+    00000219                        310 __str_31:
+    00000219 4A 4F 47 55 45 2F 41   311 	.ascii "JOGUE/ATIRE"
+             54 49 52 45
+    00000224 00                     312 	.db 0x00
+    00000225                        313 __str_32:
+    00000225 43 4F 4E 53 45 52 54   314 	.ascii "CONSERTE/REPARE"
+             45 2F 52 45 50 41 52
+             45
+    00000234 00                     315 	.db 0x00
+    00000235                        316 __str_33:
+    00000235 56 45 4E 44 41         317 	.ascii "VENDA"
+    0000023A 00                     318 	.db 0x00
+                                    319 ;engine/src/parser.c:97: bool Parser_IsNoiseWord(const char* word)
+                                    320 ;	---------------------------------
+                                    321 ; Function Parser_IsNoiseWord
+                                    322 ; ---------------------------------
+    0000023B                        323 _Parser_IsNoiseWord::
+    0000023B DD E5            [15]  324 	push	ix
+    0000023D DD 21 00 00      [14]  325 	ld	ix,	#0
+    00000241 DD 39            [15]  326 	add	ix, sp
+    00000243 3B               [ 6]  327 	dec	sp
+    00000244 4D               [ 4]  328 	ld	c, l
+    00000245 44               [ 4]  329 	ld	b, h
+                                    330 ;engine/src/parser.c:106: while (noise[i] != NULL)
+    00000246 DD 36 FF 00      [19]  331 	ld	-1 (ix), #0x00
+    0000024A                        332 00103$:
+    0000024A DD 6E FF         [19]  333 	ld	l, -1 (ix)
+    0000024D 26 00            [ 7]  334 	ld	h, #0x00
+    0000024F 29               [11]  335 	add	hl, hl
+    00000250 11r74r02         [10]  336 	ld	de, #_Parser_IsNoiseWord_noise_10000_68
+    00000253 19               [11]  337 	add	hl, de
+    00000254 5E               [ 7]  338 	ld	e, (hl)
+    00000255 23               [ 6]  339 	inc	hl
+    00000256 56               [ 7]  340 	ld	d, (hl)
+    00000257 7A               [ 4]  341 	ld	a, d
+    00000258 B3               [ 4]  342 	or	a, e
+    00000259 28 14            [12]  343 	jr	z, 00105$
+                                    344 ;engine/src/parser.c:108: if (strcmp(word, noise[i]) == 0) return TRUE;
+    0000025B C5               [11]  345 	push	bc
+    0000025C 69               [ 4]  346 	ld	l, c
+    0000025D 60               [ 4]  347 	ld	h, b
+    0000025E CDr00r00         [17]  348 	call	_strcmp
+    00000261 C1               [10]  349 	pop	bc
+    00000262 7A               [ 4]  350 	ld	a, d
+    00000263 B3               [ 4]  351 	or	a, e
+    00000264 20 04            [12]  352 	jr	nz, 00102$
+    00000266 3E 01            [ 7]  353 	ld	a, #0x01
+    00000268 18 06            [12]  354 	jr	00106$
+    0000026A                        355 00102$:
+                                    356 ;engine/src/parser.c:109: i++;
+    0000026A DD 34 FF         [23]  357 	inc	-1 (ix)
+    0000026D 18 DB            [12]  358 	jr	00103$
+    0000026F                        359 00105$:
+                                    360 ;engine/src/parser.c:111: return FALSE;
+    0000026F AF               [ 4]  361 	xor	a, a
+    00000270                        362 00106$:
+                                    363 ;engine/src/parser.c:112: }
+    00000270 33               [ 6]  364 	inc	sp
+    00000271 DD E1            [14]  365 	pop	ix
+    00000273 C9               [10]  366 	ret
+    00000274                        367 _Parser_IsNoiseWord_noise_10000_68:
+    00000274rA2r02                  368 	.dw ___str_34
+    00000276rA4r02                  369 	.dw ___str_35
+    00000278rA6r02                  370 	.dw ___str_36
+    0000027ArA9r02                  371 	.dw ___str_37
+    0000027CrACr02                  372 	.dw ___str_38
+    0000027ErAFr02                  373 	.dw ___str_39
+    00000280rB3r02                  374 	.dw ___str_40
+    00000282rB7r02                  375 	.dw ___str_41
+    00000284rBCr02                  376 	.dw ___str_42
+    00000286rBFr02                  377 	.dw ___str_43
+    00000288rC2r02                  378 	.dw ___str_44
+    0000028ArC5r02                  379 	.dw ___str_45
+    0000028CrC9r02                  380 	.dw ___str_46
+    0000028ErCDr02                  381 	.dw ___str_47
+    00000290rD0r02                  382 	.dw ___str_48
+    00000292rD3r02                  383 	.dw ___str_49
+    00000294rD6r02                  384 	.dw ___str_50
+    00000296rDAr02                  385 	.dw ___str_51
+    00000298rDEr02                  386 	.dw ___str_52
+    0000029ArE3r02                  387 	.dw ___str_53
+    0000029CrE7r02                  388 	.dw ___str_54
+    0000029ErEBr02                  389 	.dw ___str_55
+    000002A0 00 00                  390 	.dw #0x0000
+    000002A2                        391 ___str_34:
+    000002A2 41                     392 	.ascii "A"
+    000002A3 00                     393 	.db 0x00
+    000002A4                        394 ___str_35:
+    000002A4 4F                     395 	.ascii "O"
+    000002A5 00                     396 	.db 0x00
+    000002A6                        397 ___str_36:
+    000002A6 41 53                  398 	.ascii "AS"
+    000002A8 00                     399 	.db 0x00
+    000002A9                        400 ___str_37:
+    000002A9 4F 53                  401 	.ascii "OS"
+    000002AB 00                     402 	.db 0x00
+    000002AC                        403 ___str_38:
+    000002AC 55 4D                  404 	.ascii "UM"
+    000002AE 00                     405 	.db 0x00
+    000002AF                        406 ___str_39:
+    000002AF 55 4D 41               407 	.ascii "UMA"
+    000002B2 00                     408 	.db 0x00
+    000002B3                        409 ___str_40:
+    000002B3 55 4E 53               410 	.ascii "UNS"
+    000002B6 00                     411 	.db 0x00
+    000002B7                        412 ___str_41:
+    000002B7 55 4D 41 53            413 	.ascii "UMAS"
+    000002BB 00                     414 	.db 0x00
+    000002BC                        415 ___str_42:
+    000002BC 44 45                  416 	.ascii "DE"
+    000002BE 00                     417 	.db 0x00
+    000002BF                        418 ___str_43:
+    000002BF 44 4F                  419 	.ascii "DO"
+    000002C1 00                     420 	.db 0x00
+    000002C2                        421 ___str_44:
+    000002C2 44 41                  422 	.ascii "DA"
+    000002C4 00                     423 	.db 0x00
+    000002C5                        424 ___str_45:
+    000002C5 44 4F 53               425 	.ascii "DOS"
+    000002C8 00                     426 	.db 0x00
+    000002C9                        427 ___str_46:
+    000002C9 44 41 53               428 	.ascii "DAS"
+    000002CC 00                     429 	.db 0x00
+    000002CD                        430 ___str_47:
+    000002CD 45 4D                  431 	.ascii "EM"
+    000002CF 00                     432 	.db 0x00
+    000002D0                        433 ___str_48:
+    000002D0 4E 4F                  434 	.ascii "NO"
+    000002D2 00                     435 	.db 0x00
+    000002D3                        436 ___str_49:
+    000002D3 4E 41                  437 	.ascii "NA"
+    000002D5 00                     438 	.db 0x00
+    000002D6                        439 ___str_50:
+    000002D6 4E 4F 53               440 	.ascii "NOS"
+    000002D9 00                     441 	.db 0x00
+    000002DA                        442 ___str_51:
+    000002DA 4E 41 53               443 	.ascii "NAS"
+    000002DD 00                     444 	.db 0x00
+    000002DE                        445 ___str_52:
+    000002DE 50 41 52 41            446 	.ascii "PARA"
+    000002E2 00                     447 	.db 0x00
+    000002E3                        448 ___str_53:
+    000002E3 50 52 41               449 	.ascii "PRA"
+    000002E6 00                     450 	.db 0x00
+    000002E7                        451 ___str_54:
+    000002E7 43 4F 4D               452 	.ascii "COM"
+    000002EA 00                     453 	.db 0x00
+    000002EB                        454 ___str_55:
+    000002EB 50 4F 52               455 	.ascii "POR"
+    000002EE 00                     456 	.db 0x00
+                                    457 ;engine/src/parser.c:117: static u8 Parser_FindVerb(const char* word)
+                                    458 ;	---------------------------------
+                                    459 ; Function Parser_FindVerb
+                                    460 ; ---------------------------------
+    000002EF                        461 _Parser_FindVerb:
+    000002EF DD E5            [15]  462 	push	ix
+    000002F1 DD 21 00 00      [14]  463 	ld	ix,	#0
+    000002F5 DD 39            [15]  464 	add	ix, sp
+    000002F7 FD 21 F8 FF      [14]  465 	ld	iy, #-8
+    000002FB FD 39            [15]  466 	add	iy, sp
+    000002FD FD F9            [10]  467 	ld	sp, iy
+    000002FF DD 75 FD         [19]  468 	ld	-3 (ix), l
+    00000302 DD 74 FE         [19]  469 	ld	-2 (ix), h
+                                    470 ;engine/src/parser.c:120: for (i = 0; i < 34; i++)
+    00000305 DD 36 FA 00      [19]  471 	ld	-6 (ix), #0x00
+    00000309 DD 36 FF 00      [19]  472 	ld	-1 (ix), #0x00
+    0000030D                        473 00104$:
+                                    474 ;engine/src/parser.c:122: if (MatchWord(word, g_DefaultVerbs[i]))
+    0000030D DD 7E FF         [19]  475 	ld	a, -1 (ix)
+    00000310 DD 77 FB         [19]  476 	ld	-5 (ix), a
+    00000313 DD 36 FC 00      [19]  477 	ld	-4 (ix), #0x00
+    00000317 DD 7E FB         [19]  478 	ld	a, -5 (ix)
+    0000031A DD 77 F8         [19]  479 	ld	-8 (ix), a
+    0000031D DD 36 F9 00      [19]  480 	ld	-7 (ix), #0x00
+    00000321 DD CB F8 26      [23]  481 	sla	-8 (ix)
+    00000325 DD CB F9 16      [23]  482 	rl	-7 (ix)
+    00000329 3ErB0            [ 7]  483 	ld	a, #<(_g_DefaultVerbs)
+    0000032B DD 86 F8         [19]  484 	add	a, -8 (ix)
+    0000032E DD 77 FB         [19]  485 	ld	-5 (ix), a
+    00000331 3Es00            [ 7]  486 	ld	a, #>(_g_DefaultVerbs)
+    00000333 DD 8E F9         [19]  487 	adc	a, -7 (ix)
+    00000336 DD 77 FC         [19]  488 	ld	-4 (ix), a
+    00000339 DD 6E FB         [19]  489 	ld	l, -5 (ix)
+    0000033C DD 66 FC         [19]  490 	ld	h, -4 (ix)
+    0000033F 7E               [ 7]  491 	ld	a, (hl)
+    00000340 DD 77 FB         [19]  492 	ld	-5 (ix), a
+    00000343 23               [ 6]  493 	inc	hl
+    00000344 7E               [ 7]  494 	ld	a, (hl)
+    00000345 DD 77 FC         [19]  495 	ld	-4 (ix), a
+    00000348 DD 5E FB         [19]  496 	ld	e, -5 (ix)
+    0000034B DD 56 FC         [19]  497 	ld	d, -4 (ix)
+    0000034E DD 6E FD         [19]  498 	ld	l, -3 (ix)
+    00000351 DD 66 FE         [19]  499 	ld	h, -2 (ix)
+    00000354 CDr00r00         [17]  500 	call	_MatchWord
+    00000357 B7               [ 4]  501 	or	a, a
+    00000358 28 06            [12]  502 	jr	z, 00105$
+                                    503 ;engine/src/parser.c:124: return (i + 1);
+    0000035A DD 7E FA         [19]  504 	ld	a, -6 (ix)
+    0000035D 3C               [ 4]  505 	inc	a
+    0000035E 18 0E            [12]  506 	jr	00106$
+    00000360                        507 00105$:
+                                    508 ;engine/src/parser.c:120: for (i = 0; i < 34; i++)
+    00000360 DD 34 FF         [23]  509 	inc	-1 (ix)
+    00000363 DD 7E FF         [19]  510 	ld	a, -1 (ix)
+    00000366 DD 77 FA         [19]  511 	ld	-6 (ix), a
+    00000369 D6 22            [ 7]  512 	sub	a, #0x22
+    0000036B 38 A0            [12]  513 	jr	c, 00104$
+                                    514 ;engine/src/parser.c:127: return 0;
+    0000036D AF               [ 4]  515 	xor	a, a
+    0000036E                        516 00106$:
+                                    517 ;engine/src/parser.c:128: }
+    0000036E DD F9            [10]  518 	ld	sp, ix
+    00000370 DD E1            [14]  519 	pop	ix
+    00000372 C9               [10]  520 	ret
+                                    521 ;engine/src/parser.c:133: static u8 Parser_FindObject(const char* word, const Game_Database* db)
+                                    522 ;	---------------------------------
+                                    523 ; Function Parser_FindObject
+                                    524 ; ---------------------------------
+    00000373                        525 _Parser_FindObject:
+    00000373 DD E5            [15]  526 	push	ix
+    00000375 DD 21 00 00      [14]  527 	ld	ix,	#0
+    00000379 DD 39            [15]  528 	add	ix, sp
+    0000037B F5               [11]  529 	push	af
+    0000037C F5               [11]  530 	push	af
+    0000037D 3B               [ 6]  531 	dec	sp
+    0000037E DD 75 FD         [19]  532 	ld	-3 (ix), l
+    00000381 DD 74 FE         [19]  533 	ld	-2 (ix), h
+                                    534 ;engine/src/parser.c:136: if (db == NULL || db->objetos == NULL) return 0;
+    00000384 7A               [ 4]  535 	ld	a, d
+    00000385 B3               [ 4]  536 	or	a, e
+    00000386 28 0B            [12]  537 	jr	z, 00101$
+    00000388 21 08 00         [10]  538 	ld	hl, #0x0008
+    0000038B 19               [11]  539 	add	hl, de
+    0000038C 4D               [ 4]  540 	ld	c,l
+    0000038D 44               [ 4]  541 	ld	b,h
+    0000038E 7E               [ 7]  542 	ld	a, (hl)
+    0000038F 23               [ 6]  543 	inc	hl
+    00000390 B6               [ 7]  544 	or	a, (hl)
+    00000391 20 03            [12]  545 	jr	nz, 00126$
+    00000393                        546 00101$:
+    00000393 AF               [ 4]  547 	xor	a, a
+    00000394 18 53            [12]  548 	jr	00113$
+                                    549 ;engine/src/parser.c:138: for (i = 0; i < db->num_objetos; i++)
+    00000396                        550 00126$:
+    00000396 D5               [11]  551 	push	de
+    00000397 FD E1            [14]  552 	pop	iy
+    00000399 DD 36 FF 00      [19]  553 	ld	-1 (ix), #0x00
+    0000039D                        554 00111$:
+    0000039D FD 5E 0A         [19]  555 	ld	e, 10 (iy)
+    000003A0 DD 7E FF         [19]  556 	ld	a, -1 (ix)
+    000003A3 93               [ 4]  557 	sub	a, e
+    000003A4 30 42            [12]  558 	jr	nc, 00109$
+                                    559 ;engine/src/parser.c:140: const Game_Object* obj = db->objetos[i];
+    000003A6 69               [ 4]  560 	ld	l, c
+    000003A7 60               [ 4]  561 	ld	h, b
+    000003A8 5E               [ 7]  562 	ld	e, (hl)
+    000003A9 23               [ 6]  563 	inc	hl
+    000003AA 56               [ 7]  564 	ld	d, (hl)
+    000003AB DD 6E FF         [19]  565 	ld	l, -1 (ix)
+    000003AE 26 00            [ 7]  566 	ld	h, #0x00
+    000003B0 29               [11]  567 	add	hl, hl
+    000003B1 19               [11]  568 	add	hl, de
+    000003B2 7E               [ 7]  569 	ld	a, (hl)
+    000003B3 DD 77 FB         [19]  570 	ld	-5 (ix), a
+    000003B6 23               [ 6]  571 	inc	hl
+    000003B7 7E               [ 7]  572 	ld	a, (hl)
+                                    573 ;engine/src/parser.c:141: if (obj != NULL && obj->nome != NULL)
+    000003B8 DD 77 FC         [19]  574 	ld	-4 (ix), a
+    000003BB DD B6 FB         [19]  575 	or	a, -5 (ix)
+    000003BE 28 23            [12]  576 	jr	z, 00112$
+    000003C0 E1               [10]  577 	pop	hl
+    000003C1 E5               [11]  578 	push	hl
+    000003C2 23               [ 6]  579 	inc	hl
+    000003C3 23               [ 6]  580 	inc	hl
+    000003C4 23               [ 6]  581 	inc	hl
+    000003C5 5E               [ 7]  582 	ld	e, (hl)
+    000003C6 23               [ 6]  583 	inc	hl
+    000003C7 56               [ 7]  584 	ld	d, (hl)
+    000003C8 7A               [ 4]  585 	ld	a, d
+    000003C9 B3               [ 4]  586 	or	a, e
+    000003CA 28 17            [12]  587 	jr	z, 00112$
+                                    588 ;engine/src/parser.c:143: if (MatchWord(word, obj->nome))
+    000003CC C5               [11]  589 	push	bc
+    000003CD FD E5            [15]  590 	push	iy
+    000003CF DD 6E FD         [19]  591 	ld	l, -3 (ix)
+    000003D2 DD 66 FE         [19]  592 	ld	h, -2 (ix)
+    000003D5 CDr00r00         [17]  593 	call	_MatchWord
+    000003D8 FD E1            [14]  594 	pop	iy
+    000003DA C1               [10]  595 	pop	bc
+    000003DB B7               [ 4]  596 	or	a, a
+    000003DC 28 05            [12]  597 	jr	z, 00112$
+                                    598 ;engine/src/parser.c:145: return obj->id;
+    000003DE E1               [10]  599 	pop	hl
+    000003DF E5               [11]  600 	push	hl
+    000003E0 7E               [ 7]  601 	ld	a, (hl)
+    000003E1 18 06            [12]  602 	jr	00113$
+    000003E3                        603 00112$:
+                                    604 ;engine/src/parser.c:138: for (i = 0; i < db->num_objetos; i++)
+    000003E3 DD 34 FF         [23]  605 	inc	-1 (ix)
+    000003E6 18 B5            [12]  606 	jr	00111$
+    000003E8                        607 00109$:
+                                    608 ;engine/src/parser.c:149: return 0;
+    000003E8 AF               [ 4]  609 	xor	a, a
+    000003E9                        610 00113$:
+                                    611 ;engine/src/parser.c:150: }
+    000003E9 DD F9            [10]  612 	ld	sp, ix
+    000003EB DD E1            [14]  613 	pop	ix
+    000003ED C9               [10]  614 	ret
+                                    615 ;engine/src/parser.c:155: bool Parser_Parse(const char* input, const Game_Database* db, Game_State* state, char* parsed_echo, u8 echo_max_len)
+                                    616 ;	---------------------------------
+                                    617 ; Function Parser_Parse
+                                    618 ; ---------------------------------
+    000003EE                        619 _Parser_Parse::
+    000003EE DD E5            [15]  620 	push	ix
+    000003F0 DD 21 00 00      [14]  621 	ld	ix,	#0
+    000003F4 DD 39            [15]  622 	add	ix, sp
+    000003F6 FD 21 CE FF      [14]  623 	ld	iy, #-50
+    000003FA FD 39            [15]  624 	add	iy, sp
+    000003FC FD F9            [10]  625 	ld	sp, iy
+    000003FE 4D               [ 4]  626 	ld	c, l
+    000003FF 44               [ 4]  627 	ld	b, h
+    00000400 DD 73 FD         [19]  628 	ld	-3 (ix), e
+    00000403 DD 72 FE         [19]  629 	ld	-2 (ix), d
+                                    630 ;engine/src/parser.c:159: u8 meaningful_words = 0;
+    00000406 DD 36 FF 00      [19]  631 	ld	-1 (ix), #0x00
+                                    632 ;engine/src/parser.c:160: const char* p = input;
+    0000040A DD 71 EE         [19]  633 	ld	-18 (ix), c
+    0000040D DD 70 EF         [19]  634 	ld	-17 (ix), b
+                                    635 ;engine/src/parser.c:162: state->verbo_atual = 0;
+    00000410 DD 5E 04         [19]  636 	ld	e, 4 (ix)
+    00000413 DD 56 05         [19]  637 	ld	d, 5 (ix)
+    00000416 21 03 01         [10]  638 	ld	hl, #0x0103
+    00000419 19               [11]  639 	add	hl, de
+    0000041A DD 75 F0         [19]  640 	ld	-16 (ix), l
+    0000041D DD 74 F1         [19]  641 	ld	-15 (ix), h
+    00000420 36 00            [10]  642 	ld	(hl), #0x00
+                                    643 ;engine/src/parser.c:163: state->obj_buffer[0] = 0;
+    00000422 21 01 01         [10]  644 	ld	hl, #0x0101
+    00000425 19               [11]  645 	add	hl, de
+    00000426 DD 75 F2         [19]  646 	ld	-14 (ix), l
+    00000429 DD 74 F3         [19]  647 	ld	-13 (ix), h
+    0000042C 36 00            [10]  648 	ld	(hl), #0x00
+                                    649 ;engine/src/parser.c:164: state->obj_buffer[1] = 0;
+    0000042E 21 02 01         [10]  650 	ld	hl, #0x0102
+    00000431 19               [11]  651 	add	hl, de
+    00000432 DD 75 F4         [19]  652 	ld	-12 (ix), l
+    00000435 DD 74 F5         [19]  653 	ld	-11 (ix), h
+    00000438 36 00            [10]  654 	ld	(hl), #0x00
+                                    655 ;engine/src/parser.c:166: if (parsed_echo != NULL && echo_max_len > 0)
+    0000043A DD 7E 07         [19]  656 	ld	a, 7 (ix)
+    0000043D DD B6 06         [19]  657 	or	a, 6 (ix)
+    00000440 28 0E            [12]  658 	jr	z, 00102$
+    00000442 DD 7E 08         [19]  659 	ld	a, 8 (ix)
+    00000445 B7               [ 4]  660 	or	a, a
+    00000446 28 08            [12]  661 	jr	z, 00102$
+                                    662 ;engine/src/parser.c:168: parsed_echo[0] = '\0';
+    00000448 DD 6E 06         [19]  663 	ld	l, 6 (ix)
+    0000044B DD 66 07         [19]  664 	ld	h, 7 (ix)
+    0000044E 36 00            [10]  665 	ld	(hl), #0x00
+    00000450                        666 00102$:
+                                    667 ;engine/src/parser.c:171: if (input == NULL) return FALSE;
+    00000450 78               [ 4]  668 	ld	a, b
+    00000451 B1               [ 4]  669 	or	a, c
+    00000452 20 04            [12]  670 	jr	nz, 00206$
+    00000454 AF               [ 4]  671 	xor	a, a
+    00000455 C3rC4r06         [10]  672 	jp	00154$
+                                    673 ;engine/src/parser.c:173: while (*p)
+    00000458                        674 00206$:
+    00000458                        675 00151$:
+    00000458 DD 6E EE         [19]  676 	ld	l, -18 (ix)
+    0000045B DD 66 EF         [19]  677 	ld	h, -17 (ix)
+    0000045E 7E               [ 7]  678 	ld	a, (hl)
+    0000045F B7               [ 4]  679 	or	a, a
+    00000460 CArB7r06         [10]  680 	jp	z, 00153$
+                                    681 ;engine/src/parser.c:176: while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') p++;
+    00000463 DD 5E EE         [19]  682 	ld	e, -18 (ix)
+    00000466 DD 56 EF         [19]  683 	ld	d, -17 (ix)
+    00000469                        684 00109$:
+    00000469 1A               [ 7]  685 	ld	a, (de)
+    0000046A FE 20            [ 7]  686 	cp	a, #0x20
+    0000046C 28 0C            [12]  687 	jr	z, 00110$
+    0000046E FE 09            [ 7]  688 	cp	a, #0x09
+    00000470 28 08            [12]  689 	jr	z, 00110$
+    00000472 FE 0D            [ 7]  690 	cp	a, #0x0d
+    00000474 28 04            [12]  691 	jr	z, 00110$
+    00000476 FE 0A            [ 7]  692 	cp	a, #0x0a
+    00000478 20 03            [12]  693 	jr	nz, 00111$
+    0000047A                        694 00110$:
+    0000047A 13               [ 6]  695 	inc	de
+    0000047B 18 EC            [12]  696 	jr	00109$
+    0000047D                        697 00111$:
+                                    698 ;engine/src/parser.c:177: if (*p == '\0') break;
+    0000047D B7               [ 4]  699 	or	a, a
+    0000047E CArB7r06         [10]  700 	jp	z, 00153$
+                                    701 ;engine/src/parser.c:181: while (*p && *p != ' ' && *p != '\t' && *p != '\r' && *p != '\n')
+    00000481 DD 36 F8 00      [19]  702 	ld	-8 (ix), #0x00
+    00000485 DD 73 FB         [19]  703 	ld	-5 (ix), e
+    00000488 DD 72 FC         [19]  704 	ld	-4 (ix), d
+    0000048B                        705 00120$:
+    0000048B DD 6E FB         [19]  706 	ld	l, -5 (ix)
+    0000048E DD 66 FC         [19]  707 	ld	h, -4 (ix)
+    00000491 7E               [ 7]  708 	ld	a, (hl)
+    00000492 DD 77 F7         [19]  709 	ld	-9 (ix), a
+                                    710 ;engine/src/parser.c:185: word[word_idx++] = *p;
+    00000495 DD 5E F8         [19]  711 	ld	e, -8 (ix)
+    00000498 16 00            [ 7]  712 	ld	d, #0x00
+    0000049A 21 00 00         [10]  713 	ld	hl, #0
+    0000049D 39               [11]  714 	add	hl, sp
+    0000049E 19               [11]  715 	add	hl, de
+    0000049F DD 75 F9         [19]  716 	ld	-7 (ix), l
+    000004A2 DD 74 FA         [19]  717 	ld	-6 (ix), h
+                                    718 ;engine/src/parser.c:181: while (*p && *p != ' ' && *p != '\t' && *p != '\r' && *p != '\n')
+    000004A5 DD 7E F7         [19]  719 	ld	a, -9 (ix)
+    000004A8 B7               [ 4]  720 	or	a, a
+    000004A9 28 3A            [12]  721 	jr	z, 00225$
+    000004AB DD 7E F7         [19]  722 	ld	a, -9 (ix)
+    000004AE D6 20            [ 7]  723 	sub	a, #0x20
+    000004B0 28 33            [12]  724 	jr	z, 00225$
+    000004B2 DD 7E F7         [19]  725 	ld	a, -9 (ix)
+    000004B5 D6 09            [ 7]  726 	sub	a, #0x09
+    000004B7 28 2C            [12]  727 	jr	z, 00225$
+    000004B9 DD 7E F7         [19]  728 	ld	a, -9 (ix)
+    000004BC D6 0D            [ 7]  729 	sub	a, #0x0d
+    000004BE 28 25            [12]  730 	jr	z, 00225$
+    000004C0 DD 7E F7         [19]  731 	ld	a, -9 (ix)
+    000004C3 D6 0A            [ 7]  732 	sub	a, #0x0a
+    000004C5 28 1E            [12]  733 	jr	z, 00225$
+                                    734 ;engine/src/parser.c:183: if (word_idx < (sizeof(word) - 1))
+    000004C7 DD 7E F8         [19]  735 	ld	a, -8 (ix)
+    000004CA D6 1F            [ 7]  736 	sub	a, #0x1f
+    000004CC 30 0D            [12]  737 	jr	nc, 00115$
+                                    738 ;engine/src/parser.c:185: word[word_idx++] = *p;
+    000004CE DD 34 F8         [23]  739 	inc	-8 (ix)
+    000004D1 DD 6E F9         [19]  740 	ld	l, -7 (ix)
+    000004D4 DD 66 FA         [19]  741 	ld	h, -6 (ix)
+    000004D7 DD 7E F7         [19]  742 	ld	a, -9 (ix)
+    000004DA 77               [ 7]  743 	ld	(hl), a
+    000004DB                        744 00115$:
+                                    745 ;engine/src/parser.c:187: p++;
+    000004DB DD 34 FB         [23]  746 	inc	-5 (ix)
+    000004DE 20 AB            [12]  747 	jr	nz, 00120$
+    000004E0 DD 34 FC         [23]  748 	inc	-4 (ix)
+    000004E3 18 A6            [12]  749 	jr	00120$
+    000004E5                        750 00225$:
+    000004E5 DD 7E FB         [19]  751 	ld	a, -5 (ix)
+    000004E8 DD 77 EE         [19]  752 	ld	-18 (ix), a
+    000004EB DD 7E FC         [19]  753 	ld	a, -4 (ix)
+    000004EE DD 77 EF         [19]  754 	ld	-17 (ix), a
+                                    755 ;engine/src/parser.c:189: word[word_idx] = '\0';
+    000004F1 DD 6E F9         [19]  756 	ld	l, -7 (ix)
+    000004F4 DD 66 FA         [19]  757 	ld	h, -6 (ix)
+    000004F7 36 00            [10]  758 	ld	(hl), #0x00
+                                    759 ;engine/src/parser.c:192: if (Parser_IsNoiseWord(word))
+    000004F9 21 00 00         [10]  760 	ld	hl, #0
+    000004FC 39               [11]  761 	add	hl, sp
+    000004FD CDr3Br02         [17]  762 	call	_Parser_IsNoiseWord
+    00000500 B7               [ 4]  763 	or	a, a
+    00000501 C2r58r04         [10]  764 	jp	nz, 00151$
+                                    765 ;engine/src/parser.c:208: while (vname[k] && vname[k] != '/' && k < (echo_max_len - 1))
+    00000504 DD 4E 08         [19]  766 	ld	c, 8 (ix)
+    00000507 06 00            [ 7]  767 	ld	b, #0x00
+                                    768 ;engine/src/parser.c:198: if (meaningful_words == 0)
+    00000509 DD 7E FF         [19]  769 	ld	a, -1 (ix)
+    0000050C B7               [ 4]  770 	or	a, a
+    0000050D C2rA8r05         [10]  771 	jp	nz, 00149$
+                                    772 ;engine/src/parser.c:200: state->verbo_atual = Parser_FindVerb(word);
+    00000510 C5               [11]  773 	push	bc
+    00000511 21 02 00         [10]  774 	ld	hl, #2
+    00000514 39               [11]  775 	add	hl, sp
+    00000515 CDrEFr02         [17]  776 	call	_Parser_FindVerb
+    00000518 C1               [10]  777 	pop	bc
+    00000519 DD 6E F0         [19]  778 	ld	l, -16 (ix)
+    0000051C DD 66 F1         [19]  779 	ld	h, -15 (ix)
+    0000051F 77               [ 7]  780 	ld	(hl), a
+                                    781 ;engine/src/parser.c:201: meaningful_words++;
+    00000520 DD 36 FF 01      [19]  782 	ld	-1 (ix), #0x01
+                                    783 ;engine/src/parser.c:203: if (parsed_echo != NULL && state->verbo_atual > 0)
+    00000524 DD 7E 07         [19]  784 	ld	a, 7 (ix)
+    00000527 DD B6 06         [19]  785 	or	a, 6 (ix)
+    0000052A CAr58r04         [10]  786 	jp	z, 00151$
+    0000052D DD 6E F0         [19]  787 	ld	l, -16 (ix)
+    00000530 DD 66 F1         [19]  788 	ld	h, -15 (ix)
+    00000533 7E               [ 7]  789 	ld	a, (hl)
+    00000534 B7               [ 4]  790 	or	a, a
+    00000535 CAr58r04         [10]  791 	jp	z, 00151$
+                                    792 ;engine/src/parser.c:206: const char* vname = g_DefaultVerbs[state->verbo_atual - 1];
+    00000538 3D               [ 4]  793 	dec	a
+    00000539 6F               [ 4]  794 	ld	l, a
+    0000053A 07               [ 4]  795 	rlca
+    0000053B 9F               [ 4]  796 	sbc	a, a
+    0000053C 67               [ 4]  797 	ld	h, a
+    0000053D 29               [11]  798 	add	hl, hl
+    0000053E FD 21rB0r00      [14]  799 	ld	iy, #_g_DefaultVerbs
+    00000542 EB               [ 4]  800 	ex	de, hl
+    00000543 FD 19            [15]  801 	add	iy, de
+    00000545 FD 7E 00         [19]  802 	ld	a, 0 (iy)
+    00000548 DD 77 F6         [19]  803 	ld	-10 (ix), a
+    0000054B FD 7E 01         [19]  804 	ld	a, 1 (iy)
+    0000054E DD 77 F7         [19]  805 	ld	-9 (ix), a
+                                    806 ;engine/src/parser.c:208: while (vname[k] && vname[k] != '/' && k < (echo_max_len - 1))
+    00000551 1E 00            [ 7]  807 	ld	e, #0x00
+    00000553                        808 00127$:
+    00000553 DD 6E F6         [19]  809 	ld	l, -10 (ix)
+    00000556 DD 66 F7         [19]  810 	ld	h, -9 (ix)
+    00000559 16 00            [ 7]  811 	ld	d, #0x00
+    0000055B 19               [11]  812 	add	hl, de
+    0000055C 7E               [ 7]  813 	ld	a, (hl)
+    0000055D DD 77 F8         [19]  814 	ld	-8 (ix), a
+                                    815 ;engine/src/parser.c:210: parsed_echo[k] = vname[k];
+    00000560 DD 6E 06         [19]  816 	ld	l, 6 (ix)
+    00000563 DD 66 07         [19]  817 	ld	h, 7 (ix)
+    00000566 16 00            [ 7]  818 	ld	d, #0x00
+    00000568 19               [11]  819 	add	hl, de
+                                    820 ;engine/src/parser.c:208: while (vname[k] && vname[k] != '/' && k < (echo_max_len - 1))
+    00000569 DD 7E F8         [19]  821 	ld	a, -8 (ix)
+    0000056C B7               [ 4]  822 	or	a, a
+    0000056D 28 34            [12]  823 	jr	z, 00129$
+    0000056F DD 7E F8         [19]  824 	ld	a, -8 (ix)
+    00000572 D6 2F            [ 7]  825 	sub	a, #0x2f
+    00000574 28 2D            [12]  826 	jr	z, 00129$
+    00000576 79               [ 4]  827 	ld	a, c
+    00000577 C6 FF            [ 7]  828 	add	a, #0xff
+    00000579 DD 77 F9         [19]  829 	ld	-7 (ix), a
+    0000057C 78               [ 4]  830 	ld	a, b
+    0000057D CE FF            [ 7]  831 	adc	a, #0xff
+    0000057F DD 77 FA         [19]  832 	ld	-6 (ix), a
+    00000582 DD 73 FB         [19]  833 	ld	-5 (ix), e
+    00000585 DD 36 FC 00      [19]  834 	ld	-4 (ix), #0x00
+    00000589 DD 7E FB         [19]  835 	ld	a, -5 (ix)
+    0000058C DD 96 F9         [19]  836 	sub	a, -7 (ix)
+    0000058F 3E 00            [ 7]  837 	ld	a, #0x00
+    00000591 DD 9E FA         [19]  838 	sbc	a, -6 (ix)
+    00000594 E2r99r05         [10]  839 	jp	po, 00442$
+    00000597 EE 80            [ 7]  840 	xor	a, #0x80
+    00000599                        841 00442$:
+    00000599 F2rA3r05         [10]  842 	jp	p, 00129$
+                                    843 ;engine/src/parser.c:210: parsed_echo[k] = vname[k];
+    0000059C DD 7E F8         [19]  844 	ld	a, -8 (ix)
+    0000059F 77               [ 7]  845 	ld	(hl), a
+                                    846 ;engine/src/parser.c:211: k++;
+    000005A0 1C               [ 4]  847 	inc	e
+    000005A1 18 B0            [12]  848 	jr	00127$
+    000005A3                        849 00129$:
+                                    850 ;engine/src/parser.c:213: parsed_echo[k] = '\0';
+    000005A3 36 00            [10]  851 	ld	(hl), #0x00
+    000005A5 C3r58r04         [10]  852 	jp	00151$
+    000005A8                        853 00149$:
+                                    854 ;engine/src/parser.c:225: if (cur < (echo_max_len - 2))
+    000005A8 79               [ 4]  855 	ld	a, c
+    000005A9 C6 FE            [ 7]  856 	add	a, #0xfe
+    000005AB DD 77 FB         [19]  857 	ld	-5 (ix), a
+    000005AE 78               [ 4]  858 	ld	a, b
+    000005AF CE FF            [ 7]  859 	adc	a, #0xff
+    000005B1 DD 77 FC         [19]  860 	ld	-4 (ix), a
+                                    861 ;engine/src/parser.c:217: else if (meaningful_words == 1)
+    000005B4 DD 7E FF         [19]  862 	ld	a, -1 (ix)
+    000005B7 3D               [ 4]  863 	dec	a
+    000005B8 C2r39r06         [10]  864 	jp	nz, 00146$
+                                    865 ;engine/src/parser.c:219: state->obj_buffer[0] = Parser_FindObject(word, db);
+    000005BB C5               [11]  866 	push	bc
+    000005BC DD 5E FD         [19]  867 	ld	e, -3 (ix)
+    000005BF DD 56 FE         [19]  868 	ld	d, -2 (ix)
+    000005C2 21 02 00         [10]  869 	ld	hl, #2
+    000005C5 39               [11]  870 	add	hl, sp
+    000005C6 CDr73r03         [17]  871 	call	_Parser_FindObject
+    000005C9 C1               [10]  872 	pop	bc
+    000005CA DD 6E F2         [19]  873 	ld	l, -14 (ix)
+    000005CD DD 66 F3         [19]  874 	ld	h, -13 (ix)
+    000005D0 77               [ 7]  875 	ld	(hl), a
+                                    876 ;engine/src/parser.c:220: meaningful_words++;
+    000005D1 DD 34 FF         [23]  877 	inc	-1 (ix)
+                                    878 ;engine/src/parser.c:222: if (parsed_echo != NULL && state->obj_buffer[0] > 0)
+    000005D4 DD 7E 07         [19]  879 	ld	a, 7 (ix)
+    000005D7 DD B6 06         [19]  880 	or	a, 6 (ix)
+    000005DA CAr58r04         [10]  881 	jp	z, 00151$
+    000005DD DD 6E F2         [19]  882 	ld	l, -14 (ix)
+    000005E0 DD 66 F3         [19]  883 	ld	h, -13 (ix)
+    000005E3 7E               [ 7]  884 	ld	a, (hl)
+    000005E4 B7               [ 4]  885 	or	a, a
+    000005E5 CAr58r04         [10]  886 	jp	z, 00151$
+                                    887 ;engine/src/parser.c:224: u8 cur = (u8)strlen(parsed_echo);
+    000005E8 C5               [11]  888 	push	bc
+    000005E9 DD 6E 06         [19]  889 	ld	l, 6 (ix)
+    000005EC DD 66 07         [19]  890 	ld	h, 7 (ix)
+    000005EF CDr00r00         [17]  891 	call	_strlen
+    000005F2 C1               [10]  892 	pop	bc
+                                    893 ;engine/src/parser.c:225: if (cur < (echo_max_len - 2))
+    000005F3 53               [ 4]  894 	ld	d, e
+    000005F4 2E 00            [ 7]  895 	ld	l, #0x00
+    000005F6 7A               [ 4]  896 	ld	a, d
+    000005F7 DD 96 FB         [19]  897 	sub	a, -5 (ix)
+    000005FA 7D               [ 4]  898 	ld	a, l
+    000005FB DD 9E FC         [19]  899 	sbc	a, -4 (ix)
+    000005FE E2r03r06         [10]  900 	jp	po, 00445$
+    00000601 EE 80            [ 7]  901 	xor	a, #0x80
+    00000603                        902 00445$:
+    00000603 F2r58r04         [10]  903 	jp	p, 00151$
+                                    904 ;engine/src/parser.c:227: parsed_echo[cur++] = ' ';
+    00000606 7B               [ 4]  905 	ld	a, e
+    00000607 1C               [ 4]  906 	inc	e
+    00000608 DD 86 06         [19]  907 	add	a, 6 (ix)
+    0000060B 6F               [ 4]  908 	ld	l, a
+    0000060C 3E 00            [ 7]  909 	ld	a, #0x00
+    0000060E DD 8E 07         [19]  910 	adc	a, 7 (ix)
+    00000611 67               [ 4]  911 	ld	h, a
+    00000612 36 20            [10]  912 	ld	(hl), #0x20
+                                    913 ;engine/src/parser.c:228: parsed_echo[cur] = '\0';
+    00000614 DD 6E 06         [19]  914 	ld	l, 6 (ix)
+    00000617 DD 66 07         [19]  915 	ld	h, 7 (ix)
+    0000061A 16 00            [ 7]  916 	ld	d, #0x00
+    0000061C 19               [11]  917 	add	hl, de
+    0000061D 36 00            [10]  918 	ld	(hl), #0x00
+                                    919 ;engine/src/parser.c:229: strncat(parsed_echo, word, echo_max_len - cur - 1);
+    0000061F 16 00            [ 7]  920 	ld	d, #0x00
+    00000621 79               [ 4]  921 	ld	a, c
+    00000622 93               [ 4]  922 	sub	a, e
+    00000623 4F               [ 4]  923 	ld	c, a
+    00000624 9F               [ 4]  924 	sbc	a, a
+    00000625 47               [ 4]  925 	ld	b, a
+    00000626 0B               [ 6]  926 	dec	bc
+    00000627 C5               [11]  927 	push	bc
+    00000628 21 02 00         [10]  928 	ld	hl, #2
+    0000062B 39               [11]  929 	add	hl, sp
+    0000062C EB               [ 4]  930 	ex	de, hl
+    0000062D DD 6E 06         [19]  931 	ld	l, 6 (ix)
+    00000630 DD 66 07         [19]  932 	ld	h, 7 (ix)
+    00000633 CDr00r00         [17]  933 	call	_strncat
+    00000636 C3r58r04         [10]  934 	jp	00151$
+    00000639                        935 00146$:
+                                    936 ;engine/src/parser.c:234: else if (meaningful_words == 2)
+    00000639 DD 7E FF         [19]  937 	ld	a, -1 (ix)
+    0000063C D6 02            [ 7]  938 	sub	a, #0x02
+    0000063E C2r58r04         [10]  939 	jp	nz, 00151$
+                                    940 ;engine/src/parser.c:236: state->obj_buffer[1] = Parser_FindObject(word, db);
+    00000641 C5               [11]  941 	push	bc
+    00000642 DD 5E FD         [19]  942 	ld	e, -3 (ix)
+    00000645 DD 56 FE         [19]  943 	ld	d, -2 (ix)
+    00000648 21 02 00         [10]  944 	ld	hl, #2
+    0000064B 39               [11]  945 	add	hl, sp
+    0000064C CDr73r03         [17]  946 	call	_Parser_FindObject
+    0000064F C1               [10]  947 	pop	bc
+    00000650 DD 6E F4         [19]  948 	ld	l, -12 (ix)
+    00000653 DD 66 F5         [19]  949 	ld	h, -11 (ix)
+    00000656 77               [ 7]  950 	ld	(hl), a
+                                    951 ;engine/src/parser.c:239: if (parsed_echo != NULL && state->obj_buffer[1] > 0)
+    00000657 DD 7E 07         [19]  952 	ld	a, 7 (ix)
+    0000065A DD B6 06         [19]  953 	or	a, 6 (ix)
+    0000065D 28 58            [12]  954 	jr	z, 00153$
+    0000065F DD 6E F4         [19]  955 	ld	l, -12 (ix)
+    00000662 DD 66 F5         [19]  956 	ld	h, -11 (ix)
+    00000665 7E               [ 7]  957 	ld	a, (hl)
+    00000666 B7               [ 4]  958 	or	a, a
+    00000667 28 4E            [12]  959 	jr	z, 00153$
+                                    960 ;engine/src/parser.c:241: u8 cur = (u8)strlen(parsed_echo);
+    00000669 C5               [11]  961 	push	bc
+    0000066A DD 6E 06         [19]  962 	ld	l, 6 (ix)
+    0000066D DD 66 07         [19]  963 	ld	h, 7 (ix)
+    00000670 CDr00r00         [17]  964 	call	_strlen
+    00000673 C1               [10]  965 	pop	bc
+                                    966 ;engine/src/parser.c:242: if (cur < (echo_max_len - 2))
+    00000674 53               [ 4]  967 	ld	d, e
+    00000675 2E 00            [ 7]  968 	ld	l, #0x00
+    00000677 7A               [ 4]  969 	ld	a, d
+    00000678 DD 96 FB         [19]  970 	sub	a, -5 (ix)
+    0000067B 7D               [ 4]  971 	ld	a, l
+    0000067C DD 9E FC         [19]  972 	sbc	a, -4 (ix)
+    0000067F E2r84r06         [10]  973 	jp	po, 00448$
+    00000682 EE 80            [ 7]  974 	xor	a, #0x80
+    00000684                        975 00448$:
+    00000684 F2rB7r06         [10]  976 	jp	p, 00153$
+                                    977 ;engine/src/parser.c:244: parsed_echo[cur++] = ' ';
+    00000687 7B               [ 4]  978 	ld	a, e
+    00000688 1C               [ 4]  979 	inc	e
+    00000689 DD 86 06         [19]  980 	add	a, 6 (ix)
+    0000068C 6F               [ 4]  981 	ld	l, a
+    0000068D 3E 00            [ 7]  982 	ld	a, #0x00
+    0000068F DD 8E 07         [19]  983 	adc	a, 7 (ix)
+    00000692 67               [ 4]  984 	ld	h, a
+    00000693 36 20            [10]  985 	ld	(hl), #0x20
+                                    986 ;engine/src/parser.c:245: parsed_echo[cur] = '\0';
+    00000695 DD 6E 06         [19]  987 	ld	l, 6 (ix)
+    00000698 DD 66 07         [19]  988 	ld	h, 7 (ix)
+    0000069B 16 00            [ 7]  989 	ld	d, #0x00
+    0000069D 19               [11]  990 	add	hl, de
+    0000069E 36 00            [10]  991 	ld	(hl), #0x00
+                                    992 ;engine/src/parser.c:246: strncat(parsed_echo, word, echo_max_len - cur - 1);
+    000006A0 16 00            [ 7]  993 	ld	d, #0x00
+    000006A2 79               [ 4]  994 	ld	a, c
+    000006A3 93               [ 4]  995 	sub	a, e
+    000006A4 4F               [ 4]  996 	ld	c, a
+    000006A5 9F               [ 4]  997 	sbc	a, a
+    000006A6 47               [ 4]  998 	ld	b, a
+    000006A7 0B               [ 6]  999 	dec	bc
+    000006A8 C5               [11] 1000 	push	bc
+    000006A9 21 02 00         [10] 1001 	ld	hl, #2
+    000006AC 39               [11] 1002 	add	hl, sp
+    000006AD EB               [ 4] 1003 	ex	de, hl
+    000006AE DD 6E 06         [19] 1004 	ld	l, 6 (ix)
+    000006B1 DD 66 07         [19] 1005 	ld	h, 7 (ix)
+    000006B4 CDr00r00         [17] 1006 	call	_strncat
+                                   1007 ;engine/src/parser.c:249: break;
+    000006B7                       1008 00153$:
+                                   1009 ;engine/src/parser.c:253: return (state->verbo_atual > 0);
+    000006B7 DD 6E F0         [19] 1010 	ld	l, -16 (ix)
+    000006BA DD 66 F1         [19] 1011 	ld	h, -15 (ix)
+    000006BD 7E               [ 7] 1012 	ld	a, (hl)
+    000006BE B7               [ 4] 1013 	or	a, a
+    000006BF 3E 01            [ 7] 1014 	ld	a, #0x01
+    000006C1 20 01            [12] 1015 	jr	nz, 00157$
+    000006C3 AF               [ 4] 1016 	xor	a, a
+    000006C4                       1017 00157$:
+    000006C4                       1018 00154$:
+                                   1019 ;engine/src/parser.c:254: }
+    000006C4 DD F9            [10] 1020 	ld	sp, ix
+    000006C6 DD E1            [14] 1021 	pop	ix
+    000006C8 E1               [10] 1022 	pop	hl
+    000006C9 C1               [10] 1023 	pop	bc
+    000006CA C1               [10] 1024 	pop	bc
+    000006CB 33               [ 6] 1025 	inc	sp
+    000006CC E9               [ 4] 1026 	jp	(hl)
+                                   1027 	.area _CODE
+                                   1028 	.area _INITIALIZER
+                                   1029 	.area _CABS (ABS)

@@ -1,0 +1,35 @@
+======================================================================
+  EDITOR DE ADVENTURES - MSX Clean-Room Edition
+  Desenvolvido em Go (PC) e C / MSXgl (MSX)
+======================================================================
+
+COMO EXECUTAR:
+  1. Dê dois cliques em 'iniciar.bat' (ou execute 'edadv.exe' no terminal).
+  2. O editor abrirá a aventura de demonstração 'games/demo.yaml'.
+
+ATALHOS DE TECLADO (Interface Estilo Turbo Vision):
+  [1]           : Aba de Salas e Mapa de Conexões
+  [2]           : Aba de Objetos e Byte de Consistência
+  [3]           : Aba de Comandos e Instruções Bytecode
+  [4]           : Aba de Mensagens
+  [5]           : Aba de Build e Compilação
+  [Tab]         : Alternar foco entre listas e formulários
+  [Enter]       : Editar ou selecionar item
+  [F1]          : Ajuda na tela
+  [F2]          : Salvar aventura em arquivo YAML
+  [F5]          : Compilar matrizes C (game_data.h e game_data.c)
+  [F9]          : Construir ROM do MSX via MSXgl (advent.rom)
+  [F10]         : Sair do editor
+
+ESTRUTURA DE PASTAS:
+  - edadv.exe   : Editor TUI Interativo
+  - edadvc.exe  : Compilador de Linha de Comando (CLI)
+  - games/      : Histórias em formato YAML ou JSON
+  - engine/src/ : Código-fonte da Engine em C para MSX
+  - iniciar.bat : Atalho rápido para iniciar o editor
+
+LINHA DE COMANDO:
+  edadv.exe -f games/sua_historia.yaml
+  edadvc.exe -i games/sua_historia.yaml -o engine/src
+
+======================================================================

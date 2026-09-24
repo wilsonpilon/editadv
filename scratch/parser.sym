@@ -1,0 +1,97 @@
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+  0 _MatchWord                                                      00000000 R
+  0 _Parser_FindObject                                              00000373 R
+  0 _Parser_FindVerb                                                000002EF R
+  0 _Parser_IsNoiseWord                                             0000023B GR
+  0 _Parser_IsNoiseWord_noise_10000_68                              00000274 R
+  0 _Parser_Parse                                                   000003EE GR
+  0 ___str_34                                                       000002A2 R
+  0 ___str_35                                                       000002A4 R
+  0 ___str_36                                                       000002A6 R
+  0 ___str_37                                                       000002A9 R
+  0 ___str_38                                                       000002AC R
+  0 ___str_39                                                       000002AF R
+  0 ___str_40                                                       000002B3 R
+  0 ___str_41                                                       000002B7 R
+  0 ___str_42                                                       000002BC R
+  0 ___str_43                                                       000002BF R
+  0 ___str_44                                                       000002C2 R
+  0 ___str_45                                                       000002C5 R
+  0 ___str_46                                                       000002C9 R
+  0 ___str_47                                                       000002CD R
+  0 ___str_48                                                       000002D0 R
+  0 ___str_49                                                       000002D3 R
+  0 ___str_50                                                       000002D6 R
+  0 ___str_51                                                       000002DA R
+  0 ___str_52                                                       000002DE R
+  0 ___str_53                                                       000002E3 R
+  0 ___str_54                                                       000002E7 R
+  0 ___str_55                                                       000002EB R
+  0 __str_0                                                         000000F4 R
+  0 __str_1                                                         000000FC R
+  0 __str_10                                                        00000137 R
+  0 __str_11                                                        0000013D R
+  0 __str_12                                                        00000144 R
+  0 __str_13                                                        00000150 R
+  0 __str_14                                                        00000162 R
+  0 __str_15                                                        00000165 R
+  0 __str_16                                                        0000016D R
+  0 __str_17                                                        00000173 R
+  0 __str_18                                                        00000179 R
+  0 __str_19                                                        0000017F R
+  0 __str_2                                                         00000102 R
+  0 __str_20                                                        00000192 R
+  0 __str_21                                                        000001A7 R
+  0 __str_22                                                        000001AE R
+  0 __str_23                                                        000001B5 R
+  0 __str_24                                                        000001BB R
+  0 __str_25                                                        000001C0 R
+  0 __str_26                                                        000001C7 R
+  0 __str_27                                                        000001DA R
+  0 __str_28                                                        000001ED R
+  0 __str_29                                                        000001FC R
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 2
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 __str_3                                                         0000010A R
+  0 __str_30                                                        0000020B R
+  0 __str_31                                                        00000219 R
+  0 __str_32                                                        00000225 R
+  0 __str_33                                                        00000235 R
+  0 __str_4                                                         00000112 R
+  0 __str_5                                                         00000118 R
+  0 __str_6                                                         00000121 R
+  0 __str_7                                                         00000127 R
+  0 __str_8                                                         0000012C R
+  0 __str_9                                                         00000131 R
+  0 _g_DefaultVerbs                                                 000000B0 R
+    _strcmp                                                         ******** GX
+    _strlen                                                         ******** GX
+    _strncat                                                        ******** GX
+
+
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 3
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size      6CD   flags    0
+   1 _DATA                                      size        0   flags    0
+   2 _INITIALIZED                               size        0   flags    0
+   3 _DABS                                      size        0   flags    8
+   4 _HOME                                      size        0   flags    0
+   5 _GSINIT                                    size        0   flags    0
+   6 _GSFINAL                                   size        0   flags    0
+   7 _INITIALIZER                               size        0   flags    0
+   8 _CABS                                      size        0   flags    8
+

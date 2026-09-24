@@ -1,0 +1,1468 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ISO C Compiler
+                                      3 ; Version 4.6.0 #16555 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module game_loop
+                                      6 	
+                                      7 	.optsdcc -mz80 sdcccall(1)
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _Interpreter_DescribeCurrentRoom
+                                     12 	.globl _Interpreter_GetMessageText
+                                     13 	.globl _Interpreter_CallFunction
+                                     14 	.globl _Interpreter_Execute
+                                     15 	.globl _Parser_Parse
+                                     16 	.globl _UI_ReadLine
+                                     17 	.globl _UI_NewLineCenter
+                                     18 	.globl _UI_PrintCenter
+                                     19 	.globl _UI_ClearCenter
+                                     20 	.globl _UI_SetTopText
+                                     21 	.globl _UI_Init
+                                     22 	.globl _Game_Init
+                                     23 	.globl _Game_Run
+                                     24 ;--------------------------------------------------------
+                                     25 ; special function registers
+                                     26 ;--------------------------------------------------------
+                                     27 ;--------------------------------------------------------
+                                     28 ; ram data
+                                     29 ;--------------------------------------------------------
+                                     30 	.area _DATA
+                                     31 ;--------------------------------------------------------
+                                     32 ; ram data
+                                     33 ;--------------------------------------------------------
+                                     34 	.area _INITIALIZED
+                                     35 ;--------------------------------------------------------
+                                     36 ; absolute ram data
+                                     37 ;--------------------------------------------------------
+                                     38 	.area _DABS (ABS)
+                                     39 	.area _DABS (ABS)
+                                     40 ;--------------------------------------------------------
+                                     41 ; global & static initialisations
+                                     42 ;--------------------------------------------------------
+                                     43 	.area _HOME
+                                     44 	.area _GSINIT
+                                     45 	.area _GSFINAL
+                                     46 	.area _GSINIT
+                                     47 ;--------------------------------------------------------
+                                     48 ; Home
+                                     49 ;--------------------------------------------------------
+                                     50 	.area _HOME
+                                     51 	.area _HOME
+                                     52 ;--------------------------------------------------------
+                                     53 ; code
+                                     54 ;--------------------------------------------------------
+                                     55 	.area _CODE
+                                     56 ;engine/src/game_loop.c:22: void Game_Init(const Game_Database* db, Game_State* state)
+                                     57 ;	---------------------------------
+                                     58 ; Function Game_Init
+                                     59 ; ---------------------------------
+    00000000                         60 _Game_Init::
+    00000000 DD E5            [15]   61 	push	ix
+    00000002 DD 21 00 00      [14]   62 	ld	ix,	#0
+    00000006 DD 39            [15]   63 	add	ix, sp
+    00000008 FD 21 F6 FF      [14]   64 	ld	iy, #-10
+    0000000C FD 39            [15]   65 	add	iy, sp
+    0000000E FD F9            [10]   66 	ld	sp, iy
+    00000010 DD 75 FE         [19]   67 	ld	-2 (ix), l
+    00000013 DD 74 FF         [19]   68 	ld	-1 (ix), h
+                                     69 ;engine/src/game_loop.c:27: for (i = 0; i < REG_COUNT; i++)
+    00000016 01 00 00         [10]   70 	ld	bc, #0x0000
+    00000019                         71 00117$:
+                                     72 ;engine/src/game_loop.c:29: state->registers[i] = 0;
+    00000019 69               [ 4]   73 	ld	l, c
+    0000001A 60               [ 4]   74 	ld	h, b
+    0000001B 19               [11]   75 	add	hl, de
+    0000001C 36 00            [10]   76 	ld	(hl), #0x00
+                                     77 ;engine/src/game_loop.c:27: for (i = 0; i < REG_COUNT; i++)
+    0000001E 03               [ 6]   78 	inc	bc
+    0000001F 78               [ 4]   79 	ld	a, b
+    00000020 D6 01            [ 7]   80 	sub	a, #0x01
+    00000022 38 F5            [12]   81 	jr	c, 00117$
+                                     82 ;engine/src/game_loop.c:31: state->obj_evidencia = 0;
+    00000024 21 00 01         [10]   83 	ld	hl, #0x0100
+    00000027 19               [11]   84 	add	hl, de
+    00000028 36 00            [10]   85 	ld	(hl), #0x00
+                                     86 ;engine/src/game_loop.c:32: state->obj_buffer[0] = 0;
+    0000002A 6B               [ 4]   87 	ld	l, e
+    0000002B 62               [ 4]   88 	ld	h, d
+    0000002C 23               [ 6]   89 	inc	hl
+    0000002D 24               [ 4]   90 	inc	h
+    0000002E 36 00            [10]   91 	ld	(hl), #0x00
+                                     92 ;engine/src/game_loop.c:33: state->obj_buffer[1] = 0;
+    00000030 21 02 01         [10]   93 	ld	hl, #0x0102
+    00000033 19               [11]   94 	add	hl, de
+    00000034 36 00            [10]   95 	ld	(hl), #0x00
+                                     96 ;engine/src/game_loop.c:34: state->verbo_atual = 0;
+    00000036 21 03 01         [10]   97 	ld	hl, #0x0103
+    00000039 19               [11]   98 	add	hl, de
+    0000003A 36 00            [10]   99 	ld	(hl), #0x00
+                                    100 ;engine/src/game_loop.c:35: state->gosub_ret_func = 0;
+    0000003C 21 04 01         [10]  101 	ld	hl, #0x0104
+    0000003F 19               [11]  102 	add	hl, de
+    00000040 36 00            [10]  103 	ld	(hl), #0x00
+                                    104 ;engine/src/game_loop.c:36: state->gosub_ret_pc = 0;
+    00000042 21 05 01         [10]  105 	ld	hl, #0x0105
+    00000045 19               [11]  106 	add	hl, de
+    00000046 36 00            [10]  107 	ld	(hl), #0x00
+                                    108 ;engine/src/game_loop.c:37: state->flag_espera_cmd = FALSE;
+    00000048 21 06 01         [10]  109 	ld	hl, #0x0106
+    0000004B 19               [11]  110 	add	hl, de
+    0000004C 36 00            [10]  111 	ld	(hl), #0x00
+                                    112 ;engine/src/game_loop.c:38: state->flag_fim = FALSE;
+    0000004E 21 07 01         [10]  113 	ld	hl, #0x0107
+    00000051 19               [11]  114 	add	hl, de
+    00000052 36 00            [10]  115 	ld	(hl), #0x00
+                                    116 ;engine/src/game_loop.c:39: state->flag_reiniciar = FALSE;
+    00000054 21 08 01         [10]  117 	ld	hl, #0x0108
+    00000057 19               [11]  118 	add	hl, de
+    00000058 36 00            [10]  119 	ld	(hl), #0x00
+                                    120 ;engine/src/game_loop.c:41: if (db == NULL) return;
+    0000005A DD 7E FF         [19]  121 	ld	a, -1 (ix)
+    0000005D DD B6 FE         [19]  122 	or	a, -2 (ix)
+    00000060 CAr4Br01         [10]  123 	jp	z, 00122$
+                                    124 ;engine/src/game_loop.c:44: state->registers[REG_POSICAO] = db->posicao_inicial;
+    00000063 4B               [ 4]  125 	ld	c, e
+    00000064 42               [ 4]  126 	ld	b, d
+    00000065 03               [ 6]  127 	inc	bc
+    00000066 DD 6E FE         [19]  128 	ld	l, -2 (ix)
+    00000069 DD 66 FF         [19]  129 	ld	h, -1 (ix)
+    0000006C 23               [ 6]  130 	inc	hl
+    0000006D 23               [ 6]  131 	inc	hl
+    0000006E 7E               [ 7]  132 	ld	a, (hl)
+    0000006F 02               [ 7]  133 	ld	(bc), a
+                                    134 ;engine/src/game_loop.c:47: if (db->objetos != NULL)
+    00000070 01 08 00         [10]  135 	ld	bc, #0x0008
+    00000073 DD 6E FE         [19]  136 	ld	l, -2 (ix)
+    00000076 DD 66 FF         [19]  137 	ld	h, -1 (ix)
+    00000079 09               [11]  138 	add	hl, bc
+    0000007A E3               [19]  139 	ex	(sp), hl
+    0000007B E1               [10]  140 	pop	hl
+    0000007C E5               [11]  141 	push	hl
+    0000007D 7E               [ 7]  142 	ld	a, (hl)
+    0000007E 23               [ 6]  143 	inc	hl
+    0000007F B6               [ 7]  144 	or	a, (hl)
+    00000080 CAr0Br01         [10]  145 	jp	z, 00116$
+                                    146 ;engine/src/game_loop.c:49: for (i = 0; i < db->num_objetos; i++)
+    00000083 DD 73 F8         [19]  147 	ld	-8 (ix), e
+    00000086 DD 72 F9         [19]  148 	ld	-7 (ix), d
+    00000089 DD 7E FE         [19]  149 	ld	a, -2 (ix)
+    0000008C DD 77 FA         [19]  150 	ld	-6 (ix), a
+    0000008F DD 7E FF         [19]  151 	ld	a, -1 (ix)
+    00000092 DD 77 FB         [19]  152 	ld	-5 (ix), a
+    00000095 01 00 00         [10]  153 	ld	bc, #0x0000
+    00000098                        154 00120$:
+    00000098 DD 6E FA         [19]  155 	ld	l, -6 (ix)
+    0000009B DD 66 FB         [19]  156 	ld	h, -5 (ix)
+    0000009E C5               [11]  157 	push	bc
+    0000009F 01 0A 00         [10]  158 	ld	bc, #0x000a
+    000000A2 09               [11]  159 	add	hl, bc
+    000000A3 C1               [10]  160 	pop	bc
+    000000A4 6E               [ 7]  161 	ld	l, (hl)
+    000000A5 26 00            [ 7]  162 	ld	h, #0x00
+    000000A7 79               [ 4]  163 	ld	a, c
+    000000A8 95               [ 4]  164 	sub	a, l
+    000000A9 78               [ 4]  165 	ld	a, b
+    000000AA 9C               [ 4]  166 	sbc	a, h
+    000000AB 30 5E            [12]  167 	jr	nc, 00116$
+                                    168 ;engine/src/game_loop.c:51: const Game_Object* obj = db->objetos[i];
+    000000AD E1               [10]  169 	pop	hl
+    000000AE E5               [11]  170 	push	hl
+    000000AF 7E               [ 7]  171 	ld	a, (hl)
+    000000B0 DD 77 FC         [19]  172 	ld	-4 (ix), a
+    000000B3 23               [ 6]  173 	inc	hl
+    000000B4 7E               [ 7]  174 	ld	a, (hl)
+    000000B5 DD 77 FD         [19]  175 	ld	-3 (ix), a
+    000000B8 69               [ 4]  176 	ld	l, c
+    000000B9 60               [ 4]  177 	ld	h, b
+    000000BA 29               [11]  178 	add	hl, hl
+    000000BB DD 7E FC         [19]  179 	ld	a, -4 (ix)
+    000000BE 85               [ 4]  180 	add	a, l
+    000000BF 6F               [ 4]  181 	ld	l, a
+    000000C0 DD 7E FD         [19]  182 	ld	a, -3 (ix)
+    000000C3 8C               [ 4]  183 	adc	a, h
+    000000C4 67               [ 4]  184 	ld	h, a
+    000000C5 7E               [ 7]  185 	ld	a, (hl)
+    000000C6 23               [ 6]  186 	inc	hl
+    000000C7 66               [ 7]  187 	ld	h, (hl)
+                                    188 ;engine/src/game_loop.c:52: if (obj != NULL && obj->id > 0 && obj->id <= OBJ_MAX)
+    000000C8 6F               [ 4]  189 	ld	l, a
+    000000C9 B4               [ 4]  190 	or	a, h
+    000000CA 28 3C            [12]  191 	jr	z, 00121$
+    000000CC 7E               [ 7]  192 	ld	a, (hl)
+    000000CD B7               [ 4]  193 	or	a, a
+    000000CE 28 38            [12]  194 	jr	z, 00121$
+    000000D0 FE 64            [ 7]  195 	cp	a, #0x64
+    000000D2 30 34            [12]  196 	jr	nc, 00121$
+                                    197 ;engine/src/game_loop.c:54: state->registers[REG_OBJETO_OFFSET + obj->id] = obj->situacao_inicial;
+    000000D4 C6 64            [ 7]  198 	add	a, #0x64
+    000000D6 DD 86 F8         [19]  199 	add	a, -8 (ix)
+    000000D9 DD 77 FC         [19]  200 	ld	-4 (ix), a
+    000000DC 3E 00            [ 7]  201 	ld	a, #0x00
+    000000DE DD 8E F9         [19]  202 	adc	a, -7 (ix)
+    000000E1 DD 77 FD         [19]  203 	ld	-3 (ix), a
+    000000E4 23               [ 6]  204 	inc	hl
+    000000E5 7E               [ 7]  205 	ld	a, (hl)
+    000000E6 E5               [11]  206 	push	hl
+    000000E7 DD 6E FC         [19]  207 	ld	l, -4 (ix)
+    000000EA DD 66 FD         [19]  208 	ld	h, -3 (ix)
+    000000ED 77               [ 7]  209 	ld	(hl), a
+    000000EE E1               [10]  210 	pop	hl
+                                    211 ;engine/src/game_loop.c:56: if (obj->situacao_inicial == OBJ_SIT_CARREGADO)
+    000000EF 7E               [ 7]  212 	ld	a, (hl)
+    000000F0 FE FA            [ 7]  213 	cp	a, #0xfa
+    000000F2 20 07            [12]  214 	jr	nz, 00108$
+                                    215 ;engine/src/game_loop.c:58: state->registers[REG_OBJETOS_CARREGADOS]++;
+    000000F4 21 08 00         [10]  216 	ld	hl, #0x0008
+    000000F7 19               [11]  217 	add	hl, de
+    000000F8 34               [11]  218 	inc	(hl)
+    000000F9 18 0D            [12]  219 	jr	00121$
+    000000FB                        220 00108$:
+                                    221 ;engine/src/game_loop.c:60: else if (obj->situacao_inicial == OBJ_SIT_EM_OBJ3_ABERTO ||
+    000000FB FE FB            [ 7]  222 	cp	a, #0xfb
+    000000FD 28 04            [12]  223 	jr	z, 00104$
+                                    224 ;engine/src/game_loop.c:61: obj->situacao_inicial == OBJ_SIT_EM_OBJ3_FECHADO)
+    000000FF FE FD            [ 7]  225 	cp	a, #0xfd
+    00000101 20 05            [12]  226 	jr	nz, 00121$
+    00000103                        227 00104$:
+                                    228 ;engine/src/game_loop.c:63: state->registers[REG_OBJETOS_NO_OBJ3]++;
+    00000103 21 07 00         [10]  229 	ld	hl, #0x0007
+    00000106 19               [11]  230 	add	hl, de
+    00000107 34               [11]  231 	inc	(hl)
+    00000108                        232 00121$:
+                                    233 ;engine/src/game_loop.c:49: for (i = 0; i < db->num_objetos; i++)
+    00000108 03               [ 6]  234 	inc	bc
+    00000109 18 8D            [12]  235 	jr	00120$
+    0000010B                        236 00116$:
+                                    237 ;engine/src/game_loop.c:70: UI_Init();
+    0000010B D5               [11]  238 	push	de
+    0000010C CDr00r00         [17]  239 	call	_UI_Init
+    0000010F D1               [10]  240 	pop	de
+                                    241 ;engine/src/game_loop.c:71: UI_SetTopText(db->titulo);
+    00000110 DD 6E FE         [19]  242 	ld	l, -2 (ix)
+    00000113 DD 66 FF         [19]  243 	ld	h, -1 (ix)
+    00000116 7E               [ 7]  244 	ld	a, (hl)
+    00000117 23               [ 6]  245 	inc	hl
+    00000118 66               [ 7]  246 	ld	h, (hl)
+    00000119 6F               [ 4]  247 	ld	l, a
+    0000011A D5               [11]  248 	push	de
+    0000011B CDr00r00         [17]  249 	call	_UI_SetTopText
+    0000011E D1               [10]  250 	pop	de
+                                    251 ;engine/src/game_loop.c:74: Interpreter_CallFunction(FUNC_RESET, db, state);
+    0000011F D5               [11]  252 	push	de
+    00000120 D5               [11]  253 	push	de
+    00000121 DD 5E FE         [19]  254 	ld	e, -2 (ix)
+    00000124 DD 56 FF         [19]  255 	ld	d, -1 (ix)
+    00000127 3E 01            [ 7]  256 	ld	a, #0x01
+    00000129 CDr00r00         [17]  257 	call	_Interpreter_CallFunction
+                                    258 ;engine/src/game_loop.c:77: UI_PrintCenter(Interpreter_GetMessageText(MSG_INTRO, db));
+    0000012C DD 5E FE         [19]  259 	ld	e, -2 (ix)
+    0000012F DD 56 FF         [19]  260 	ld	d, -1 (ix)
+    00000132 3E 0B            [ 7]  261 	ld	a, #0x0b
+    00000134 CDr00r00         [17]  262 	call	_Interpreter_GetMessageText
+    00000137 EB               [ 4]  263 	ex	de, hl
+    00000138 CDr00r00         [17]  264 	call	_UI_PrintCenter
+                                    265 ;engine/src/game_loop.c:78: UI_NewLineCenter();
+    0000013B CDr00r00         [17]  266 	call	_UI_NewLineCenter
+                                    267 ;engine/src/game_loop.c:79: UI_NewLineCenter();
+    0000013E CDr00r00         [17]  268 	call	_UI_NewLineCenter
+    00000141 D1               [10]  269 	pop	de
+                                    270 ;engine/src/game_loop.c:80: Interpreter_DescribeCurrentRoom(db, state);
+    00000142 DD 6E FE         [19]  271 	ld	l, -2 (ix)
+    00000145 DD 66 FF         [19]  272 	ld	h, -1 (ix)
+    00000148 CDr00r00         [17]  273 	call	_Interpreter_DescribeCurrentRoom
+    0000014B                        274 00122$:
+                                    275 ;engine/src/game_loop.c:81: }
+    0000014B DD F9            [10]  276 	ld	sp, ix
+    0000014D DD E1            [14]  277 	pop	ix
+    0000014F C9               [10]  278 	ret
+                                    279 ;engine/src/game_loop.c:86: static u8 GetRoomExit(const Game_Database* db, u8 room_id, Game_Direction dir)
+                                    280 ;	---------------------------------
+                                    281 ; Function GetRoomExit
+                                    282 ; ---------------------------------
+    00000150                        283 _GetRoomExit:
+    00000150 DD E5            [15]  284 	push	ix
+    00000152 DD 21 00 00      [14]  285 	ld	ix,	#0
+    00000156 DD 39            [15]  286 	add	ix, sp
+    00000158 F5               [11]  287 	push	af
+    00000159 EB               [ 4]  288 	ex	de, hl
+                                    289 ;engine/src/game_loop.c:89: if (db == NULL || db->posicoes == NULL) return 0;
+    0000015A 7A               [ 4]  290 	ld	a, d
+    0000015B B3               [ 4]  291 	or	a, e
+    0000015C 28 0D            [12]  292 	jr	z, 00101$
+    0000015E 4B               [ 4]  293 	ld	c, e
+    0000015F 42               [ 4]  294 	ld	b, d
+    00000160 21 05 00         [10]  295 	ld	hl, #5
+    00000163 09               [11]  296 	add	hl, bc
+    00000164 4E               [ 7]  297 	ld	c, (hl)
+    00000165 23               [ 6]  298 	inc	hl
+    00000166 46               [ 7]  299 	ld	b, (hl)
+    00000167 78               [ 4]  300 	ld	a, b
+    00000168 B1               [ 4]  301 	or	a, c
+    00000169 20 03            [12]  302 	jr	nz, 00126$
+    0000016B                        303 00101$:
+    0000016B AF               [ 4]  304 	xor	a, a
+    0000016C 18 43            [12]  305 	jr	00113$
+                                    306 ;engine/src/game_loop.c:91: for (i = 0; i < db->num_posicoes; i++)
+    0000016E                        307 00126$:
+    0000016E DD 7E 05         [19]  308 	ld	a, 5 (ix)
+    00000171 D6 04            [ 7]  309 	sub	a, #0x04
+    00000173 3E 00            [ 7]  310 	ld	a, #0x00
+    00000175 17               [ 4]  311 	rla
+    00000176 DD 77 FE         [19]  312 	ld	-2 (ix), a
+    00000179 DD 36 FF 00      [19]  313 	ld	-1 (ix), #0x00
+    0000017D                        314 00111$:
+    0000017D 21 07 00         [10]  315 	ld	hl, #7
+    00000180 19               [11]  316 	add	hl, de
+    00000181 DD 7E FF         [19]  317 	ld	a,-1 (ix)
+    00000184 96               [ 7]  318 	sub	a,(hl)
+    00000185 30 29            [12]  319 	jr	nc, 00109$
+                                    320 ;engine/src/game_loop.c:93: const Game_Position* pos = db->posicoes[i];
+    00000187 DD 6E FF         [19]  321 	ld	l, -1 (ix)
+    0000018A 26 00            [ 7]  322 	ld	h, #0x00
+    0000018C 29               [11]  323 	add	hl, hl
+    0000018D 09               [11]  324 	add	hl, bc
+    0000018E 7E               [ 7]  325 	ld	a, (hl)
+    0000018F 23               [ 6]  326 	inc	hl
+    00000190 66               [ 7]  327 	ld	h, (hl)
+                                    328 ;engine/src/game_loop.c:94: if (pos != NULL && pos->id == room_id)
+    00000191 6F               [ 4]  329 	ld	l, a
+    00000192 B4               [ 4]  330 	or	a, h
+    00000193 28 16            [12]  331 	jr	z, 00112$
+    00000195 7E               [ 7]  332 	ld	a, (hl)
+    00000196 DD 96 04         [19]  333 	sub	a, 4 (ix)
+    00000199 20 10            [12]  334 	jr	nz, 00112$
+                                    335 ;engine/src/game_loop.c:96: if (dir < DIR_COUNT)
+    0000019B DD 7E FE         [19]  336 	ld	a, -2 (ix)
+    0000019E B7               [ 4]  337 	or	a, a
+    0000019F 28 0A            [12]  338 	jr	z, 00112$
+                                    339 ;engine/src/game_loop.c:98: return pos->saidas[dir];
+    000001A1 23               [ 6]  340 	inc	hl
+    000001A2 DD 5E 05         [19]  341 	ld	e, 5 (ix)
+    000001A5 16 00            [ 7]  342 	ld	d, #0x00
+    000001A7 19               [11]  343 	add	hl, de
+    000001A8 7E               [ 7]  344 	ld	a, (hl)
+    000001A9 18 06            [12]  345 	jr	00113$
+    000001AB                        346 00112$:
+                                    347 ;engine/src/game_loop.c:91: for (i = 0; i < db->num_posicoes; i++)
+    000001AB DD 34 FF         [23]  348 	inc	-1 (ix)
+    000001AE 18 CD            [12]  349 	jr	00111$
+    000001B0                        350 00109$:
+                                    351 ;engine/src/game_loop.c:102: return 0;
+    000001B0 AF               [ 4]  352 	xor	a, a
+    000001B1                        353 00113$:
+                                    354 ;engine/src/game_loop.c:103: }
+    000001B1 DD F9            [10]  355 	ld	sp, ix
+    000001B3 DD E1            [14]  356 	pop	ix
+    000001B5 E1               [10]  357 	pop	hl
+    000001B6 C1               [10]  358 	pop	bc
+    000001B7 E9               [ 4]  359 	jp	(hl)
+                                    360 ;engine/src/game_loop.c:108: static const Game_Object* GetObject(const Game_Database* db, u8 obj_id)
+                                    361 ;	---------------------------------
+                                    362 ; Function GetObject
+                                    363 ; ---------------------------------
+    000001B8                        364 _GetObject:
+    000001B8 DD E5            [15]  365 	push	ix
+    000001BA DD 21 00 00      [14]  366 	ld	ix,	#0
+    000001BE DD 39            [15]  367 	add	ix, sp
+    000001C0 3B               [ 6]  368 	dec	sp
+    000001C1 EB               [ 4]  369 	ex	de, hl
+                                    370 ;engine/src/game_loop.c:111: if (db == NULL || db->objetos == NULL || obj_id == 0) return NULL;
+    000001C2 7A               [ 4]  371 	ld	a, d
+    000001C3 B3               [ 4]  372 	or	a, e
+    000001C4 28 13            [12]  373 	jr	z, 00101$
+    000001C6 4B               [ 4]  374 	ld	c, e
+    000001C7 42               [ 4]  375 	ld	b, d
+    000001C8 21 08 00         [10]  376 	ld	hl, #8
+    000001CB 09               [11]  377 	add	hl, bc
+    000001CC 4E               [ 7]  378 	ld	c, (hl)
+    000001CD 23               [ 6]  379 	inc	hl
+    000001CE 46               [ 7]  380 	ld	b, (hl)
+    000001CF 78               [ 4]  381 	ld	a, b
+    000001D0 B1               [ 4]  382 	or	a, c
+    000001D1 28 06            [12]  383 	jr	z, 00101$
+    000001D3 DD 7E 04         [19]  384 	ld	a, 4 (ix)
+    000001D6 B7               [ 4]  385 	or	a, a
+    000001D7 20 05            [12]  386 	jr	nz, 00125$
+    000001D9                        387 00101$:
+    000001D9 11 00 00         [10]  388 	ld	de, #0x0000
+    000001DC 18 2D            [12]  389 	jr	00112$
+                                    390 ;engine/src/game_loop.c:113: for (i = 0; i < db->num_objetos; i++)
+    000001DE                        391 00125$:
+    000001DE DD 36 FF 00      [19]  392 	ld	-1 (ix), #0x00
+    000001E2                        393 00110$:
+    000001E2 21 0A 00         [10]  394 	ld	hl, #10
+    000001E5 19               [11]  395 	add	hl, de
+    000001E6 DD 7E FF         [19]  396 	ld	a,-1 (ix)
+    000001E9 96               [ 7]  397 	sub	a,(hl)
+    000001EA 30 1C            [12]  398 	jr	nc, 00108$
+                                    399 ;engine/src/game_loop.c:115: const Game_Object* obj = db->objetos[i];
+    000001EC DD 6E FF         [19]  400 	ld	l, -1 (ix)
+    000001EF 26 00            [ 7]  401 	ld	h, #0x00
+    000001F1 29               [11]  402 	add	hl, hl
+    000001F2 09               [11]  403 	add	hl, bc
+    000001F3 7E               [ 7]  404 	ld	a, (hl)
+    000001F4 23               [ 6]  405 	inc	hl
+    000001F5 66               [ 7]  406 	ld	h, (hl)
+                                    407 ;engine/src/game_loop.c:116: if (obj != NULL && obj->id == obj_id)
+    000001F6 6F               [ 4]  408 	ld	l, a
+    000001F7 B4               [ 4]  409 	or	a, h
+    000001F8 28 09            [12]  410 	jr	z, 00111$
+    000001FA 7E               [ 7]  411 	ld	a, (hl)
+    000001FB DD 96 04         [19]  412 	sub	a, 4 (ix)
+    000001FE 20 03            [12]  413 	jr	nz, 00111$
+                                    414 ;engine/src/game_loop.c:118: return obj;
+    00000200 EB               [ 4]  415 	ex	de, hl
+    00000201 18 08            [12]  416 	jr	00112$
+    00000203                        417 00111$:
+                                    418 ;engine/src/game_loop.c:113: for (i = 0; i < db->num_objetos; i++)
+    00000203 DD 34 FF         [23]  419 	inc	-1 (ix)
+    00000206 18 DA            [12]  420 	jr	00110$
+    00000208                        421 00108$:
+                                    422 ;engine/src/game_loop.c:121: return NULL;
+    00000208 11 00 00         [10]  423 	ld	de, #0x0000
+    0000020B                        424 00112$:
+                                    425 ;engine/src/game_loop.c:122: }
+    0000020B 33               [ 6]  426 	inc	sp
+    0000020C DD E1            [14]  427 	pop	ix
+    0000020E E1               [10]  428 	pop	hl
+    0000020F 33               [ 6]  429 	inc	sp
+    00000210 E9               [ 4]  430 	jp	(hl)
+                                    431 ;engine/src/game_loop.c:128: void Game_Run(const Game_Database* db, Game_State* state)
+                                    432 ;	---------------------------------
+                                    433 ; Function Game_Run
+                                    434 ; ---------------------------------
+    00000211                        435 _Game_Run::
+    00000211 DD E5            [15]  436 	push	ix
+    00000213 DD 21 00 00      [14]  437 	ld	ix,	#0
+    00000217 DD 39            [15]  438 	add	ix, sp
+    00000219 FD 21 77 FF      [14]  439 	ld	iy, #-137
+    0000021D FD 39            [15]  440 	add	iy, sp
+    0000021F FD F9            [10]  441 	ld	sp, iy
+    00000221 DD 75 FD         [19]  442 	ld	-3 (ix), l
+    00000224 DD 74 FE         [19]  443 	ld	-2 (ix), h
+                                    444 ;engine/src/game_loop.c:133: Game_Init(db, state);
+    00000227 DD 73 FB         [19]  445 	ld	-5 (ix), e
+    0000022A DD 72 FC         [19]  446 	ld	-4 (ix), d
+    0000022D DD 6E FD         [19]  447 	ld	l, -3 (ix)
+    00000230 DD 66 FE         [19]  448 	ld	h, -2 (ix)
+    00000233 CDr00r00         [17]  449 	call	_Game_Init
+                                    450 ;engine/src/game_loop.c:135: while (!state->flag_fim)
+    00000236 11 08 01         [10]  451 	ld	de, #0x0108
+    00000239 DD 6E FB         [19]  452 	ld	l, -5 (ix)
+    0000023C DD 66 FC         [19]  453 	ld	h, -4 (ix)
+    0000023F 19               [11]  454 	add	hl, de
+    00000240 DD 75 C7         [19]  455 	ld	-57 (ix), l
+    00000243 DD 74 C8         [19]  456 	ld	-56 (ix), h
+    00000246 11 07 01         [10]  457 	ld	de, #0x0107
+    00000249 DD 6E FB         [19]  458 	ld	l, -5 (ix)
+    0000024C DD 66 FC         [19]  459 	ld	h, -4 (ix)
+    0000024F 19               [11]  460 	add	hl, de
+    00000250 DD 75 C9         [19]  461 	ld	-55 (ix), l
+    00000253 DD 74 CA         [19]  462 	ld	-54 (ix), h
+    00000256 11 0E 00         [10]  463 	ld	de, #0x000e
+    00000259 DD 6E FD         [19]  464 	ld	l, -3 (ix)
+    0000025C DD 66 FE         [19]  465 	ld	h, -2 (ix)
+    0000025F 19               [11]  466 	add	hl, de
+    00000260 DD 75 CB         [19]  467 	ld	-53 (ix), l
+    00000263 DD 74 CC         [19]  468 	ld	-52 (ix), h
+    00000266 DD 7E FD         [19]  469 	ld	a, -3 (ix)
+    00000269 DD 77 CD         [19]  470 	ld	-51 (ix), a
+    0000026C DD 7E FE         [19]  471 	ld	a, -2 (ix)
+    0000026F DD 77 CE         [19]  472 	ld	-50 (ix), a
+    00000272 DD 7E CB         [19]  473 	ld	a, -53 (ix)
+    00000275 DD 77 CF         [19]  474 	ld	-49 (ix), a
+    00000278 DD 7E CC         [19]  475 	ld	a, -52 (ix)
+    0000027B DD 77 D0         [19]  476 	ld	-48 (ix), a
+    0000027E DD 7E C9         [19]  477 	ld	a, -55 (ix)
+    00000281 DD 77 D1         [19]  478 	ld	-47 (ix), a
+    00000284 DD 7E CA         [19]  479 	ld	a, -54 (ix)
+    00000287 DD 77 D2         [19]  480 	ld	-46 (ix), a
+    0000028A DD 7E C7         [19]  481 	ld	a, -57 (ix)
+    0000028D DD 77 D3         [19]  482 	ld	-45 (ix), a
+    00000290 DD 7E C8         [19]  483 	ld	a, -56 (ix)
+    00000293 DD 77 D4         [19]  484 	ld	-44 (ix), a
+    00000296 DD 7E C9         [19]  485 	ld	a, -55 (ix)
+    00000299 DD 77 D5         [19]  486 	ld	-43 (ix), a
+    0000029C DD 7E CA         [19]  487 	ld	a, -54 (ix)
+    0000029F DD 77 D6         [19]  488 	ld	-42 (ix), a
+    000002A2 DD 7E C7         [19]  489 	ld	a, -57 (ix)
+    000002A5 DD 77 D7         [19]  490 	ld	-41 (ix), a
+    000002A8 DD 7E C8         [19]  491 	ld	a, -56 (ix)
+    000002AB DD 77 D8         [19]  492 	ld	-40 (ix), a
+    000002AE DD 7E FB         [19]  493 	ld	a, -5 (ix)
+    000002B1 DD 77 D9         [19]  494 	ld	-39 (ix), a
+    000002B4 DD 7E FC         [19]  495 	ld	a, -4 (ix)
+    000002B7 DD 77 DA         [19]  496 	ld	-38 (ix), a
+    000002BA DD 7E FB         [19]  497 	ld	a, -5 (ix)
+    000002BD DD 77 DB         [19]  498 	ld	-37 (ix), a
+    000002C0 DD 7E FC         [19]  499 	ld	a, -4 (ix)
+    000002C3 DD 77 DC         [19]  500 	ld	-36 (ix), a
+    000002C6 DD 7E C9         [19]  501 	ld	a, -55 (ix)
+    000002C9 DD 77 DD         [19]  502 	ld	-35 (ix), a
+    000002CC DD 7E CA         [19]  503 	ld	a, -54 (ix)
+    000002CF DD 77 DE         [19]  504 	ld	-34 (ix), a
+    000002D2 DD 7E C7         [19]  505 	ld	a, -57 (ix)
+    000002D5 DD 77 DF         [19]  506 	ld	-33 (ix), a
+    000002D8 DD 7E C8         [19]  507 	ld	a, -56 (ix)
+    000002DB DD 77 E0         [19]  508 	ld	-32 (ix), a
+    000002DE 11 01 01         [10]  509 	ld	de, #0x0101
+    000002E1 DD 6E FB         [19]  510 	ld	l, -5 (ix)
+    000002E4 DD 66 FC         [19]  511 	ld	h, -4 (ix)
+    000002E7 19               [11]  512 	add	hl, de
+    000002E8 DD 75 E1         [19]  513 	ld	-31 (ix), l
+    000002EB DD 74 E2         [19]  514 	ld	-30 (ix), h
+    000002EE DD 7E FB         [19]  515 	ld	a, -5 (ix)
+    000002F1 DD 77 E3         [19]  516 	ld	-29 (ix), a
+    000002F4 DD 7E FC         [19]  517 	ld	a, -4 (ix)
+    000002F7 DD 77 E4         [19]  518 	ld	-28 (ix), a
+    000002FA DD 7E E1         [19]  519 	ld	a, -31 (ix)
+    000002FD DD 77 E5         [19]  520 	ld	-27 (ix), a
+    00000300 DD 7E E2         [19]  521 	ld	a, -30 (ix)
+    00000303 DD 77 E6         [19]  522 	ld	-26 (ix), a
+    00000306 11 03 01         [10]  523 	ld	de, #0x0103
+    00000309 DD 6E FB         [19]  524 	ld	l, -5 (ix)
+    0000030C DD 66 FC         [19]  525 	ld	h, -4 (ix)
+    0000030F 19               [11]  526 	add	hl, de
+    00000310 DD 75 E7         [19]  527 	ld	-25 (ix), l
+    00000313 DD 74 E8         [19]  528 	ld	-24 (ix), h
+    00000316 11 0B 00         [10]  529 	ld	de, #0x000b
+    00000319 DD 6E FD         [19]  530 	ld	l, -3 (ix)
+    0000031C DD 66 FE         [19]  531 	ld	h, -2 (ix)
+    0000031F 19               [11]  532 	add	hl, de
+    00000320 DD 75 E9         [19]  533 	ld	-23 (ix), l
+    00000323 DD 74 EA         [19]  534 	ld	-22 (ix), h
+    00000326 DD 7E FD         [19]  535 	ld	a, -3 (ix)
+    00000329 DD 77 EB         [19]  536 	ld	-21 (ix), a
+    0000032C DD 7E FE         [19]  537 	ld	a, -2 (ix)
+    0000032F DD 77 EC         [19]  538 	ld	-20 (ix), a
+    00000332 DD 7E E9         [19]  539 	ld	a, -23 (ix)
+    00000335 DD 77 ED         [19]  540 	ld	-19 (ix), a
+    00000338 DD 7E EA         [19]  541 	ld	a, -22 (ix)
+    0000033B DD 77 EE         [19]  542 	ld	-18 (ix), a
+    0000033E DD 7E E7         [19]  543 	ld	a, -25 (ix)
+    00000341 DD 77 EF         [19]  544 	ld	-17 (ix), a
+    00000344 DD 7E E8         [19]  545 	ld	a, -24 (ix)
+    00000347 DD 77 F0         [19]  546 	ld	-16 (ix), a
+    0000034A DD 7E E1         [19]  547 	ld	a, -31 (ix)
+    0000034D DD 77 F1         [19]  548 	ld	-15 (ix), a
+    00000350 DD 7E E2         [19]  549 	ld	a, -30 (ix)
+    00000353 DD 77 F2         [19]  550 	ld	-14 (ix), a
+    00000356 DD 7E E7         [19]  551 	ld	a, -25 (ix)
+    00000359 DD 77 F3         [19]  552 	ld	-13 (ix), a
+    0000035C DD 7E E8         [19]  553 	ld	a, -24 (ix)
+    0000035F DD 77 F4         [19]  554 	ld	-12 (ix), a
+    00000362                        555 00211$:
+    00000362 DD 6E C9         [19]  556 	ld	l, -55 (ix)
+    00000365 DD 66 CA         [19]  557 	ld	h, -54 (ix)
+    00000368 7E               [ 7]  558 	ld	a, (hl)
+    00000369 DD 77 FF         [19]  559 	ld	-1 (ix), a
+    0000036C B7               [ 4]  560 	or	a, a
+    0000036D C2r5Fr09         [10]  561 	jp	nz, 00213$
+                                    562 ;engine/src/game_loop.c:137: if (state->flag_reiniciar)
+    00000370 DD 6E C7         [19]  563 	ld	l, -57 (ix)
+    00000373 DD 66 C8         [19]  564 	ld	h, -56 (ix)
+    00000376 7E               [ 7]  565 	ld	a, (hl)
+    00000377 B7               [ 4]  566 	or	a, a
+    00000378 28 11            [12]  567 	jr	z, 00102$
+                                    568 ;engine/src/game_loop.c:139: Game_Init(db, state);
+    0000037A DD 5E FB         [19]  569 	ld	e, -5 (ix)
+    0000037D DD 56 FC         [19]  570 	ld	d, -4 (ix)
+    00000380 DD 6E FD         [19]  571 	ld	l, -3 (ix)
+    00000383 DD 66 FE         [19]  572 	ld	h, -2 (ix)
+    00000386 CDr00r00         [17]  573 	call	_Game_Init
+                                    574 ;engine/src/game_loop.c:140: continue;
+    00000389 18 D7            [12]  575 	jr	00211$
+    0000038B                        576 00102$:
+                                    577 ;engine/src/game_loop.c:146: if (db != NULL && db->funcoes != NULL)
+    0000038B DD 7E FE         [19]  578 	ld	a, -2 (ix)
+    0000038E DD B6 FD         [19]  579 	or	a, -3 (ix)
+    00000391 CAr63r04         [10]  580 	jp	z, 00111$
+    00000394 DD 6E CF         [19]  581 	ld	l, -49 (ix)
+    00000397 DD 66 D0         [19]  582 	ld	h, -48 (ix)
+    0000039A 7E               [ 7]  583 	ld	a, (hl)
+    0000039B DD 77 F9         [19]  584 	ld	-7 (ix), a
+    0000039E 23               [ 6]  585 	inc	hl
+    0000039F 7E               [ 7]  586 	ld	a, (hl)
+    000003A0 DD 77 FA         [19]  587 	ld	-6 (ix), a
+    000003A3 DD B6 F9         [19]  588 	or	a, -7 (ix)
+    000003A6 CAr63r04         [10]  589 	jp	z, 00111$
+                                    590 ;engine/src/game_loop.c:149: for (i = 0; i < db->num_funcoes; i++)
+    000003A9 DD 36 FF 00      [19]  591 	ld	-1 (ix), #0x00
+    000003AD                        592 00215$:
+    000003AD DD 6E CD         [19]  593 	ld	l, -51 (ix)
+    000003B0 DD 66 CE         [19]  594 	ld	h, -50 (ix)
+    000003B3 11 10 00         [10]  595 	ld	de, #0x0010
+    000003B6 19               [11]  596 	add	hl, de
+    000003B7 DD 7E FF         [19]  597 	ld	a,-1 (ix)
+    000003BA 96               [ 7]  598 	sub	a,(hl)
+    000003BB D2r63r04         [10]  599 	jp	nc, 00111$
+                                    600 ;engine/src/game_loop.c:151: const Game_Function* f = db->funcoes[i];
+    000003BE DD 6E CB         [19]  601 	ld	l, -53 (ix)
+    000003C1 DD 66 CC         [19]  602 	ld	h, -52 (ix)
+    000003C4 7E               [ 7]  603 	ld	a, (hl)
+    000003C5 DD 77 F5         [19]  604 	ld	-11 (ix), a
+    000003C8 23               [ 6]  605 	inc	hl
+    000003C9 7E               [ 7]  606 	ld	a, (hl)
+    000003CA DD 77 F6         [19]  607 	ld	-10 (ix), a
+    000003CD DD 7E FF         [19]  608 	ld	a, -1 (ix)
+    000003D0 DD 77 F9         [19]  609 	ld	-7 (ix), a
+    000003D3 DD 36 FA 00      [19]  610 	ld	-6 (ix), #0x00
+    000003D7 DD 7E F9         [19]  611 	ld	a, -7 (ix)
+    000003DA DD 77 F7         [19]  612 	ld	-9 (ix), a
+    000003DD DD 36 F8 00      [19]  613 	ld	-8 (ix), #0x00
+    000003E1 DD CB F7 26      [23]  614 	sla	-9 (ix)
+    000003E5 DD CB F8 16      [23]  615 	rl	-8 (ix)
+    000003E9 DD 5E F7         [19]  616 	ld	e, -9 (ix)
+    000003EC DD 56 F8         [19]  617 	ld	d, -8 (ix)
+    000003EF DD 6E F5         [19]  618 	ld	l, -11 (ix)
+    000003F2 DD 66 F6         [19]  619 	ld	h, -10 (ix)
+    000003F5 19               [11]  620 	add	hl, de
+    000003F6 DD 75 F9         [19]  621 	ld	-7 (ix), l
+    000003F9 DD 74 FA         [19]  622 	ld	-6 (ix), h
+    000003FC 7E               [ 7]  623 	ld	a, (hl)
+    000003FD DD 77 F9         [19]  624 	ld	-7 (ix), a
+    00000400 23               [ 6]  625 	inc	hl
+    00000401 7E               [ 7]  626 	ld	a, (hl)
+                                    627 ;engine/src/game_loop.c:152: if (f != NULL && f->id == FUNC_PRE_COMANDO)
+    00000402 DD 77 FA         [19]  628 	ld	-6 (ix), a
+    00000405 DD B6 F9         [19]  629 	or	a, -7 (ix)
+    00000408 28 53            [12]  630 	jr	z, 00216$
+    0000040A DD 6E F9         [19]  631 	ld	l, -7 (ix)
+    0000040D DD 66 FA         [19]  632 	ld	h, -6 (ix)
+    00000410 7E               [ 7]  633 	ld	a, (hl)
+    00000411 FE 05            [ 7]  634 	cp	a, #0x05
+    00000413 20 48            [12]  635 	jr	nz, 00216$
+                                    636 ;engine/src/game_loop.c:154: if (f->instruction_count > 0 && f->instructions[0].op != OP_NOP)
+    00000415 DD 6E F9         [19]  637 	ld	l, -7 (ix)
+    00000418 DD 66 FA         [19]  638 	ld	h, -6 (ix)
+    0000041B 23               [ 6]  639 	inc	hl
+    0000041C 23               [ 6]  640 	inc	hl
+    0000041D 23               [ 6]  641 	inc	hl
+    0000041E 7E               [ 7]  642 	ld	a, (hl)
+    0000041F DD 77 FF         [19]  643 	ld	-1 (ix), a
+    00000422 B7               [ 4]  644 	or	a, a
+    00000423 28 3E            [12]  645 	jr	z, 00111$
+    00000425 DD 6E F9         [19]  646 	ld	l, -7 (ix)
+    00000428 DD 66 FA         [19]  647 	ld	h, -6 (ix)
+    0000042B 23               [ 6]  648 	inc	hl
+    0000042C 7E               [ 7]  649 	ld	a, (hl)
+    0000042D DD 77 F9         [19]  650 	ld	-7 (ix), a
+    00000430 23               [ 6]  651 	inc	hl
+    00000431 7E               [ 7]  652 	ld	a, (hl)
+    00000432 DD 77 FA         [19]  653 	ld	-6 (ix), a
+    00000435 DD 6E F9         [19]  654 	ld	l, -7 (ix)
+    00000438 DD 66 FA         [19]  655 	ld	h, -6 (ix)
+    0000043B 7E               [ 7]  656 	ld	a, (hl)
+    0000043C B7               [ 4]  657 	or	a, a
+    0000043D 28 24            [12]  658 	jr	z, 00111$
+                                    659 ;engine/src/game_loop.c:156: Interpreter_Execute(f->instructions, f->instruction_count, db, state);
+    0000043F DD 6E FB         [19]  660 	ld	l, -5 (ix)
+    00000442 DD 66 FC         [19]  661 	ld	h, -4 (ix)
+    00000445 E5               [11]  662 	push	hl
+    00000446 DD 6E FD         [19]  663 	ld	l, -3 (ix)
+    00000449 DD 66 FE         [19]  664 	ld	h, -2 (ix)
+    0000044C E5               [11]  665 	push	hl
+    0000044D DD 7E FF         [19]  666 	ld	a, -1 (ix)
+    00000450 F5               [11]  667 	push	af
+    00000451 33               [ 6]  668 	inc	sp
+    00000452 DD 6E F9         [19]  669 	ld	l, -7 (ix)
+    00000455 DD 66 FA         [19]  670 	ld	h, -6 (ix)
+    00000458 CDr00r00         [17]  671 	call	_Interpreter_Execute
+                                    672 ;engine/src/game_loop.c:158: break;
+    0000045B 18 06            [12]  673 	jr	00111$
+    0000045D                        674 00216$:
+                                    675 ;engine/src/game_loop.c:149: for (i = 0; i < db->num_funcoes; i++)
+    0000045D DD 34 FF         [23]  676 	inc	-1 (ix)
+    00000460 C3rADr03         [10]  677 	jp	00215$
+    00000463                        678 00111$:
+                                    679 ;engine/src/game_loop.c:163: if (state->flag_fim || state->flag_reiniciar) continue;
+    00000463 DD 6E D1         [19]  680 	ld	l, -47 (ix)
+    00000466 DD 66 D2         [19]  681 	ld	h, -46 (ix)
+    00000469 7E               [ 7]  682 	ld	a, (hl)
+    0000046A B7               [ 4]  683 	or	a, a
+    0000046B C2r62r03         [10]  684 	jp	nz, 00211$
+    0000046E DD 6E D3         [19]  685 	ld	l, -45 (ix)
+    00000471 DD 66 D4         [19]  686 	ld	h, -44 (ix)
+    00000474 7E               [ 7]  687 	ld	a, (hl)
+    00000475 B7               [ 4]  688 	or	a, a
+    00000476 C2r62r03         [10]  689 	jp	nz, 00211$
+                                    690 ;engine/src/game_loop.c:168: UI_ReadLine(input_line, sizeof(input_line));
+    00000479 3E 28            [ 7]  691 	ld	a, #0x28
+    0000047B F5               [11]  692 	push	af
+    0000047C 33               [ 6]  693 	inc	sp
+    0000047D 21 01 00         [10]  694 	ld	hl, #1
+    00000480 39               [11]  695 	add	hl, sp
+    00000481 CDr00r00         [17]  696 	call	_UI_ReadLine
+                                    697 ;engine/src/game_loop.c:172: if (input_line[0] == '\0')
+    00000484 21 00 00         [10]  698 	ld	hl, #0
+    00000487 39               [11]  699 	add	hl, sp
+    00000488 7E               [ 7]  700 	ld	a, (hl)
+    00000489 DD 77 FF         [19]  701 	ld	-1 (ix), a
+    0000048C B7               [ 4]  702 	or	a, a
+    0000048D 20 4B            [12]  703 	jr	nz, 00119$
+                                    704 ;engine/src/game_loop.c:174: state->registers[REG_JOGADAS_L]++;
+    0000048F DD 6E FB         [19]  705 	ld	l, -5 (ix)
+    00000492 DD 66 FC         [19]  706 	ld	h, -4 (ix)
+    00000495 23               [ 6]  707 	inc	hl
+    00000496 23               [ 6]  708 	inc	hl
+    00000497 DD 75 F9         [19]  709 	ld	-7 (ix), l
+    0000049A DD 74 FA         [19]  710 	ld	-6 (ix), h
+    0000049D 7E               [ 7]  711 	ld	a, (hl)
+    0000049E DD 77 FF         [19]  712 	ld	-1 (ix), a
+    000004A1 3C               [ 4]  713 	inc	a
+    000004A2 DD 6E F9         [19]  714 	ld	l, -7 (ix)
+    000004A5 DD 66 FA         [19]  715 	ld	h, -6 (ix)
+    000004A8 77               [ 7]  716 	ld	(hl), a
+                                    717 ;engine/src/game_loop.c:175: if (state->registers[REG_JOGADAS_L] == 0)
+    000004A9 B7               [ 4]  718 	or	a, a
+    000004AA 20 19            [12]  719 	jr	nz, 00117$
+                                    720 ;engine/src/game_loop.c:177: state->registers[REG_JOGADAS_H]++;
+    000004AC 11 03 00         [10]  721 	ld	de, #0x0003
+    000004AF DD 6E FB         [19]  722 	ld	l, -5 (ix)
+    000004B2 DD 66 FC         [19]  723 	ld	h, -4 (ix)
+    000004B5 19               [11]  724 	add	hl, de
+    000004B6 DD 75 F9         [19]  725 	ld	-7 (ix), l
+    000004B9 DD 74 FA         [19]  726 	ld	-6 (ix), h
+    000004BC 7E               [ 7]  727 	ld	a, (hl)
+    000004BD 3C               [ 4]  728 	inc	a
+    000004BE DD 6E F9         [19]  729 	ld	l, -7 (ix)
+    000004C1 DD 66 FA         [19]  730 	ld	h, -6 (ix)
+    000004C4 77               [ 7]  731 	ld	(hl), a
+    000004C5                        732 00117$:
+                                    733 ;engine/src/game_loop.c:179: UI_ClearCenter();
+    000004C5 CDr00r00         [17]  734 	call	_UI_ClearCenter
+                                    735 ;engine/src/game_loop.c:180: Interpreter_DescribeCurrentRoom(db, state);
+    000004C8 DD 5E FB         [19]  736 	ld	e, -5 (ix)
+    000004CB DD 56 FC         [19]  737 	ld	d, -4 (ix)
+    000004CE DD 6E FD         [19]  738 	ld	l, -3 (ix)
+    000004D1 DD 66 FE         [19]  739 	ld	h, -2 (ix)
+    000004D4 CDr00r00         [17]  740 	call	_Interpreter_DescribeCurrentRoom
+                                    741 ;engine/src/game_loop.c:181: continue;
+    000004D7 C3r62r03         [10]  742 	jp	00211$
+    000004DA                        743 00119$:
+                                    744 ;engine/src/game_loop.c:185: state->registers[REG_JOGADAS_L]++;
+    000004DA DD 6E FB         [19]  745 	ld	l, -5 (ix)
+    000004DD DD 66 FC         [19]  746 	ld	h, -4 (ix)
+    000004E0 23               [ 6]  747 	inc	hl
+    000004E1 23               [ 6]  748 	inc	hl
+                                    749 ;engine/src/game_loop.c:186: if (state->registers[REG_JOGADAS_L] == 0)
+    000004E2 34               [11]  750 	inc	(hl)
+    000004E3 20 0A            [12]  751 	jr	nz, 00121$
+                                    752 ;engine/src/game_loop.c:188: state->registers[REG_JOGADAS_H]++;
+    000004E5 DD 6E FB         [19]  753 	ld	l, -5 (ix)
+    000004E8 DD 66 FC         [19]  754 	ld	h, -4 (ix)
+    000004EB 23               [ 6]  755 	inc	hl
+    000004EC 23               [ 6]  756 	inc	hl
+    000004ED 23               [ 6]  757 	inc	hl
+    000004EE 34               [11]  758 	inc	(hl)
+    000004EF                        759 00121$:
+                                    760 ;engine/src/game_loop.c:194: if (state->registers[REG_CONTADOR_4] != 0)
+    000004EF DD 7E FB         [19]  761 	ld	a, -5 (ix)
+    000004F2 C6 04            [ 7]  762 	add	a, #0x04
+    000004F4 4F               [ 4]  763 	ld	c, a
+    000004F5 DD 7E FC         [19]  764 	ld	a, -4 (ix)
+    000004F8 CE 00            [ 7]  765 	adc	a, #0x00
+    000004FA 47               [ 4]  766 	ld	b, a
+    000004FB 0A               [ 7]  767 	ld	a, (bc)
+    000004FC B7               [ 4]  768 	or	a, a
+    000004FD 28 02            [12]  769 	jr	z, 00123$
+                                    770 ;engine/src/game_loop.c:196: state->registers[REG_CONTADOR_4]++;
+    000004FF 3C               [ 4]  771 	inc	a
+    00000500 02               [ 7]  772 	ld	(bc), a
+    00000501                        773 00123$:
+                                    774 ;engine/src/game_loop.c:203: if (state->registers[REG_CONTADOR_5] != 0)
+    00000501 DD 7E FB         [19]  775 	ld	a, -5 (ix)
+    00000504 C6 05            [ 7]  776 	add	a, #0x05
+    00000506 4F               [ 4]  777 	ld	c, a
+    00000507 DD 7E FC         [19]  778 	ld	a, -4 (ix)
+    0000050A CE 00            [ 7]  779 	adc	a, #0x00
+    0000050C 47               [ 4]  780 	ld	b, a
+    0000050D 0A               [ 7]  781 	ld	a, (bc)
+    0000050E B7               [ 4]  782 	or	a, a
+    0000050F 28 2E            [12]  783 	jr	z, 00130$
+                                    784 ;engine/src/game_loop.c:205: state->registers[REG_CONTADOR_5]--;
+    00000511 0A               [ 7]  785 	ld	a, (bc)
+    00000512 3D               [ 4]  786 	dec	a
+    00000513 02               [ 7]  787 	ld	(bc), a
+                                    788 ;engine/src/game_loop.c:206: if (state->registers[REG_CONTADOR_5] == 0)
+    00000514 B7               [ 4]  789 	or	a, a
+    00000515 20 28            [12]  790 	jr	nz, 00130$
+                                    791 ;engine/src/game_loop.c:208: Interpreter_CallFunction(FUNC_TIMER_BOMBA, db, state);
+    00000517 DD 6E FB         [19]  792 	ld	l, -5 (ix)
+    0000051A DD 66 FC         [19]  793 	ld	h, -4 (ix)
+    0000051D E5               [11]  794 	push	hl
+    0000051E DD 5E FD         [19]  795 	ld	e, -3 (ix)
+    00000521 DD 56 FE         [19]  796 	ld	d, -2 (ix)
+    00000524 3E 02            [ 7]  797 	ld	a, #0x02
+    00000526 CDr00r00         [17]  798 	call	_Interpreter_CallFunction
+                                    799 ;engine/src/game_loop.c:209: if (state->flag_fim || state->flag_reiniciar) continue;
+    00000529 DD 6E D5         [19]  800 	ld	l, -43 (ix)
+    0000052C DD 66 D6         [19]  801 	ld	h, -42 (ix)
+    0000052F 7E               [ 7]  802 	ld	a, (hl)
+    00000530 B7               [ 4]  803 	or	a, a
+    00000531 C2r62r03         [10]  804 	jp	nz, 00211$
+    00000534 DD 6E D7         [19]  805 	ld	l, -41 (ix)
+    00000537 DD 66 D8         [19]  806 	ld	h, -40 (ix)
+    0000053A 7E               [ 7]  807 	ld	a, (hl)
+    0000053B B7               [ 4]  808 	or	a, a
+    0000053C C2r62r03         [10]  809 	jp	nz, 00211$
+    0000053F                        810 00130$:
+                                    811 ;engine/src/game_loop.c:214: if (state->registers[REG_ILUMINACAO] != 0 && state->registers[REG_ESTADO_OBJ2] == 0)
+    0000053F DD 6E D9         [19]  812 	ld	l, -39 (ix)
+    00000542 DD 66 DA         [19]  813 	ld	h, -38 (ix)
+    00000545 11 09 00         [10]  814 	ld	de, #0x0009
+    00000548 19               [11]  815 	add	hl, de
+    00000549 7E               [ 7]  816 	ld	a, (hl)
+    0000054A B7               [ 4]  817 	or	a, a
+    0000054B 28 48            [12]  818 	jr	z, 00137$
+    0000054D DD 6E DB         [19]  819 	ld	l, -37 (ix)
+    00000550 DD 66 DC         [19]  820 	ld	h, -36 (ix)
+    00000553 11 0A 00         [10]  821 	ld	de, #0x000a
+    00000556 19               [11]  822 	add	hl, de
+    00000557 7E               [ 7]  823 	ld	a, (hl)
+    00000558 B7               [ 4]  824 	or	a, a
+    00000559 20 3A            [12]  825 	jr	nz, 00137$
+                                    826 ;engine/src/game_loop.c:216: state->registers[REG_PASSOS_ESCURO]++;
+    0000055B DD 6E FB         [19]  827 	ld	l, -5 (ix)
+    0000055E DD 66 FC         [19]  828 	ld	h, -4 (ix)
+    00000561 11 06 00         [10]  829 	ld	de, #0x0006
+    00000564 19               [11]  830 	add	hl, de
+    00000565 34               [11]  831 	inc	(hl)
+    00000566 7E               [ 7]  832 	ld	a, (hl)
+                                    833 ;engine/src/game_loop.c:217: if (state->registers[REG_PASSOS_ESCURO] >= 5)
+    00000567 D6 05            [ 7]  834 	sub	a, #0x05
+    00000569 38 36            [12]  835 	jr	c, 00138$
+                                    836 ;engine/src/game_loop.c:219: Interpreter_CallFunction(FUNC_ESCURO, db, state);
+    0000056B DD 6E FB         [19]  837 	ld	l, -5 (ix)
+    0000056E DD 66 FC         [19]  838 	ld	h, -4 (ix)
+    00000571 E5               [11]  839 	push	hl
+    00000572 DD 5E FD         [19]  840 	ld	e, -3 (ix)
+    00000575 DD 56 FE         [19]  841 	ld	d, -2 (ix)
+    00000578 3E 03            [ 7]  842 	ld	a, #0x03
+    0000057A CDr00r00         [17]  843 	call	_Interpreter_CallFunction
+                                    844 ;engine/src/game_loop.c:220: if (state->flag_fim || state->flag_reiniciar) continue;
+    0000057D DD 6E DD         [19]  845 	ld	l, -35 (ix)
+    00000580 DD 66 DE         [19]  846 	ld	h, -34 (ix)
+    00000583 7E               [ 7]  847 	ld	a, (hl)
+    00000584 B7               [ 4]  848 	or	a, a
+    00000585 C2r62r03         [10]  849 	jp	nz, 00211$
+    00000588 DD 6E DF         [19]  850 	ld	l, -33 (ix)
+    0000058B DD 66 E0         [19]  851 	ld	h, -32 (ix)
+    0000058E 7E               [ 7]  852 	ld	a, (hl)
+    0000058F B7               [ 4]  853 	or	a, a
+    00000590 C2r62r03         [10]  854 	jp	nz, 00211$
+    00000593 18 0C            [12]  855 	jr	00138$
+    00000595                        856 00137$:
+                                    857 ;engine/src/game_loop.c:225: state->registers[REG_PASSOS_ESCURO] = 0;
+    00000595 DD 6E FB         [19]  858 	ld	l, -5 (ix)
+    00000598 DD 66 FC         [19]  859 	ld	h, -4 (ix)
+    0000059B 11 06 00         [10]  860 	ld	de, #0x0006
+    0000059E 19               [11]  861 	add	hl, de
+    0000059F 36 00            [10]  862 	ld	(hl), #0x00
+    000005A1                        863 00138$:
+                                    864 ;engine/src/game_loop.c:232: bool verb_found = Parser_Parse(input_line, db, state, echo_text, sizeof(echo_text));
+    000005A1 3E 28            [ 7]  865 	ld	a, #0x28
+    000005A3 F5               [11]  866 	push	af
+    000005A4 33               [ 6]  867 	inc	sp
+    000005A5 21 29 00         [10]  868 	ld	hl, #41
+    000005A8 39               [11]  869 	add	hl, sp
+    000005A9 E5               [11]  870 	push	hl
+    000005AA DD 6E FB         [19]  871 	ld	l, -5 (ix)
+    000005AD DD 66 FC         [19]  872 	ld	h, -4 (ix)
+    000005B0 E5               [11]  873 	push	hl
+    000005B1 DD 5E FD         [19]  874 	ld	e, -3 (ix)
+    000005B4 DD 56 FE         [19]  875 	ld	d, -2 (ix)
+    000005B7 21 05 00         [10]  876 	ld	hl, #5
+    000005BA 39               [11]  877 	add	hl, sp
+    000005BB CDr00r00         [17]  878 	call	_Parser_Parse
+    000005BE 4F               [ 4]  879 	ld	c, a
+                                    880 ;engine/src/game_loop.c:235: if (echo_text[0] != '\0')
+    000005BF DD 7E 9F         [19]  881 	ld	a, -97 (ix)
+    000005C2 B7               [ 4]  882 	or	a, a
+    000005C3 28 09            [12]  883 	jr	z, 00141$
+                                    884 ;engine/src/game_loop.c:237: UI_SetTopText(echo_text);
+    000005C5 C5               [11]  885 	push	bc
+    000005C6 21 2A 00         [10]  886 	ld	hl, #42
+    000005C9 39               [11]  887 	add	hl, sp
+    000005CA CDr00r00         [17]  888 	call	_UI_SetTopText
+    000005CD C1               [10]  889 	pop	bc
+    000005CE                        890 00141$:
+                                    891 ;engine/src/game_loop.c:240: if (!verb_found)
+    000005CE 79               [ 4]  892 	ld	a, c
+    000005CF B7               [ 4]  893 	or	a, a
+    000005D0 20 15            [12]  894 	jr	nz, 00143$
+                                    895 ;engine/src/game_loop.c:242: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_ENTENDI, db));
+    000005D2 DD 5E FD         [19]  896 	ld	e, -3 (ix)
+    000005D5 DD 56 FE         [19]  897 	ld	d, -2 (ix)
+    000005D8 3E 0E            [ 7]  898 	ld	a, #0x0e
+    000005DA CDr00r00         [17]  899 	call	_Interpreter_GetMessageText
+    000005DD EB               [ 4]  900 	ex	de, hl
+    000005DE CDr00r00         [17]  901 	call	_UI_PrintCenter
+                                    902 ;engine/src/game_loop.c:243: UI_NewLineCenter();
+    000005E1 CDr00r00         [17]  903 	call	_UI_NewLineCenter
+                                    904 ;engine/src/game_loop.c:244: continue;
+    000005E4 C3r62r03         [10]  905 	jp	00211$
+    000005E7                        906 00143$:
+                                    907 ;engine/src/game_loop.c:248: if (state->obj_buffer[0] != 0)
+    000005E7 DD 6E E1         [19]  908 	ld	l, -31 (ix)
+    000005EA DD 66 E2         [19]  909 	ld	h, -30 (ix)
+    000005ED 4E               [ 7]  910 	ld	c, (hl)
+    000005EE 79               [ 4]  911 	ld	a, c
+    000005EF B7               [ 4]  912 	or	a, a
+    000005F0 28 09            [12]  913 	jr	z, 00145$
+                                    914 ;engine/src/game_loop.c:250: state->obj_evidencia = state->obj_buffer[0];
+    000005F2 DD 6E FB         [19]  915 	ld	l, -5 (ix)
+    000005F5 DD 7E FC         [19]  916 	ld	a, -4 (ix)
+    000005F8 3C               [ 4]  917 	inc	a
+    000005F9 67               [ 4]  918 	ld	h, a
+    000005FA 71               [ 7]  919 	ld	(hl), c
+    000005FB                        920 00145$:
+                                    921 ;engine/src/game_loop.c:257: bool cmd_executed = FALSE;
+    000005FB 0E 00            [ 7]  922 	ld	c, #0x00
+                                    923 ;engine/src/game_loop.c:260: if (db != NULL && db->comandos != NULL)
+    000005FD DD 7E FE         [19]  924 	ld	a, -2 (ix)
+    00000600 DD B6 FD         [19]  925 	or	a, -3 (ix)
+    00000603 CAr89r06         [10]  926 	jp	z, 00153$
+    00000606 DD 6E ED         [19]  927 	ld	l, -19 (ix)
+    00000609 DD 66 EE         [19]  928 	ld	h, -18 (ix)
+    0000060C 7E               [ 7]  929 	ld	a, (hl)
+    0000060D 23               [ 6]  930 	inc	hl
+    0000060E B6               [ 7]  931 	or	a, (hl)
+    0000060F 28 78            [12]  932 	jr	z, 00153$
+                                    933 ;engine/src/game_loop.c:262: for (c = 0; c < db->num_comandos; c++)
+    00000611 06 00            [ 7]  934 	ld	b, #0x00
+    00000613                        935 00218$:
+    00000613 DD 6E EB         [19]  936 	ld	l, -21 (ix)
+    00000616 DD 66 EC         [19]  937 	ld	h, -20 (ix)
+    00000619 11 0D 00         [10]  938 	ld	de, #0x000d
+    0000061C 19               [11]  939 	add	hl, de
+    0000061D 78               [ 4]  940 	ld	a, b
+    0000061E 96               [ 7]  941 	sub	a, (hl)
+    0000061F 30 68            [12]  942 	jr	nc, 00153$
+                                    943 ;engine/src/game_loop.c:264: const Game_Command* cmd = db->comandos[c];
+    00000621 DD 6E E9         [19]  944 	ld	l, -23 (ix)
+    00000624 DD 66 EA         [19]  945 	ld	h, -22 (ix)
+    00000627 5E               [ 7]  946 	ld	e, (hl)
+    00000628 23               [ 6]  947 	inc	hl
+    00000629 56               [ 7]  948 	ld	d, (hl)
+    0000062A 68               [ 4]  949 	ld	l, b
+    0000062B AF               [ 4]  950 	xor	a, a
+    0000062C 67               [ 4]  951 	ld	h, a
+    0000062D 29               [11]  952 	add	hl, hl
+    0000062E 19               [11]  953 	add	hl, de
+    0000062F 5E               [ 7]  954 	ld	e, (hl)
+    00000630 23               [ 6]  955 	inc	hl
+    00000631 56               [ 7]  956 	ld	d, (hl)
+                                    957 ;engine/src/game_loop.c:265: if (cmd != NULL &&
+    00000632 7A               [ 4]  958 	ld	a, d
+    00000633 B3               [ 4]  959 	or	a, e
+    00000634 28 50            [12]  960 	jr	z, 00219$
+                                    961 ;engine/src/game_loop.c:266: cmd->verbo == state->verbo_atual &&
+    00000636 1A               [ 7]  962 	ld	a, (de)
+    00000637 DD 6E E7         [19]  963 	ld	l, -25 (ix)
+    0000063A DD 66 E8         [19]  964 	ld	h, -24 (ix)
+    0000063D 96               [ 7]  965 	sub	a, (hl)
+    0000063E 20 46            [12]  966 	jr	nz, 00219$
+                                    967 ;engine/src/game_loop.c:267: cmd->objeto1 == state->obj_buffer[0] &&
+    00000640 6B               [ 4]  968 	ld	l, e
+    00000641 62               [ 4]  969 	ld	h, d
+    00000642 23               [ 6]  970 	inc	hl
+    00000643 7E               [ 7]  971 	ld	a, (hl)
+    00000644 DD 6E E5         [19]  972 	ld	l, -27 (ix)
+    00000647 DD 66 E6         [19]  973 	ld	h, -26 (ix)
+    0000064A 96               [ 7]  974 	sub	a, (hl)
+    0000064B 20 39            [12]  975 	jr	nz, 00219$
+                                    976 ;engine/src/game_loop.c:268: cmd->objeto2 == state->obj_buffer[1])
+    0000064D 6B               [ 4]  977 	ld	l, e
+    0000064E 62               [ 4]  978 	ld	h, d
+    0000064F 23               [ 6]  979 	inc	hl
+    00000650 23               [ 6]  980 	inc	hl
+    00000651 7E               [ 7]  981 	ld	a, (hl)
+    00000652 DD 6E E3         [19]  982 	ld	l, -29 (ix)
+    00000655 DD 66 E4         [19]  983 	ld	h, -28 (ix)
+    00000658 C5               [11]  984 	push	bc
+    00000659 01 02 01         [10]  985 	ld	bc, #0x0102
+    0000065C 09               [11]  986 	add	hl, bc
+    0000065D C1               [10]  987 	pop	bc
+    0000065E 96               [ 7]  988 	sub	a, (hl)
+    0000065F 20 25            [12]  989 	jr	nz, 00219$
+                                    990 ;engine/src/game_loop.c:270: Interpreter_Execute(cmd->instructions, cmd->instruction_count, db, state);
+    00000661 D5               [11]  991 	push	de
+    00000662 FD E1            [14]  992 	pop	iy
+    00000664 FD 46 05         [19]  993 	ld	b, 5 (iy)
+    00000667 21 03 00         [10]  994 	ld	hl, #3
+    0000066A 19               [11]  995 	add	hl, de
+    0000066B 7E               [ 7]  996 	ld	a, (hl)
+    0000066C 23               [ 6]  997 	inc	hl
+    0000066D 66               [ 7]  998 	ld	h, (hl)
+    0000066E DD 5E FB         [19]  999 	ld	e, -5 (ix)
+    00000671 DD 56 FC         [19] 1000 	ld	d, -4 (ix)
+    00000674 D5               [11] 1001 	push	de
+    00000675 DD 5E FD         [19] 1002 	ld	e, -3 (ix)
+    00000678 DD 56 FE         [19] 1003 	ld	d, -2 (ix)
+    0000067B D5               [11] 1004 	push	de
+    0000067C C5               [11] 1005 	push	bc
+    0000067D 33               [ 6] 1006 	inc	sp
+    0000067E 6F               [ 4] 1007 	ld	l, a
+    0000067F CDr00r00         [17] 1008 	call	_Interpreter_Execute
+                                   1009 ;engine/src/game_loop.c:271: cmd_executed = TRUE;
+    00000682 0E 01            [ 7] 1010 	ld	c, #0x01
+                                   1011 ;engine/src/game_loop.c:272: break;
+    00000684 18 03            [12] 1012 	jr	00153$
+    00000686                       1013 00219$:
+                                   1014 ;engine/src/game_loop.c:262: for (c = 0; c < db->num_comandos; c++)
+    00000686 04               [ 4] 1015 	inc	b
+    00000687 18 8A            [12] 1016 	jr	00218$
+    00000689                       1017 00153$:
+                                   1018 ;engine/src/game_loop.c:277: if (cmd_executed)
+    00000689 79               [ 4] 1019 	ld	a, c
+    0000068A B7               [ 4] 1020 	or	a, a
+    0000068B C2r62r03         [10] 1021 	jp	nz, 00211$
+                                   1022 ;engine/src/game_loop.c:286: if (state->verbo_atual >= VERBO_NORTE && state->verbo_atual <= VERBO_OESTE)
+    0000068E DD 6E EF         [19] 1023 	ld	l, -17 (ix)
+    00000691 DD 66 F0         [19] 1024 	ld	h, -16 (ix)
+    00000694 7E               [ 7] 1025 	ld	a, (hl)
+    00000695 FE 01            [ 7] 1026 	cp	a, #0x01
+    00000697 38 65            [12] 1027 	jr	c, 00164$
+    00000699 FE 05            [ 7] 1028 	cp	a, #0x05
+    0000069B 30 61            [12] 1029 	jr	nc, 00164$
+                                   1030 ;engine/src/game_loop.c:288: Game_Direction dir = (Game_Direction)(state->verbo_atual - 1);
+    0000069D 5F               [ 4] 1031 	ld	e, a
+    0000069E 1D               [ 4] 1032 	dec	e
+                                   1033 ;engine/src/game_loop.c:289: u8 saida = GetRoomExit(db, state->registers[REG_POSICAO], dir);
+    0000069F DD 4E FB         [19] 1034 	ld	c, -5 (ix)
+    000006A2 DD 46 FC         [19] 1035 	ld	b, -4 (ix)
+    000006A5 03               [ 6] 1036 	inc	bc
+    000006A6 0A               [ 7] 1037 	ld	a, (bc)
+    000006A7 C5               [11] 1038 	push	bc
+    000006A8 63               [ 4] 1039 	ld	h, e
+    000006A9 E5               [11] 1040 	push	hl
+    000006AA 33               [ 6] 1041 	inc	sp
+    000006AB F5               [11] 1042 	push	af
+    000006AC 33               [ 6] 1043 	inc	sp
+    000006AD DD 6E FD         [19] 1044 	ld	l, -3 (ix)
+    000006B0 DD 66 FE         [19] 1045 	ld	h, -2 (ix)
+    000006B3 CDr50r01         [17] 1046 	call	_GetRoomExit
+    000006B6 C1               [10] 1047 	pop	bc
+                                   1048 ;engine/src/game_loop.c:291: if (saida == 0)
+    000006B7 B7               [ 4] 1049 	or	a, a
+    000006B8 20 15            [12] 1050 	jr	nz, 00161$
+                                   1051 ;engine/src/game_loop.c:294: UI_PrintCenter(Interpreter_GetMessageText(MSG_MOVIMENTO_INVALIDO, db));
+    000006BA DD 5E FD         [19] 1052 	ld	e, -3 (ix)
+    000006BD DD 56 FE         [19] 1053 	ld	d, -2 (ix)
+    000006C0 3E 0F            [ 7] 1054 	ld	a, #0x0f
+    000006C2 CDr00r00         [17] 1055 	call	_Interpreter_GetMessageText
+    000006C5 EB               [ 4] 1056 	ex	de, hl
+    000006C6 CDr00r00         [17] 1057 	call	_UI_PrintCenter
+                                   1058 ;engine/src/game_loop.c:295: UI_NewLineCenter();
+    000006C9 CDr00r00         [17] 1059 	call	_UI_NewLineCenter
+    000006CC C3r62r03         [10] 1060 	jp	00211$
+    000006CF                       1061 00161$:
+                                   1062 ;engine/src/game_loop.c:297: else if (saida <= POSICAO_MAX)
+    000006CF FE 64            [ 7] 1063 	cp	a, #0x64
+    000006D1 30 16            [12] 1064 	jr	nc, 00158$
+                                   1065 ;engine/src/game_loop.c:300: state->registers[REG_POSICAO] = saida;
+    000006D3 02               [ 7] 1066 	ld	(bc), a
+                                   1067 ;engine/src/game_loop.c:301: UI_ClearCenter();
+    000006D4 CDr00r00         [17] 1068 	call	_UI_ClearCenter
+                                   1069 ;engine/src/game_loop.c:302: Interpreter_DescribeCurrentRoom(db, state);
+    000006D7 DD 5E FB         [19] 1070 	ld	e, -5 (ix)
+    000006DA DD 56 FC         [19] 1071 	ld	d, -4 (ix)
+    000006DD DD 6E FD         [19] 1072 	ld	l, -3 (ix)
+    000006E0 DD 66 FE         [19] 1073 	ld	h, -2 (ix)
+    000006E3 CDr00r00         [17] 1074 	call	_Interpreter_DescribeCurrentRoom
+    000006E6 C3r62r03         [10] 1075 	jp	00211$
+    000006E9                       1076 00158$:
+                                   1077 ;engine/src/game_loop.c:307: u8 func_id = saida - POSICAO_COND_OFFSET;
+    000006E9 C6 9C            [ 7] 1078 	add	a, #0x9c
+                                   1079 ;engine/src/game_loop.c:308: Interpreter_CallFunction(func_id, db, state);
+    000006EB DD 6E FB         [19] 1080 	ld	l, -5 (ix)
+    000006EE DD 66 FC         [19] 1081 	ld	h, -4 (ix)
+    000006F1 E5               [11] 1082 	push	hl
+    000006F2 DD 5E FD         [19] 1083 	ld	e, -3 (ix)
+    000006F5 DD 56 FE         [19] 1084 	ld	d, -2 (ix)
+    000006F8 CDr00r00         [17] 1085 	call	_Interpreter_CallFunction
+                                   1086 ;engine/src/game_loop.c:310: continue;
+    000006FB C3r62r03         [10] 1087 	jp	00211$
+    000006FE                       1088 00164$:
+                                   1089 ;engine/src/game_loop.c:317: u8 obj_id = state->obj_buffer[0];
+    000006FE DD 6E F1         [19] 1090 	ld	l, -15 (ix)
+    00000701 DD 66 F2         [19] 1091 	ld	h, -14 (ix)
+    00000704 7E               [ 7] 1092 	ld	a, (hl)
+                                   1093 ;engine/src/game_loop.c:318: const Game_Object* obj = GetObject(db, obj_id);
+    00000705 F5               [11] 1094 	push	af
+    00000706 33               [ 6] 1095 	inc	sp
+    00000707 DD 6E FD         [19] 1096 	ld	l, -3 (ix)
+    0000070A DD 66 FE         [19] 1097 	ld	h, -2 (ix)
+    0000070D CDrB8r01         [17] 1098 	call	_GetObject
+                                   1099 ;engine/src/game_loop.c:320: switch (state->verbo_atual)
+    00000710 DD 6E F3         [19] 1100 	ld	l, -13 (ix)
+    00000713 DD 66 F4         [19] 1101 	ld	h, -12 (ix)
+    00000716 7E               [ 7] 1102 	ld	a, (hl)
+    00000717 FE 0D            [ 7] 1103 	cp	a, #0x0d
+    00000719 CAr20r09         [10] 1104 	jp	z, 00207$
+    0000071C FE 0E            [ 7] 1105 	cp	a, #0x0e
+    0000071E CAr3Br09         [10] 1106 	jp	z, 00208$
+    00000721 FE 14            [ 7] 1107 	cp	a, #0x14
+    00000723 28 2F            [12] 1108 	jr	z, 00166$
+    00000725 FE 15            [ 7] 1109 	cp	a, #0x15
+    00000727 28 7A            [12] 1110 	jr	z, 00174$
+    00000729 FE 16            [ 7] 1111 	cp	a, #0x16
+    0000072B CArD8r07         [10] 1112 	jp	z, 00179$
+    0000072E FE 17            [ 7] 1113 	cp	a, #0x17
+    00000730 CAr0Dr08         [10] 1114 	jp	z, 00184$
+    00000733 FE 18            [ 7] 1115 	cp	a, #0x18
+    00000735 CAr42r08         [10] 1116 	jp	z, 00189$
+    00000738 FE 19            [ 7] 1117 	cp	a, #0x19
+    0000073A CAr77r08         [10] 1118 	jp	z, 00194$
+    0000073D FE 1A            [ 7] 1119 	cp	a, #0x1a
+    0000073F CArACr08         [10] 1120 	jp	z, 00199$
+    00000742 FE 1B            [ 7] 1121 	cp	a, #0x1b
+    00000744 CArE1r08         [10] 1122 	jp	z, 00204$
+    00000747 FE 1C            [ 7] 1123 	cp	a, #0x1c
+    00000749 CArF6r08         [10] 1124 	jp	z, 00205$
+    0000074C FE 1D            [ 7] 1125 	cp	a, #0x1d
+    0000074E CAr0Br09         [10] 1126 	jp	z, 00206$
+    00000751 C3r4Ar09         [10] 1127 	jp	00209$
+                                   1128 ;engine/src/game_loop.c:322: case VERBO_PEGUE:
+    00000754                       1129 00166$:
+                                   1130 ;engine/src/game_loop.c:323: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_PEGAR))
+    00000754 7A               [ 4] 1131 	ld	a, d
+    00000755 B3               [ 4] 1132 	or	a, e
+    00000756 28 1D            [12] 1133 	jr	z, 00171$
+    00000758 4B               [ 4] 1134 	ld	c, e
+    00000759 42               [ 4] 1135 	ld	b, d
+    0000075A 03               [ 6] 1136 	inc	bc
+    0000075B 03               [ 6] 1137 	inc	bc
+    0000075C 0A               [ 7] 1138 	ld	a, (bc)
+    0000075D 0F               [ 4] 1139 	rrca
+    0000075E 30 15            [12] 1140 	jr	nc, 00171$
+                                   1141 ;engine/src/game_loop.c:325: Interpreter_CallFunction(FUNC_PADRAO_PEGAR, db, state);
+    00000760 DD 6E FB         [19] 1142 	ld	l, -5 (ix)
+    00000763 DD 66 FC         [19] 1143 	ld	h, -4 (ix)
+    00000766 E5               [11] 1144 	push	hl
+    00000767 DD 5E FD         [19] 1145 	ld	e, -3 (ix)
+    0000076A DD 56 FE         [19] 1146 	ld	d, -2 (ix)
+    0000076D 3E 06            [ 7] 1147 	ld	a, #0x06
+    0000076F CDr00r00         [17] 1148 	call	_Interpreter_CallFunction
+    00000772 C3r62r03         [10] 1149 	jp	00211$
+    00000775                       1150 00171$:
+                                   1151 ;engine/src/game_loop.c:327: else if (obj == NULL)
+    00000775 7A               [ 4] 1152 	ld	a, d
+    00000776 B3               [ 4] 1153 	or	a, e
+    00000777 20 15            [12] 1154 	jr	nz, 00168$
+                                   1155 ;engine/src/game_loop.c:329: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_ESTOU_VENDO, db));
+    00000779 DD 5E FD         [19] 1156 	ld	e, -3 (ix)
+    0000077C DD 56 FE         [19] 1157 	ld	d, -2 (ix)
+    0000077F 3E 13            [ 7] 1158 	ld	a, #0x13
+    00000781 CDr00r00         [17] 1159 	call	_Interpreter_GetMessageText
+    00000784 EB               [ 4] 1160 	ex	de, hl
+    00000785 CDr00r00         [17] 1161 	call	_UI_PrintCenter
+                                   1162 ;engine/src/game_loop.c:330: UI_NewLineCenter();
+    00000788 CDr00r00         [17] 1163 	call	_UI_NewLineCenter
+    0000078B C3r62r03         [10] 1164 	jp	00211$
+    0000078E                       1165 00168$:
+                                   1166 ;engine/src/game_loop.c:334: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    0000078E DD 5E FD         [19] 1167 	ld	e, -3 (ix)
+    00000791 DD 56 FE         [19] 1168 	ld	d, -2 (ix)
+    00000794 3E 10            [ 7] 1169 	ld	a, #0x10
+    00000796 CDr00r00         [17] 1170 	call	_Interpreter_GetMessageText
+    00000799 EB               [ 4] 1171 	ex	de, hl
+    0000079A CDr00r00         [17] 1172 	call	_UI_PrintCenter
+                                   1173 ;engine/src/game_loop.c:335: UI_NewLineCenter();
+    0000079D CDr00r00         [17] 1174 	call	_UI_NewLineCenter
+                                   1175 ;engine/src/game_loop.c:337: break;
+    000007A0 C3r62r03         [10] 1176 	jp	00211$
+                                   1177 ;engine/src/game_loop.c:339: case VERBO_COLOQUE:
+    000007A3                       1178 00174$:
+                                   1179 ;engine/src/game_loop.c:340: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_COLOCAR_OBJ3))
+    000007A3 7A               [ 4] 1180 	ld	a, d
+    000007A4 B3               [ 4] 1181 	or	a, e
+    000007A5 28 1C            [12] 1182 	jr	z, 00176$
+    000007A7 13               [ 6] 1183 	inc	de
+    000007A8 13               [ 6] 1184 	inc	de
+    000007A9 1A               [ 7] 1185 	ld	a, (de)
+    000007AA CB 4F            [ 8] 1186 	bit	1, a
+    000007AC 28 15            [12] 1187 	jr	z, 00176$
+                                   1188 ;engine/src/game_loop.c:342: Interpreter_CallFunction(FUNC_PADRAO_COLOCAR_OBJ3, db, state);
+    000007AE DD 6E FB         [19] 1189 	ld	l, -5 (ix)
+    000007B1 DD 66 FC         [19] 1190 	ld	h, -4 (ix)
+    000007B4 E5               [11] 1191 	push	hl
+    000007B5 DD 5E FD         [19] 1192 	ld	e, -3 (ix)
+    000007B8 DD 56 FE         [19] 1193 	ld	d, -2 (ix)
+    000007BB 3E 07            [ 7] 1194 	ld	a, #0x07
+    000007BD CDr00r00         [17] 1195 	call	_Interpreter_CallFunction
+    000007C0 C3r62r03         [10] 1196 	jp	00211$
+    000007C3                       1197 00176$:
+                                   1198 ;engine/src/game_loop.c:346: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    000007C3 DD 5E FD         [19] 1199 	ld	e, -3 (ix)
+    000007C6 DD 56 FE         [19] 1200 	ld	d, -2 (ix)
+    000007C9 3E 10            [ 7] 1201 	ld	a, #0x10
+    000007CB CDr00r00         [17] 1202 	call	_Interpreter_GetMessageText
+    000007CE EB               [ 4] 1203 	ex	de, hl
+    000007CF CDr00r00         [17] 1204 	call	_UI_PrintCenter
+                                   1205 ;engine/src/game_loop.c:347: UI_NewLineCenter();
+    000007D2 CDr00r00         [17] 1206 	call	_UI_NewLineCenter
+                                   1207 ;engine/src/game_loop.c:349: break;
+    000007D5 C3r62r03         [10] 1208 	jp	00211$
+                                   1209 ;engine/src/game_loop.c:351: case VERBO_TROQUE:
+    000007D8                       1210 00179$:
+                                   1211 ;engine/src/game_loop.c:352: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_TROCAR))
+    000007D8 7A               [ 4] 1212 	ld	a, d
+    000007D9 B3               [ 4] 1213 	or	a, e
+    000007DA 28 1C            [12] 1214 	jr	z, 00181$
+    000007DC 13               [ 6] 1215 	inc	de
+    000007DD 13               [ 6] 1216 	inc	de
+    000007DE 1A               [ 7] 1217 	ld	a, (de)
+    000007DF CB 57            [ 8] 1218 	bit	2, a
+    000007E1 28 15            [12] 1219 	jr	z, 00181$
+                                   1220 ;engine/src/game_loop.c:354: Interpreter_CallFunction(FUNC_PADRAO_TROCAR, db, state);
+    000007E3 DD 6E FB         [19] 1221 	ld	l, -5 (ix)
+    000007E6 DD 66 FC         [19] 1222 	ld	h, -4 (ix)
+    000007E9 E5               [11] 1223 	push	hl
+    000007EA DD 5E FD         [19] 1224 	ld	e, -3 (ix)
+    000007ED DD 56 FE         [19] 1225 	ld	d, -2 (ix)
+    000007F0 3E 08            [ 7] 1226 	ld	a, #0x08
+    000007F2 CDr00r00         [17] 1227 	call	_Interpreter_CallFunction
+    000007F5 C3r62r03         [10] 1228 	jp	00211$
+    000007F8                       1229 00181$:
+                                   1230 ;engine/src/game_loop.c:358: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    000007F8 DD 5E FD         [19] 1231 	ld	e, -3 (ix)
+    000007FB DD 56 FE         [19] 1232 	ld	d, -2 (ix)
+    000007FE 3E 10            [ 7] 1233 	ld	a, #0x10
+    00000800 CDr00r00         [17] 1234 	call	_Interpreter_GetMessageText
+    00000803 EB               [ 4] 1235 	ex	de, hl
+    00000804 CDr00r00         [17] 1236 	call	_UI_PrintCenter
+                                   1237 ;engine/src/game_loop.c:359: UI_NewLineCenter();
+    00000807 CDr00r00         [17] 1238 	call	_UI_NewLineCenter
+                                   1239 ;engine/src/game_loop.c:361: break;
+    0000080A C3r62r03         [10] 1240 	jp	00211$
+                                   1241 ;engine/src/game_loop.c:363: case VERBO_COMPRE:
+    0000080D                       1242 00184$:
+                                   1243 ;engine/src/game_loop.c:364: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_COMPRAR))
+    0000080D 7A               [ 4] 1244 	ld	a, d
+    0000080E B3               [ 4] 1245 	or	a, e
+    0000080F 28 1C            [12] 1246 	jr	z, 00186$
+    00000811 13               [ 6] 1247 	inc	de
+    00000812 13               [ 6] 1248 	inc	de
+    00000813 1A               [ 7] 1249 	ld	a, (de)
+    00000814 CB 5F            [ 8] 1250 	bit	3, a
+    00000816 28 15            [12] 1251 	jr	z, 00186$
+                                   1252 ;engine/src/game_loop.c:366: Interpreter_CallFunction(FUNC_PADRAO_COMPRAR, db, state);
+    00000818 DD 6E FB         [19] 1253 	ld	l, -5 (ix)
+    0000081B DD 66 FC         [19] 1254 	ld	h, -4 (ix)
+    0000081E E5               [11] 1255 	push	hl
+    0000081F DD 5E FD         [19] 1256 	ld	e, -3 (ix)
+    00000822 DD 56 FE         [19] 1257 	ld	d, -2 (ix)
+    00000825 3E 09            [ 7] 1258 	ld	a, #0x09
+    00000827 CDr00r00         [17] 1259 	call	_Interpreter_CallFunction
+    0000082A C3r62r03         [10] 1260 	jp	00211$
+    0000082D                       1261 00186$:
+                                   1262 ;engine/src/game_loop.c:370: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    0000082D DD 5E FD         [19] 1263 	ld	e, -3 (ix)
+    00000830 DD 56 FE         [19] 1264 	ld	d, -2 (ix)
+    00000833 3E 10            [ 7] 1265 	ld	a, #0x10
+    00000835 CDr00r00         [17] 1266 	call	_Interpreter_GetMessageText
+    00000838 EB               [ 4] 1267 	ex	de, hl
+    00000839 CDr00r00         [17] 1268 	call	_UI_PrintCenter
+                                   1269 ;engine/src/game_loop.c:371: UI_NewLineCenter();
+    0000083C CDr00r00         [17] 1270 	call	_UI_NewLineCenter
+                                   1271 ;engine/src/game_loop.c:373: break;
+    0000083F C3r62r03         [10] 1272 	jp	00211$
+                                   1273 ;engine/src/game_loop.c:375: case VERBO_ROUBE:
+    00000842                       1274 00189$:
+                                   1275 ;engine/src/game_loop.c:376: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_ROUBAR))
+    00000842 7A               [ 4] 1276 	ld	a, d
+    00000843 B3               [ 4] 1277 	or	a, e
+    00000844 28 1C            [12] 1278 	jr	z, 00191$
+    00000846 13               [ 6] 1279 	inc	de
+    00000847 13               [ 6] 1280 	inc	de
+    00000848 1A               [ 7] 1281 	ld	a, (de)
+    00000849 CB 67            [ 8] 1282 	bit	4, a
+    0000084B 28 15            [12] 1283 	jr	z, 00191$
+                                   1284 ;engine/src/game_loop.c:378: Interpreter_CallFunction(FUNC_PADRAO_ROUBAR, db, state);
+    0000084D DD 6E FB         [19] 1285 	ld	l, -5 (ix)
+    00000850 DD 66 FC         [19] 1286 	ld	h, -4 (ix)
+    00000853 E5               [11] 1287 	push	hl
+    00000854 DD 5E FD         [19] 1288 	ld	e, -3 (ix)
+    00000857 DD 56 FE         [19] 1289 	ld	d, -2 (ix)
+    0000085A 3E 0A            [ 7] 1290 	ld	a, #0x0a
+    0000085C CDr00r00         [17] 1291 	call	_Interpreter_CallFunction
+    0000085F C3r62r03         [10] 1292 	jp	00211$
+    00000862                       1293 00191$:
+                                   1294 ;engine/src/game_loop.c:382: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    00000862 DD 5E FD         [19] 1295 	ld	e, -3 (ix)
+    00000865 DD 56 FE         [19] 1296 	ld	d, -2 (ix)
+    00000868 3E 10            [ 7] 1297 	ld	a, #0x10
+    0000086A CDr00r00         [17] 1298 	call	_Interpreter_GetMessageText
+    0000086D EB               [ 4] 1299 	ex	de, hl
+    0000086E CDr00r00         [17] 1300 	call	_UI_PrintCenter
+                                   1301 ;engine/src/game_loop.c:383: UI_NewLineCenter();
+    00000871 CDr00r00         [17] 1302 	call	_UI_NewLineCenter
+                                   1303 ;engine/src/game_loop.c:385: break;
+    00000874 C3r62r03         [10] 1304 	jp	00211$
+                                   1305 ;engine/src/game_loop.c:387: case VERBO_TIRE:
+    00000877                       1306 00194$:
+                                   1307 ;engine/src/game_loop.c:388: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_TIRAR))
+    00000877 7A               [ 4] 1308 	ld	a, d
+    00000878 B3               [ 4] 1309 	or	a, e
+    00000879 28 1C            [12] 1310 	jr	z, 00196$
+    0000087B 13               [ 6] 1311 	inc	de
+    0000087C 13               [ 6] 1312 	inc	de
+    0000087D 1A               [ 7] 1313 	ld	a, (de)
+    0000087E CB 6F            [ 8] 1314 	bit	5, a
+    00000880 28 15            [12] 1315 	jr	z, 00196$
+                                   1316 ;engine/src/game_loop.c:390: Interpreter_CallFunction(FUNC_PADRAO_TIRAR, db, state);
+    00000882 DD 6E FB         [19] 1317 	ld	l, -5 (ix)
+    00000885 DD 66 FC         [19] 1318 	ld	h, -4 (ix)
+    00000888 E5               [11] 1319 	push	hl
+    00000889 DD 5E FD         [19] 1320 	ld	e, -3 (ix)
+    0000088C DD 56 FE         [19] 1321 	ld	d, -2 (ix)
+    0000088F 3E 0B            [ 7] 1322 	ld	a, #0x0b
+    00000891 CDr00r00         [17] 1323 	call	_Interpreter_CallFunction
+    00000894 C3r62r03         [10] 1324 	jp	00211$
+    00000897                       1325 00196$:
+                                   1326 ;engine/src/game_loop.c:394: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    00000897 DD 5E FD         [19] 1327 	ld	e, -3 (ix)
+    0000089A DD 56 FE         [19] 1328 	ld	d, -2 (ix)
+    0000089D 3E 10            [ 7] 1329 	ld	a, #0x10
+    0000089F CDr00r00         [17] 1330 	call	_Interpreter_GetMessageText
+    000008A2 EB               [ 4] 1331 	ex	de, hl
+    000008A3 CDr00r00         [17] 1332 	call	_UI_PrintCenter
+                                   1333 ;engine/src/game_loop.c:395: UI_NewLineCenter();
+    000008A6 CDr00r00         [17] 1334 	call	_UI_NewLineCenter
+                                   1335 ;engine/src/game_loop.c:397: break;
+    000008A9 C3r62r03         [10] 1336 	jp	00211$
+                                   1337 ;engine/src/game_loop.c:399: case VERBO_QUEBRE:
+    000008AC                       1338 00199$:
+                                   1339 ;engine/src/game_loop.c:400: if (obj != NULL && (obj->consistencia & OBJ_CONSIST_QUEBRAR))
+    000008AC 7A               [ 4] 1340 	ld	a, d
+    000008AD B3               [ 4] 1341 	or	a, e
+    000008AE 28 1C            [12] 1342 	jr	z, 00201$
+    000008B0 13               [ 6] 1343 	inc	de
+    000008B1 13               [ 6] 1344 	inc	de
+    000008B2 1A               [ 7] 1345 	ld	a, (de)
+    000008B3 CB 77            [ 8] 1346 	bit	6, a
+    000008B5 28 15            [12] 1347 	jr	z, 00201$
+                                   1348 ;engine/src/game_loop.c:402: Interpreter_CallFunction(FUNC_PADRAO_QUEBRAR, db, state);
+    000008B7 DD 6E FB         [19] 1349 	ld	l, -5 (ix)
+    000008BA DD 66 FC         [19] 1350 	ld	h, -4 (ix)
+    000008BD E5               [11] 1351 	push	hl
+    000008BE DD 5E FD         [19] 1352 	ld	e, -3 (ix)
+    000008C1 DD 56 FE         [19] 1353 	ld	d, -2 (ix)
+    000008C4 3E 0C            [ 7] 1354 	ld	a, #0x0c
+    000008C6 CDr00r00         [17] 1355 	call	_Interpreter_CallFunction
+    000008C9 C3r62r03         [10] 1356 	jp	00211$
+    000008CC                       1357 00201$:
+                                   1358 ;engine/src/game_loop.c:406: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    000008CC DD 5E FD         [19] 1359 	ld	e, -3 (ix)
+    000008CF DD 56 FE         [19] 1360 	ld	d, -2 (ix)
+    000008D2 3E 10            [ 7] 1361 	ld	a, #0x10
+    000008D4 CDr00r00         [17] 1362 	call	_Interpreter_GetMessageText
+    000008D7 EB               [ 4] 1363 	ex	de, hl
+    000008D8 CDr00r00         [17] 1364 	call	_UI_PrintCenter
+                                   1365 ;engine/src/game_loop.c:407: UI_NewLineCenter();
+    000008DB CDr00r00         [17] 1366 	call	_UI_NewLineCenter
+                                   1367 ;engine/src/game_loop.c:409: break;
+    000008DE C3r62r03         [10] 1368 	jp	00211$
+                                   1369 ;engine/src/game_loop.c:411: case VERBO_SOLTE:
+    000008E1                       1370 00204$:
+                                   1371 ;engine/src/game_loop.c:412: Interpreter_CallFunction(FUNC_PADRAO_SOLTAR, db, state);
+    000008E1 DD 6E FB         [19] 1372 	ld	l, -5 (ix)
+    000008E4 DD 66 FC         [19] 1373 	ld	h, -4 (ix)
+    000008E7 E5               [11] 1374 	push	hl
+    000008E8 DD 5E FD         [19] 1375 	ld	e, -3 (ix)
+    000008EB DD 56 FE         [19] 1376 	ld	d, -2 (ix)
+    000008EE 3E 0D            [ 7] 1377 	ld	a, #0x0d
+    000008F0 CDr00r00         [17] 1378 	call	_Interpreter_CallFunction
+                                   1379 ;engine/src/game_loop.c:413: break;
+    000008F3 C3r62r03         [10] 1380 	jp	00211$
+                                   1381 ;engine/src/game_loop.c:415: case VERBO_EXAMINE:
+    000008F6                       1382 00205$:
+                                   1383 ;engine/src/game_loop.c:416: Interpreter_CallFunction(FUNC_PADRAO_EXAMINAR, db, state);
+    000008F6 DD 6E FB         [19] 1384 	ld	l, -5 (ix)
+    000008F9 DD 66 FC         [19] 1385 	ld	h, -4 (ix)
+    000008FC E5               [11] 1386 	push	hl
+    000008FD DD 5E FD         [19] 1387 	ld	e, -3 (ix)
+    00000900 DD 56 FE         [19] 1388 	ld	d, -2 (ix)
+    00000903 3E 0E            [ 7] 1389 	ld	a, #0x0e
+    00000905 CDr00r00         [17] 1390 	call	_Interpreter_CallFunction
+                                   1391 ;engine/src/game_loop.c:417: break;
+    00000908 C3r62r03         [10] 1392 	jp	00211$
+                                   1393 ;engine/src/game_loop.c:419: case VERBO_PROCURE:
+    0000090B                       1394 00206$:
+                                   1395 ;engine/src/game_loop.c:420: Interpreter_CallFunction(FUNC_PADRAO_PROCURAR, db, state);
+    0000090B DD 6E FB         [19] 1396 	ld	l, -5 (ix)
+    0000090E DD 66 FC         [19] 1397 	ld	h, -4 (ix)
+    00000911 E5               [11] 1398 	push	hl
+    00000912 DD 5E FD         [19] 1399 	ld	e, -3 (ix)
+    00000915 DD 56 FE         [19] 1400 	ld	d, -2 (ix)
+    00000918 3E 0F            [ 7] 1401 	ld	a, #0x0f
+    0000091A CDr00r00         [17] 1402 	call	_Interpreter_CallFunction
+                                   1403 ;engine/src/game_loop.c:421: break;
+    0000091D C3r62r03         [10] 1404 	jp	00211$
+                                   1405 ;engine/src/game_loop.c:423: case VERBO_TEMOS:
+    00000920                       1406 00207$:
+                                   1407 ;engine/src/game_loop.c:426: Interpreter_Execute(cmd_clist, 1, db, state);
+    00000920 DD 6E FB         [19] 1408 	ld	l, -5 (ix)
+    00000923 DD 66 FC         [19] 1409 	ld	h, -4 (ix)
+    00000926 E5               [11] 1410 	push	hl
+    00000927 DD 6E FD         [19] 1411 	ld	l, -3 (ix)
+    0000092A DD 66 FE         [19] 1412 	ld	h, -2 (ix)
+    0000092D E5               [11] 1413 	push	hl
+    0000092E 3E 01            [ 7] 1414 	ld	a, #0x01
+    00000930 F5               [11] 1415 	push	af
+    00000931 33               [ 6] 1416 	inc	sp
+    00000932 21r70r09         [10] 1417 	ld	hl, #_Game_Run_cmd_clist_70000_174
+    00000935 CDr00r00         [17] 1418 	call	_Interpreter_Execute
+                                   1419 ;engine/src/game_loop.c:427: break;
+    00000938 C3r62r03         [10] 1420 	jp	00211$
+                                   1421 ;engine/src/game_loop.c:430: case VERBO_RECOMECE:
+    0000093B                       1422 00208$:
+                                   1423 ;engine/src/game_loop.c:431: state->flag_reiniciar = TRUE;
+    0000093B DD 6E FB         [19] 1424 	ld	l, -5 (ix)
+    0000093E DD 66 FC         [19] 1425 	ld	h, -4 (ix)
+    00000941 11 08 01         [10] 1426 	ld	de, #0x0108
+    00000944 19               [11] 1427 	add	hl, de
+    00000945 36 01            [10] 1428 	ld	(hl), #0x01
+                                   1429 ;engine/src/game_loop.c:432: break;
+    00000947 C3r62r03         [10] 1430 	jp	00211$
+                                   1431 ;engine/src/game_loop.c:434: default:
+    0000094A                       1432 00209$:
+                                   1433 ;engine/src/game_loop.c:435: UI_PrintCenter(Interpreter_GetMessageText(MSG_NAO_POSSIVEL, db));
+    0000094A DD 5E FD         [19] 1434 	ld	e, -3 (ix)
+    0000094D DD 56 FE         [19] 1435 	ld	d, -2 (ix)
+    00000950 3E 10            [ 7] 1436 	ld	a, #0x10
+    00000952 CDr00r00         [17] 1437 	call	_Interpreter_GetMessageText
+    00000955 EB               [ 4] 1438 	ex	de, hl
+    00000956 CDr00r00         [17] 1439 	call	_UI_PrintCenter
+                                   1440 ;engine/src/game_loop.c:436: UI_NewLineCenter();
+    00000959 CDr00r00         [17] 1441 	call	_UI_NewLineCenter
+                                   1442 ;engine/src/game_loop.c:438: }
+    0000095C C3r62r03         [10] 1443 	jp	00211$
+    0000095F                       1444 00213$:
+                                   1445 ;engine/src/game_loop.c:447: UI_ClearCenter();
+    0000095F CDr00r00         [17] 1446 	call	_UI_ClearCenter
+                                   1447 ;engine/src/game_loop.c:448: UI_PrintCenter("Fim da partida.");
+    00000962 21r74r09         [10] 1448 	ld	hl, #___str_0
+    00000965 CDr00r00         [17] 1449 	call	_UI_PrintCenter
+                                   1450 ;engine/src/game_loop.c:449: UI_NewLineCenter();
+    00000968 CDr00r00         [17] 1451 	call	_UI_NewLineCenter
+                                   1452 ;engine/src/game_loop.c:450: }
+    0000096B DD F9            [10] 1453 	ld	sp, ix
+    0000096D DD E1            [14] 1454 	pop	ix
+    0000096F C9               [10] 1455 	ret
+    00000970                       1456 _Game_Run_cmd_clist_70000_174:
+    00000970 04                    1457 	.db #0x04	; 4
+    00000971 00                    1458 	.db #0x00	; 0
+    00000972 00                    1459 	.db #0x00	; 0
+    00000973 00                    1460 	.db #0x00	; 0
+    00000974                       1461 ___str_0:
+    00000974 46 69 6D 20 64 61 20  1462 	.ascii "Fim da partida."
+             70 61 72 74 69 64 61
+             2E
+    00000983 00                    1463 	.db 0x00
+                                   1464 	.area _CODE
+                                   1465 	.area _INITIALIZER
+                                   1466 	.area _CABS (ABS)

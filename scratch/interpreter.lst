@@ -1,0 +1,2397 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ISO C Compiler
+                                      3 ; Version 4.6.0 #16555 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module interpreter
+                                      6 	
+                                      7 	.optsdcc -mz80 sdcccall(1)
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _rand
+                                     12 	.globl _UI_PauseSeconds
+                                     13 	.globl _UI_PrintNumberCenter
+                                     14 	.globl _UI_NewLineCenter
+                                     15 	.globl _UI_PrintCharCenter
+                                     16 	.globl _UI_PrintCenter
+                                     17 	.globl _UI_ClearCenter
+                                     18 	.globl _Interpreter_GetMessageText
+                                     19 	.globl _Interpreter_GetObjectName
+                                     20 	.globl _Interpreter_DescribeCurrentRoom
+                                     21 	.globl _Interpreter_CallFunction
+                                     22 	.globl _Interpreter_Execute
+                                     23 ;--------------------------------------------------------
+                                     24 ; special function registers
+                                     25 ;--------------------------------------------------------
+                                     26 ;--------------------------------------------------------
+                                     27 ; ram data
+                                     28 ;--------------------------------------------------------
+                                     29 	.area _DATA
+    00000000                         30 _Interpreter_GetObjectName_s_obj_name_buf_10000_103:
+    00000000                         31 	.ds 24
+                                     32 ;--------------------------------------------------------
+                                     33 ; ram data
+                                     34 ;--------------------------------------------------------
+                                     35 	.area _INITIALIZED
+                                     36 ;--------------------------------------------------------
+                                     37 ; absolute ram data
+                                     38 ;--------------------------------------------------------
+                                     39 	.area _DABS (ABS)
+                                     40 	.area _DABS (ABS)
+                                     41 ;--------------------------------------------------------
+                                     42 ; global & static initialisations
+                                     43 ;--------------------------------------------------------
+                                     44 	.area _HOME
+                                     45 	.area _GSINIT
+                                     46 	.area _GSFINAL
+                                     47 	.area _GSINIT
+                                     48 ;--------------------------------------------------------
+                                     49 ; Home
+                                     50 ;--------------------------------------------------------
+                                     51 	.area _HOME
+                                     52 	.area _HOME
+                                     53 ;--------------------------------------------------------
+                                     54 ; code
+                                     55 ;--------------------------------------------------------
+                                     56 	.area _CODE
+                                     57 ;engine/src/interpreter.c:40: const char* Interpreter_GetMessageText(u8 msg_id, const Game_Database* db)
+                                     58 ;	---------------------------------
+                                     59 ; Function Interpreter_GetMessageText
+                                     60 ; ---------------------------------
+    00000000                         61 _Interpreter_GetMessageText::
+    00000000 DD E5            [15]   62 	push	ix
+    00000002 DD 21 00 00      [14]   63 	ld	ix,	#0
+    00000006 DD 39            [15]   64 	add	ix, sp
+    00000008 3B               [ 6]   65 	dec	sp
+    00000009 DD 77 FF         [19]   66 	ld	-1 (ix), a
+                                     67 ;engine/src/interpreter.c:44: if (db != NULL && db->mensagens != NULL)
+    0000000C 7A               [ 4]   68 	ld	a, d
+    0000000D B3               [ 4]   69 	or	a, e
+    0000000E 28 34            [12]   70 	jr	z, 00106$
+    00000010 4B               [ 4]   71 	ld	c, e
+    00000011 42               [ 4]   72 	ld	b, d
+    00000012 21 11 00         [10]   73 	ld	hl, #17
+    00000015 09               [11]   74 	add	hl, bc
+    00000016 4E               [ 7]   75 	ld	c, (hl)
+    00000017 23               [ 6]   76 	inc	hl
+    00000018 46               [ 7]   77 	ld	b, (hl)
+    00000019 78               [ 4]   78 	ld	a, b
+    0000001A B1               [ 4]   79 	or	a, c
+    0000001B 28 27            [12]   80 	jr	z, 00106$
+                                     81 ;engine/src/interpreter.c:46: for (i = 0; i < db->num_mensagens; i++)
+    0000001D D5               [11]   82 	push	de
+    0000001E FD E1            [14]   83 	pop	iy
+    00000020 1E 00            [ 7]   84 	ld	e, #0x00
+    00000022                         85 00112$:
+    00000022 FD 56 13         [19]   86 	ld	d, 19 (iy)
+    00000025 7B               [ 4]   87 	ld	a, e
+    00000026 92               [ 4]   88 	sub	a, d
+    00000027 30 1B            [12]   89 	jr	nc, 00106$
+                                     90 ;engine/src/interpreter.c:48: if (db->mensagens[i] != NULL && db->mensagens[i]->id == msg_id)
+    00000029 6B               [ 4]   91 	ld	l, e
+    0000002A 26 00            [ 7]   92 	ld	h, #0x00
+    0000002C 29               [11]   93 	add	hl, hl
+    0000002D 09               [11]   94 	add	hl, bc
+    0000002E 7E               [ 7]   95 	ld	a, (hl)
+    0000002F 23               [ 6]   96 	inc	hl
+    00000030 66               [ 7]   97 	ld	h, (hl)
+    00000031 6F               [ 4]   98 	ld	l, a
+    00000032 B4               [ 4]   99 	or	a, h
+    00000033 28 0C            [12]  100 	jr	z, 00113$
+    00000035 7E               [ 7]  101 	ld	a, (hl)
+    00000036 DD 96 FF         [19]  102 	sub	a, -1 (ix)
+    00000039 20 06            [12]  103 	jr	nz, 00113$
+                                    104 ;engine/src/interpreter.c:50: return db->mensagens[i]->text;
+    0000003B 23               [ 6]  105 	inc	hl
+    0000003C 5E               [ 7]  106 	ld	e, (hl)
+    0000003D 23               [ 6]  107 	inc	hl
+    0000003E 56               [ 7]  108 	ld	d, (hl)
+    0000003F 18 23            [12]  109 	jr	00114$
+    00000041                        110 00113$:
+                                    111 ;engine/src/interpreter.c:46: for (i = 0; i < db->num_mensagens; i++)
+    00000041 1C               [ 4]  112 	inc	e
+    00000042 18 DE            [12]  113 	jr	00112$
+    00000044                        114 00106$:
+                                    115 ;engine/src/interpreter.c:55: if (msg_id >= 11 && msg_id <= 22)
+    00000044 DD 7E FF         [19]  116 	ld	a, -1 (ix)
+    00000047 D6 0B            [ 7]  117 	sub	a, #0x0b
+    00000049 38 16            [12]  118 	jr	c, 00109$
+    0000004B 3E 16            [ 7]  119 	ld	a, #0x16
+    0000004D DD 96 FF         [19]  120 	sub	a, -1 (ix)
+    00000050 38 0F            [12]  121 	jr	c, 00109$
+                                    122 ;engine/src/interpreter.c:57: return g_SystemMessages[msg_id];
+    00000052 01r68r00         [10]  123 	ld	bc, #_g_SystemMessages+0
+    00000055 DD 6E FF         [19]  124 	ld	l, -1 (ix)
+    00000058 26 00            [ 7]  125 	ld	h, #0x00
+    0000005A 29               [11]  126 	add	hl, hl
+    0000005B 09               [11]  127 	add	hl, bc
+    0000005C 5E               [ 7]  128 	ld	e, (hl)
+    0000005D 23               [ 6]  129 	inc	hl
+    0000005E 56               [ 7]  130 	ld	d, (hl)
+    0000005F 18 03            [12]  131 	jr	00114$
+    00000061                        132 00109$:
+                                    133 ;engine/src/interpreter.c:60: return "";
+    00000061 11r96r00         [10]  134 	ld	de, #___str_0
+    00000064                        135 00114$:
+                                    136 ;engine/src/interpreter.c:61: }
+    00000064 33               [ 6]  137 	inc	sp
+    00000065 DD E1            [14]  138 	pop	ix
+    00000067 C9               [10]  139 	ret
+    00000068                        140 _g_SystemMessages:
+    00000068r96r00                  141 	.dw ___str_0
+    0000006Ar96r00                  142 	.dw ___str_0
+    0000006Cr96r00                  143 	.dw ___str_0
+    0000006Er96r00                  144 	.dw ___str_0
+    00000070r96r00                  145 	.dw ___str_0
+    00000072r96r00                  146 	.dw ___str_0
+    00000074r96r00                  147 	.dw ___str_0
+    00000076r96r00                  148 	.dw ___str_0
+    00000078r96r00                  149 	.dw ___str_0
+    0000007Ar96r00                  150 	.dw ___str_0
+    0000007Cr96r00                  151 	.dw ___str_0
+    0000007Er97r00                  152 	.dw __str_1
+    00000080rAEr00                  153 	.dw __str_2
+    00000082rC8r00                  154 	.dw __str_3
+    00000084r15r01                  155 	.dw __str_4
+    00000086r2Er01                  156 	.dw __str_5
+    00000088r51r01                  157 	.dw __str_6
+    0000008Ar69r01                  158 	.dw __str_7
+    0000008Cr7Fr01                  159 	.dw __str_8
+    0000008Er94r01                  160 	.dw __str_9
+    00000090rB7r01                  161 	.dw __str_10
+    00000092rD2r01                  162 	.dw __str_11
+    00000094rF4r01                  163 	.dw __str_12
+    00000096                        164 ___str_0:
+    00000096 00                     165 	.db 0x00
+    00000097                        166 __str_1:
+    00000097 42 65 6D 2D 76 69 6E   167 	.ascii "Bem-vindo "
+             64 6F 20
+    000000A1 C3                     168 	.db 0xc3
+    000000A2 A0                     169 	.db 0xa0
+    000000A3 20 61 76 65 6E 74 75   170 	.ascii " aventura!"
+             72 61 21
+    000000AD 00                     171 	.db 0x00
+    000000AE                        172 __str_2:
+    000000AE 41 63 68 65 69 20 6F   173 	.ascii "Achei o que voc"
+             20 71 75 65 20 76 6F
+             63
+    000000BD C3                     174 	.db 0xc3
+    000000BE AA                     175 	.db 0xaa
+    000000BF 20 71 75 65 72 69 61   176 	.ascii " queria."
+             2E
+    000000C7 00                     177 	.db 0x00
+    000000C8                        178 __str_3:
+    000000C8 45 73 74               179 	.ascii "Est"
+    000000CB C3                     180 	.db 0xc3
+    000000CC A1                     181 	.db 0xa1
+    000000CD 20 6D 75 69 74 6F 20   182 	.ascii " muito escuro aqui. "
+             65 73 63 75 72 6F 20
+             61 71 75 69 2E 20
+    000000E1 C3                     183 	.db 0xc3
+    000000E2 89                     184 	.db 0x89
+    000000E3 20 6D 65 6C 68 6F 72   185 	.ascii " melhor arranjar alguma luz ou teremos problemas."
+             20 61 72 72 61 6E 6A
+             61 72 20 61 6C 67 75
+             6D 61 20 6C 75 7A 20
+             6F 75 20 74 65 72 65
+             6D 6F 73 20 70 72 6F
+             62 6C 65 6D 61 73 2E
+    00000114 00                     186 	.db 0x00
+    00000115                        187 __str_4:
+    00000115 50 65 72 64            188 	.ascii "Perd"
+    00000119 C3                     189 	.db 0xc3
+    0000011A A3                     190 	.db 0xa3
+    0000011B 6F 2C 20 6E            191 	.ascii "o, n"
+    0000011F C3                     192 	.db 0xc3
+    00000120 A3                     193 	.db 0xa3
+    00000121 6F 20 65 6E 74 65 6E   194 	.ascii "o entendi..."
+             64 69 2E 2E 2E
+    0000012D 00                     195 	.db 0x00
+    0000012E                        196 __str_5:
+    0000012E C3                     197 	.db 0xc3
+    0000012F 89                     198 	.db 0x89
+    00000130 20 69 6D 70 6F 73 73   199 	.ascii " imposs"
+    00000137 C3                     200 	.db 0xc3
+    00000138 AD                     201 	.db 0xad
+    00000139 76 65 6C 20 69 72 20   202 	.ascii "vel ir nesta dire"
+             6E 65 73 74 61 20 64
+             69 72 65
+    0000014A C3                     203 	.db 0xc3
+    0000014B A7                     204 	.db 0xa7
+    0000014C C3                     205 	.db 0xc3
+    0000014D A3                     206 	.db 0xa3
+    0000014E 6F 2E                  207 	.ascii "o."
+    00000150 00                     208 	.db 0x00
+    00000151                        209 __str_6:
+    00000151 49 73 74 6F 20 6E      210 	.ascii "Isto n"
+    00000157 C3                     211 	.db 0xc3
+    00000158 A3                     212 	.db 0xa3
+    00000159 6F 20                  213 	.ascii "o "
+    0000015B C3                     214 	.db 0xc3
+    0000015C A9                     215 	.db 0xa9
+    0000015D 20 70 6F 73 73         216 	.ascii " poss"
+    00000162 C3                     217 	.db 0xc3
+    00000163 AD                     218 	.db 0xad
+    00000164 76 65 6C 2E            219 	.ascii "vel."
+    00000168 00                     220 	.db 0x00
+    00000169                        221 __str_7:
+    00000169 4E                     222 	.ascii "N"
+    0000016A C3                     223 	.db 0xc3
+    0000016B B3                     224 	.db 0xb3
+    0000016C 73 20 6E               225 	.ascii "s n"
+    0000016F C3                     226 	.db 0xc3
+    00000170 A3                     227 	.db 0xa3
+    00000171 6F 20 74 65 6D 6F 73   228 	.ascii "o temos isso."
+             20 69 73 73 6F 2E
+    0000017E 00                     229 	.db 0x00
+    0000017F                        230 __str_8:
+    0000017F 4E                     231 	.ascii "N"
+    00000180 C3                     232 	.db 0xc3
+    00000181 B3                     233 	.db 0xb3
+    00000182 73 20 6A               234 	.ascii "s j"
+    00000185 C3                     235 	.db 0xc3
+    00000186 A1                     236 	.db 0xa1
+    00000187 20 74 65 6D 6F 73 20   237 	.ascii " temos isso."
+             69 73 73 6F 2E
+    00000193 00                     238 	.db 0x00
+    00000194                        239 __str_9:
+    00000194 45 75 20 6E            240 	.ascii "Eu n"
+    00000198 C3                     241 	.db 0xc3
+    00000199 A3                     242 	.db 0xa3
+    0000019A 6F 20 65 73 74 6F 75   243 	.ascii "o estou vendo isso por aqui."
+             20 76 65 6E 64 6F 20
+             69 73 73 6F 20 70 6F
+             72 20 61 71 75 69 2E
+    000001B6 00                     244 	.db 0x00
+    000001B7                        245 __str_10:
+    000001B7 C3                     246 	.db 0xc3
+    000001B8 89                     247 	.db 0x89
+    000001B9 20 61 70 65 6E 61 73   248 	.ascii " apenas um objeto comum."
+             20 75 6D 20 6F 62 6A
+             65 74 6F 20 63 6F 6D
+             75 6D 2E
+    000001D1 00                     249 	.db 0x00
+    000001D2                        250 __str_11:
+    000001D2 4E                     251 	.ascii "N"
+    000001D3 C3                     252 	.db 0xc3
+    000001D4 A3                     253 	.db 0xa3
+    000001D5 6F 20 64               254 	.ascii "o d"
+    000001D8 C3                     255 	.db 0xc3
+    000001D9 A1                     256 	.db 0xa1
+    000001DA 20 70 61 72 61 20 63   257 	.ascii " para carregar mais nada."
+             61 72 72 65 67 61 72
+             20 6D 61 69 73 20 6E
+             61 64 61 2E
+    000001F3 00                     258 	.db 0x00
+    000001F4                        259 __str_12:
+    000001F4 4E                     260 	.ascii "N"
+    000001F5 C3                     261 	.db 0xc3
+    000001F6 A3                     262 	.db 0xa3
+    000001F7 6F 20 63 61 62 65 20   263 	.ascii "o cabe mais nada dentro."
+             6D 61 69 73 20 6E 61
+             64 61 20 64 65 6E 74
+             72 6F 2E
+    0000020F 00                     264 	.db 0x00
+                                    265 ;engine/src/interpreter.c:67: const char* Interpreter_GetObjectName(u8 obj_id, const Game_Database* db)
+                                    266 ;	---------------------------------
+                                    267 ; Function Interpreter_GetObjectName
+                                    268 ; ---------------------------------
+    00000210                        269 _Interpreter_GetObjectName::
+    00000210 DD E5            [15]  270 	push	ix
+    00000212 DD 21 00 00      [14]  271 	ld	ix,	#0
+    00000216 DD 39            [15]  272 	add	ix, sp
+    00000218 F5               [11]  273 	push	af
+    00000219 F5               [11]  274 	push	af
+                                    275 ;engine/src/interpreter.c:72: if (obj_id == 0 || db == NULL || db->objetos == NULL) return "";
+    0000021A DD 77 FE         [19]  276 	ld	-2 (ix), a
+    0000021D B7               [ 4]  277 	or	a, a
+    0000021E 28 11            [12]  278 	jr	z, 00101$
+    00000220 7A               [ 4]  279 	ld	a, d
+    00000221 B3               [ 4]  280 	or	a, e
+    00000222 28 0D            [12]  281 	jr	z, 00101$
+    00000224 4B               [ 4]  282 	ld	c, e
+    00000225 42               [ 4]  283 	ld	b, d
+    00000226 21 08 00         [10]  284 	ld	hl, #8
+    00000229 09               [11]  285 	add	hl, bc
+    0000022A 4E               [ 7]  286 	ld	c, (hl)
+    0000022B 23               [ 6]  287 	inc	hl
+    0000022C 46               [ 7]  288 	ld	b, (hl)
+    0000022D 78               [ 4]  289 	ld	a, b
+    0000022E B1               [ 4]  290 	or	a, c
+    0000022F 20 05            [12]  291 	jr	nz, 00138$
+    00000231                        292 00101$:
+    00000231 11r9Ar02         [10]  293 	ld	de, #___str_13
+    00000234 18 5F            [12]  294 	jr	00117$
+                                    295 ;engine/src/interpreter.c:74: for (i = 0; i < db->num_objetos; i++)
+    00000236                        296 00138$:
+    00000236 DD 36 FF 00      [19]  297 	ld	-1 (ix), #0x00
+    0000023A                        298 00115$:
+    0000023A 21 0A 00         [10]  299 	ld	hl, #10
+    0000023D 19               [11]  300 	add	hl, de
+    0000023E DD 7E FF         [19]  301 	ld	a,-1 (ix)
+    00000241 96               [ 7]  302 	sub	a,(hl)
+    00000242 30 4E            [12]  303 	jr	nc, 00113$
+                                    304 ;engine/src/interpreter.c:76: const Game_Object* obj = db->objetos[i];
+    00000244 DD 6E FF         [19]  305 	ld	l, -1 (ix)
+    00000247 26 00            [ 7]  306 	ld	h, #0x00
+    00000249 29               [11]  307 	add	hl, hl
+    0000024A 09               [11]  308 	add	hl, bc
+    0000024B 7E               [ 7]  309 	ld	a, (hl)
+    0000024C 23               [ 6]  310 	inc	hl
+    0000024D 66               [ 7]  311 	ld	h, (hl)
+                                    312 ;engine/src/interpreter.c:77: if (obj != NULL && obj->id == obj_id)
+    0000024E 6F               [ 4]  313 	ld	l, a
+    0000024F B4               [ 4]  314 	or	a, h
+    00000250 28 3B            [12]  315 	jr	z, 00116$
+    00000252 7E               [ 7]  316 	ld	a, (hl)
+    00000253 DD 96 FE         [19]  317 	sub	a, -2 (ix)
+    00000256 20 35            [12]  318 	jr	nz, 00116$
+                                    319 ;engine/src/interpreter.c:79: const char* p = obj->nome;
+    00000258 23               [ 6]  320 	inc	hl
+    00000259 23               [ 6]  321 	inc	hl
+    0000025A 23               [ 6]  322 	inc	hl
+    0000025B 4E               [ 7]  323 	ld	c, (hl)
+    0000025C 23               [ 6]  324 	inc	hl
+    0000025D 46               [ 7]  325 	ld	b, (hl)
+                                    326 ;engine/src/interpreter.c:81: while (*p && *p != '/' && k < (sizeof(s_obj_name_buf) - 1))
+    0000025E 1E 00            [ 7]  327 	ld	e, #0x00
+    00000260                        328 00107$:
+    00000260 0A               [ 7]  329 	ld	a, (bc)
+    00000261 57               [ 4]  330 	ld	d, a
+                                    331 ;engine/src/interpreter.c:83: s_obj_name_buf[k++] = *p++;
+    00000262 7B               [ 4]  332 	ld	a, e
+    00000263 C6r00            [ 7]  333 	add	a, #<(_Interpreter_GetObjectName_s_obj_name_buf_10000_103)
+    00000265 DD 77 FC         [19]  334 	ld	-4 (ix), a
+    00000268 3E 00            [ 7]  335 	ld	a, #0x00
+    0000026A CEs00            [ 7]  336 	adc	a, #>(_Interpreter_GetObjectName_s_obj_name_buf_10000_103)
+    0000026C DD 77 FD         [19]  337 	ld	-3 (ix), a
+                                    338 ;engine/src/interpreter.c:81: while (*p && *p != '/' && k < (sizeof(s_obj_name_buf) - 1))
+    0000026F 7A               [ 4]  339 	ld	a, d
+    00000270 B7               [ 4]  340 	or	a, a
+    00000271 28 11            [12]  341 	jr	z, 00109$
+    00000273 7A               [ 4]  342 	ld	a, d
+    00000274 D6 2F            [ 7]  343 	sub	a, #0x2f
+    00000276 28 0C            [12]  344 	jr	z, 00109$
+    00000278 7B               [ 4]  345 	ld	a, e
+    00000279 D6 17            [ 7]  346 	sub	a, #0x17
+    0000027B 30 07            [12]  347 	jr	nc, 00109$
+                                    348 ;engine/src/interpreter.c:83: s_obj_name_buf[k++] = *p++;
+    0000027D 1C               [ 4]  349 	inc	e
+    0000027E 03               [ 6]  350 	inc	bc
+    0000027F E1               [10]  351 	pop	hl
+    00000280 E5               [11]  352 	push	hl
+    00000281 72               [ 7]  353 	ld	(hl), d
+    00000282 18 DC            [12]  354 	jr	00107$
+    00000284                        355 00109$:
+                                    356 ;engine/src/interpreter.c:85: s_obj_name_buf[k] = '\0';
+    00000284 E1               [10]  357 	pop	hl
+    00000285 36 00            [10]  358 	ld	(hl), #0x00
+    00000287 E5               [11]  359 	push	hl
+                                    360 ;engine/src/interpreter.c:86: return s_obj_name_buf;
+    00000288 11r00r00         [10]  361 	ld	de, #_Interpreter_GetObjectName_s_obj_name_buf_10000_103
+    0000028B 18 08            [12]  362 	jr	00117$
+    0000028D                        363 00116$:
+                                    364 ;engine/src/interpreter.c:74: for (i = 0; i < db->num_objetos; i++)
+    0000028D DD 34 FF         [23]  365 	inc	-1 (ix)
+    00000290 18 A8            [12]  366 	jr	00115$
+    00000292                        367 00113$:
+                                    368 ;engine/src/interpreter.c:89: return "";
+    00000292 11r9Ar02         [10]  369 	ld	de, #___str_13
+    00000295                        370 00117$:
+                                    371 ;engine/src/interpreter.c:90: }
+    00000295 DD F9            [10]  372 	ld	sp, ix
+    00000297 DD E1            [14]  373 	pop	ix
+    00000299 C9               [10]  374 	ret
+    0000029A                        375 ___str_13:
+    0000029A 00                     376 	.db 0x00
+                                    377 ;engine/src/interpreter.c:95: void Interpreter_DescribeCurrentRoom(const Game_Database* db, Game_State* state)
+                                    378 ;	---------------------------------
+                                    379 ; Function Interpreter_DescribeCurrentRoom
+                                    380 ; ---------------------------------
+    0000029B                        381 _Interpreter_DescribeCurrentRoom::
+    0000029B DD E5            [15]  382 	push	ix
+    0000029D DD 21 00 00      [14]  383 	ld	ix,	#0
+    000002A1 DD 39            [15]  384 	add	ix, sp
+    000002A3 FD 21 F5 FF      [14]  385 	ld	iy, #-11
+    000002A7 FD 39            [15]  386 	add	iy, sp
+    000002A9 FD F9            [10]  387 	ld	sp, iy
+    000002AB DD 75 FD         [19]  388 	ld	-3 (ix), l
+    000002AE DD 74 FE         [19]  389 	ld	-2 (ix), h
+    000002B1 DD 73 FB         [19]  390 	ld	-5 (ix), e
+    000002B4 DD 72 FC         [19]  391 	ld	-4 (ix), d
+                                    392 ;engine/src/interpreter.c:97: u8 room_id = state->registers[REG_POSICAO];
+    000002B7 DD 7E FB         [19]  393 	ld	a, -5 (ix)
+    000002BA DD 77 F9         [19]  394 	ld	-7 (ix), a
+    000002BD DD 7E FC         [19]  395 	ld	a, -4 (ix)
+    000002C0 DD 77 FA         [19]  396 	ld	-6 (ix), a
+    000002C3 DD 6E F9         [19]  397 	ld	l, -7 (ix)
+    000002C6 DD 66 FA         [19]  398 	ld	h, -6 (ix)
+    000002C9 23               [ 6]  399 	inc	hl
+    000002CA 7E               [ 7]  400 	ld	a, (hl)
+    000002CB DD 77 F5         [19]  401 	ld	-11 (ix), a
+                                    402 ;engine/src/interpreter.c:99: const Game_Position* pos = NULL;
+    000002CE AF               [ 4]  403 	xor	a, a
+    000002CF DD 77 F7         [19]  404 	ld	-9 (ix), a
+    000002D2 DD 77 F8         [19]  405 	ld	-8 (ix), a
+                                    406 ;engine/src/interpreter.c:102: if (state->registers[REG_ILUMINACAO] != 0 && state->registers[REG_ESTADO_OBJ2] == 0)
+    000002D5 DD 7E FB         [19]  407 	ld	a, -5 (ix)
+    000002D8 DD 77 F9         [19]  408 	ld	-7 (ix), a
+    000002DB DD 7E FC         [19]  409 	ld	a, -4 (ix)
+    000002DE DD 77 FA         [19]  410 	ld	-6 (ix), a
+    000002E1 DD 6E F9         [19]  411 	ld	l, -7 (ix)
+    000002E4 DD 66 FA         [19]  412 	ld	h, -6 (ix)
+    000002E7 11 09 00         [10]  413 	ld	de, #0x0009
+    000002EA 19               [11]  414 	add	hl, de
+    000002EB 7E               [ 7]  415 	ld	a, (hl)
+    000002EC DD 77 FF         [19]  416 	ld	-1 (ix), a
+    000002EF B7               [ 4]  417 	or	a, a
+    000002F0 28 35            [12]  418 	jr	z, 00102$
+    000002F2 DD 7E FB         [19]  419 	ld	a, -5 (ix)
+    000002F5 DD 77 F9         [19]  420 	ld	-7 (ix), a
+    000002F8 DD 7E FC         [19]  421 	ld	a, -4 (ix)
+    000002FB DD 77 FA         [19]  422 	ld	-6 (ix), a
+    000002FE DD 6E F9         [19]  423 	ld	l, -7 (ix)
+    00000301 DD 66 FA         [19]  424 	ld	h, -6 (ix)
+    00000304 11 0A 00         [10]  425 	ld	de, #0x000a
+    00000307 19               [11]  426 	add	hl, de
+    00000308 7E               [ 7]  427 	ld	a, (hl)
+    00000309 B7               [ 4]  428 	or	a, a
+    0000030A 20 1B            [12]  429 	jr	nz, 00102$
+                                    430 ;engine/src/interpreter.c:104: UI_PrintCenter(Interpreter_GetMessageText(MSG_ESCURO, db));
+    0000030C DD 5E FD         [19]  431 	ld	e, -3 (ix)
+    0000030F DD 56 FE         [19]  432 	ld	d, -2 (ix)
+    00000312 3E 0D            [ 7]  433 	ld	a, #0x0d
+    00000314 CDr00r00         [17]  434 	call	_Interpreter_GetMessageText
+    00000317 DD 73 F9         [19]  435 	ld	-7 (ix), e
+    0000031A DD 72 FA         [19]  436 	ld	-6 (ix), d
+    0000031D EB               [ 4]  437 	ex	de, hl
+    0000031E CDr00r00         [17]  438 	call	_UI_PrintCenter
+                                    439 ;engine/src/interpreter.c:105: UI_NewLineCenter();
+    00000321 CDr00r00         [17]  440 	call	_UI_NewLineCenter
+                                    441 ;engine/src/interpreter.c:106: return;
+    00000324 C3r41r04         [10]  442 	jp	00127$
+    00000327                        443 00102$:
+                                    444 ;engine/src/interpreter.c:109: if (db != NULL && db->posicoes != NULL)
+    00000327 DD 7E FE         [19]  445 	ld	a, -2 (ix)
+    0000032A DD B6 FD         [19]  446 	or	a, -3 (ix)
+    0000032D 28 5A            [12]  447 	jr	z, 00109$
+    0000032F DD 7E FD         [19]  448 	ld	a, -3 (ix)
+    00000332 DD 77 F9         [19]  449 	ld	-7 (ix), a
+    00000335 DD 7E FE         [19]  450 	ld	a, -2 (ix)
+    00000338 DD 77 FA         [19]  451 	ld	-6 (ix), a
+    0000033B DD 6E F9         [19]  452 	ld	l, -7 (ix)
+    0000033E DD 66 FA         [19]  453 	ld	h, -6 (ix)
+    00000341 11 05 00         [10]  454 	ld	de, #0x0005
+    00000344 19               [11]  455 	add	hl, de
+    00000345 7E               [ 7]  456 	ld	a, (hl)
+    00000346 DD 77 F9         [19]  457 	ld	-7 (ix), a
+    00000349 23               [ 6]  458 	inc	hl
+    0000034A 7E               [ 7]  459 	ld	a, (hl)
+    0000034B DD 77 FA         [19]  460 	ld	-6 (ix), a
+    0000034E DD B6 F9         [19]  461 	or	a, -7 (ix)
+    00000351 28 36            [12]  462 	jr	z, 00109$
+                                    463 ;engine/src/interpreter.c:111: for (i = 0; i < db->num_posicoes; i++)
+    00000353 DD 4E FD         [19]  464 	ld	c, -3 (ix)
+    00000356 DD 46 FE         [19]  465 	ld	b, -2 (ix)
+    00000359 1E 00            [ 7]  466 	ld	e, #0x00
+    0000035B                        467 00123$:
+    0000035B 21 07 00         [10]  468 	ld	hl, #7
+    0000035E 09               [11]  469 	add	hl, bc
+    0000035F 7B               [ 4]  470 	ld	a, e
+    00000360 96               [ 7]  471 	sub	a, (hl)
+    00000361 30 26            [12]  472 	jr	nc, 00109$
+                                    473 ;engine/src/interpreter.c:113: if (db->posicoes[i] != NULL && db->posicoes[i]->id == room_id)
+    00000363 6B               [ 4]  474 	ld	l, e
+    00000364 26 00            [ 7]  475 	ld	h, #0x00
+    00000366 29               [11]  476 	add	hl, hl
+    00000367 7D               [ 4]  477 	ld	a, l
+    00000368 DD 86 F9         [19]  478 	add	a, -7 (ix)
+    0000036B 6F               [ 4]  479 	ld	l, a
+    0000036C 7C               [ 4]  480 	ld	a, h
+    0000036D DD 8E FA         [19]  481 	adc	a, -6 (ix)
+    00000370 67               [ 4]  482 	ld	h, a
+    00000371 7E               [ 7]  483 	ld	a, (hl)
+    00000372 23               [ 6]  484 	inc	hl
+    00000373 66               [ 7]  485 	ld	h, (hl)
+    00000374 6F               [ 4]  486 	ld	l, a
+    00000375 B4               [ 4]  487 	or	a, h
+    00000376 28 0E            [12]  488 	jr	z, 00124$
+    00000378 7E               [ 7]  489 	ld	a, (hl)
+    00000379 DD 96 F5         [19]  490 	sub	a, -11 (ix)
+    0000037C 20 08            [12]  491 	jr	nz, 00124$
+                                    492 ;engine/src/interpreter.c:115: pos = db->posicoes[i];
+    0000037E DD 75 F7         [19]  493 	ld	-9 (ix), l
+    00000381 DD 74 F8         [19]  494 	ld	-8 (ix), h
+                                    495 ;engine/src/interpreter.c:116: break;
+    00000384 18 03            [12]  496 	jr	00109$
+    00000386                        497 00124$:
+                                    498 ;engine/src/interpreter.c:111: for (i = 0; i < db->num_posicoes; i++)
+    00000386 1C               [ 4]  499 	inc	e
+    00000387 18 D2            [12]  500 	jr	00123$
+    00000389                        501 00109$:
+                                    502 ;engine/src/interpreter.c:121: if (pos != NULL && pos->desc != NULL)
+    00000389 DD 7E F8         [19]  503 	ld	a, -8 (ix)
+    0000038C DD B6 F7         [19]  504 	or	a, -9 (ix)
+    0000038F 28 30            [12]  505 	jr	z, 00112$
+    00000391 DD 7E F7         [19]  506 	ld	a, -9 (ix)
+    00000394 DD 77 F9         [19]  507 	ld	-7 (ix), a
+    00000397 DD 7E F8         [19]  508 	ld	a, -8 (ix)
+    0000039A DD 77 FA         [19]  509 	ld	-6 (ix), a
+    0000039D DD 6E F9         [19]  510 	ld	l, -7 (ix)
+    000003A0 DD 66 FA         [19]  511 	ld	h, -6 (ix)
+    000003A3 11 05 00         [10]  512 	ld	de, #0x0005
+    000003A6 19               [11]  513 	add	hl, de
+    000003A7 7E               [ 7]  514 	ld	a, (hl)
+    000003A8 DD 77 F9         [19]  515 	ld	-7 (ix), a
+    000003AB 23               [ 6]  516 	inc	hl
+    000003AC 7E               [ 7]  517 	ld	a, (hl)
+    000003AD DD 77 FA         [19]  518 	ld	-6 (ix), a
+    000003B0 DD B6 F9         [19]  519 	or	a, -7 (ix)
+    000003B3 28 0C            [12]  520 	jr	z, 00112$
+                                    521 ;engine/src/interpreter.c:123: UI_PrintCenter(pos->desc);
+    000003B5 DD 6E F9         [19]  522 	ld	l, -7 (ix)
+    000003B8 DD 66 FA         [19]  523 	ld	h, -6 (ix)
+    000003BB CDr00r00         [17]  524 	call	_UI_PrintCenter
+                                    525 ;engine/src/interpreter.c:124: UI_NewLineCenter();
+    000003BE CDr00r00         [17]  526 	call	_UI_NewLineCenter
+    000003C1                        527 00112$:
+                                    528 ;engine/src/interpreter.c:129: bool first = TRUE;
+    000003C1 DD 36 F6 01      [19]  529 	ld	-10 (ix), #0x01
+                                    530 ;engine/src/interpreter.c:130: for (i = 1; i <= db->num_objetos; i++)
+    000003C5 DD 7E FB         [19]  531 	ld	a, -5 (ix)
+    000003C8 DD 77 F7         [19]  532 	ld	-9 (ix), a
+    000003CB DD 7E FC         [19]  533 	ld	a, -4 (ix)
+    000003CE DD 77 F8         [19]  534 	ld	-8 (ix), a
+    000003D1 DD 7E FD         [19]  535 	ld	a, -3 (ix)
+    000003D4 DD 77 F9         [19]  536 	ld	-7 (ix), a
+    000003D7 DD 7E FE         [19]  537 	ld	a, -2 (ix)
+    000003DA DD 77 FA         [19]  538 	ld	-6 (ix), a
+    000003DD DD 36 FF 01      [19]  539 	ld	-1 (ix), #0x01
+    000003E1                        540 00126$:
+    000003E1 DD 6E F9         [19]  541 	ld	l, -7 (ix)
+    000003E4 DD 66 FA         [19]  542 	ld	h, -6 (ix)
+    000003E7 11 0A 00         [10]  543 	ld	de, #0x000a
+    000003EA 19               [11]  544 	add	hl, de
+    000003EB 7E               [ 7]  545 	ld	a, (hl)
+    000003EC DD 96 FF         [19]  546 	sub	a, -1 (ix)
+    000003EF 38 50            [12]  547 	jr	c, 00127$
+                                    548 ;engine/src/interpreter.c:133: if (i == OBJ_ID_LOCAL) continue;
+    000003F1 DD 7E FF         [19]  549 	ld	a, -1 (ix)
+    000003F4 3D               [ 4]  550 	dec	a
+    000003F5 28 45            [12]  551 	jr	z, 00120$
+                                    552 ;engine/src/interpreter.c:135: if (state->registers[REG_OBJETO_OFFSET + i] == room_id)
+    000003F7 DD 4E FF         [19]  553 	ld	c, -1 (ix)
+    000003FA 06 00            [ 7]  554 	ld	b, #0x00
+    000003FC 21 64 00         [10]  555 	ld	hl, #0x0064
+    000003FF 09               [11]  556 	add	hl, bc
+    00000400 DD 5E F7         [19]  557 	ld	e, -9 (ix)
+    00000403 DD 56 F8         [19]  558 	ld	d, -8 (ix)
+    00000406 19               [11]  559 	add	hl, de
+    00000407 7E               [ 7]  560 	ld	a, (hl)
+    00000408 DD 96 F5         [19]  561 	sub	a, -11 (ix)
+    0000040B 20 2F            [12]  562 	jr	nz, 00120$
+                                    563 ;engine/src/interpreter.c:137: if (first)
+    0000040D DD 7E F6         [19]  564 	ld	a, -10 (ix)
+    00000410 B7               [ 4]  565 	or	a, a
+    00000411 28 10            [12]  566 	jr	z, 00117$
+                                    567 ;engine/src/interpreter.c:139: UI_NewLineCenter();
+    00000413 CDr00r00         [17]  568 	call	_UI_NewLineCenter
+                                    569 ;engine/src/interpreter.c:140: UI_PrintCenter("Neste local tem:");
+    00000416 21r46r04         [10]  570 	ld	hl, #___str_14
+    00000419 CDr00r00         [17]  571 	call	_UI_PrintCenter
+                                    572 ;engine/src/interpreter.c:141: UI_NewLineCenter();
+    0000041C CDr00r00         [17]  573 	call	_UI_NewLineCenter
+                                    574 ;engine/src/interpreter.c:142: first = FALSE;
+    0000041F DD 36 F6 00      [19]  575 	ld	-10 (ix), #0x00
+    00000423                        576 00117$:
+                                    577 ;engine/src/interpreter.c:144: UI_PrintCenter("- ");
+    00000423 21r57r04         [10]  578 	ld	hl, #___str_15
+    00000426 CDr00r00         [17]  579 	call	_UI_PrintCenter
+                                    580 ;engine/src/interpreter.c:145: UI_PrintCenter(Interpreter_GetObjectName(i, db));
+    00000429 DD 5E FD         [19]  581 	ld	e, -3 (ix)
+    0000042C DD 56 FE         [19]  582 	ld	d, -2 (ix)
+    0000042F DD 7E FF         [19]  583 	ld	a, -1 (ix)
+    00000432 CDr10r02         [17]  584 	call	_Interpreter_GetObjectName
+    00000435 EB               [ 4]  585 	ex	de, hl
+    00000436 CDr00r00         [17]  586 	call	_UI_PrintCenter
+                                    587 ;engine/src/interpreter.c:146: UI_NewLineCenter();
+    00000439 CDr00r00         [17]  588 	call	_UI_NewLineCenter
+    0000043C                        589 00120$:
+                                    590 ;engine/src/interpreter.c:130: for (i = 1; i <= db->num_objetos; i++)
+    0000043C DD 34 FF         [23]  591 	inc	-1 (ix)
+    0000043F 18 A0            [12]  592 	jr	00126$
+    00000441                        593 00127$:
+                                    594 ;engine/src/interpreter.c:150: }
+    00000441 DD F9            [10]  595 	ld	sp, ix
+    00000443 DD E1            [14]  596 	pop	ix
+    00000445 C9               [10]  597 	ret
+    00000446                        598 ___str_14:
+    00000446 4E 65 73 74 65 20 6C   599 	.ascii "Neste local tem:"
+             6F 63 61 6C 20 74 65
+             6D 3A
+    00000456 00                     600 	.db 0x00
+    00000457                        601 ___str_15:
+    00000457 2D 20                  602 	.ascii "- "
+    00000459 00                     603 	.db 0x00
+                                    604 ;engine/src/interpreter.c:155: void Interpreter_CallFunction(u8 func_id, const Game_Database* db, Game_State* state)
+                                    605 ;	---------------------------------
+                                    606 ; Function Interpreter_CallFunction
+                                    607 ; ---------------------------------
+    0000045A                        608 _Interpreter_CallFunction::
+    0000045A DD E5            [15]  609 	push	ix
+    0000045C DD 21 00 00      [14]  610 	ld	ix,	#0
+    00000460 DD 39            [15]  611 	add	ix, sp
+    00000462 F5               [11]  612 	push	af
+    00000463 F5               [11]  613 	push	af
+    00000464 DD 77 FE         [19]  614 	ld	-2 (ix), a
+    00000467 4B               [ 4]  615 	ld	c, e
+    00000468 42               [ 4]  616 	ld	b, d
+                                    617 ;engine/src/interpreter.c:158: if (db == NULL || db->funcoes == NULL || func_id == 0) return;
+    00000469 78               [ 4]  618 	ld	a, b
+    0000046A B1               [ 4]  619 	or	a, c
+    0000046B 28 60            [12]  620 	jr	z, 00112$
+    0000046D 59               [ 4]  621 	ld	e, c
+    0000046E 50               [ 4]  622 	ld	d, b
+    0000046F 21 0E 00         [10]  623 	ld	hl, #14
+    00000472 19               [11]  624 	add	hl, de
+    00000473 7E               [ 7]  625 	ld	a, (hl)
+    00000474 DD 77 FC         [19]  626 	ld	-4 (ix), a
+    00000477 23               [ 6]  627 	inc	hl
+    00000478 7E               [ 7]  628 	ld	a, (hl)
+    00000479 DD 77 FD         [19]  629 	ld	-3 (ix), a
+    0000047C DD B6 FC         [19]  630 	or	a, -4 (ix)
+    0000047F 28 4C            [12]  631 	jr	z, 00112$
+    00000481 DD 7E FE         [19]  632 	ld	a, -2 (ix)
+    00000484 B7               [ 4]  633 	or	a, a
+                                    634 ;engine/src/interpreter.c:160: for (i = 0; i < db->num_funcoes; i++)
+    00000485 28 46            [12]  635 	jr	z, 00112$
+    00000487 C5               [11]  636 	push	bc
+    00000488 FD E1            [14]  637 	pop	iy
+    0000048A DD 36 FF 00      [19]  638 	ld	-1 (ix), #0x00
+    0000048E                        639 00110$:
+    0000048E FD 5E 10         [19]  640 	ld	e, 16 (iy)
+    00000491 DD 7E FF         [19]  641 	ld	a, -1 (ix)
+    00000494 93               [ 4]  642 	sub	a, e
+    00000495 30 36            [12]  643 	jr	nc, 00112$
+                                    644 ;engine/src/interpreter.c:162: const Game_Function* f = db->funcoes[i];
+    00000497 DD 6E FF         [19]  645 	ld	l, -1 (ix)
+    0000049A 26 00            [ 7]  646 	ld	h, #0x00
+    0000049C 29               [11]  647 	add	hl, hl
+    0000049D D1               [10]  648 	pop	de
+    0000049E D5               [11]  649 	push	de
+    0000049F 19               [11]  650 	add	hl, de
+    000004A0 5E               [ 7]  651 	ld	e, (hl)
+    000004A1 23               [ 6]  652 	inc	hl
+    000004A2 56               [ 7]  653 	ld	d, (hl)
+                                    654 ;engine/src/interpreter.c:163: if (f != NULL && f->id == func_id)
+    000004A3 7A               [ 4]  655 	ld	a, d
+    000004A4 B3               [ 4]  656 	or	a, e
+    000004A5 28 21            [12]  657 	jr	z, 00111$
+    000004A7 1A               [ 7]  658 	ld	a, (de)
+    000004A8 DD 96 FE         [19]  659 	sub	a, -2 (ix)
+    000004AB 20 1B            [12]  660 	jr	nz, 00111$
+                                    661 ;engine/src/interpreter.c:165: Interpreter_Execute(f->instructions, f->instruction_count, db, state);
+    000004AD 6B               [ 4]  662 	ld	l, e
+    000004AE 62               [ 4]  663 	ld	h, d
+    000004AF 23               [ 6]  664 	inc	hl
+    000004B0 23               [ 6]  665 	inc	hl
+    000004B1 23               [ 6]  666 	inc	hl
+    000004B2 7E               [ 7]  667 	ld	a, (hl)
+    000004B3 EB               [ 4]  668 	ex	de, hl
+    000004B4 23               [ 6]  669 	inc	hl
+    000004B5 5E               [ 7]  670 	ld	e, (hl)
+    000004B6 23               [ 6]  671 	inc	hl
+    000004B7 56               [ 7]  672 	ld	d, (hl)
+    000004B8 DD 6E 04         [19]  673 	ld	l, 4 (ix)
+    000004BB DD 66 05         [19]  674 	ld	h, 5 (ix)
+    000004BE E5               [11]  675 	push	hl
+    000004BF C5               [11]  676 	push	bc
+    000004C0 F5               [11]  677 	push	af
+    000004C1 33               [ 6]  678 	inc	sp
+    000004C2 EB               [ 4]  679 	ex	de, hl
+    000004C3 CDrD4r04         [17]  680 	call	_Interpreter_Execute
+                                    681 ;engine/src/interpreter.c:166: return;
+    000004C6 18 05            [12]  682 	jr	00112$
+    000004C8                        683 00111$:
+                                    684 ;engine/src/interpreter.c:160: for (i = 0; i < db->num_funcoes; i++)
+    000004C8 DD 34 FF         [23]  685 	inc	-1 (ix)
+    000004CB 18 C1            [12]  686 	jr	00110$
+    000004CD                        687 00112$:
+                                    688 ;engine/src/interpreter.c:169: }
+    000004CD DD F9            [10]  689 	ld	sp, ix
+    000004CF DD E1            [14]  690 	pop	ix
+    000004D1 E1               [10]  691 	pop	hl
+    000004D2 F1               [10]  692 	pop	af
+    000004D3 E9               [ 4]  693 	jp	(hl)
+                                    694 ;engine/src/interpreter.c:175: void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const Game_Database* db, Game_State* state)
+                                    695 ;	---------------------------------
+                                    696 ; Function Interpreter_Execute
+                                    697 ; ---------------------------------
+    000004D4                        698 _Interpreter_Execute::
+    000004D4 DD E5            [15]  699 	push	ix
+    000004D6 DD 21 00 00      [14]  700 	ld	ix,	#0
+    000004DA DD 39            [15]  701 	add	ix, sp
+    000004DC FD 21 84 FF      [14]  702 	ld	iy, #-124
+    000004E0 FD 39            [15]  703 	add	iy, sp
+    000004E2 FD F9            [10]  704 	ld	sp, iy
+    000004E4 DD 75 FD         [19]  705 	ld	-3 (ix), l
+    000004E7 DD 74 FE         [19]  706 	ld	-2 (ix), h
+                                    707 ;engine/src/interpreter.c:177: u8 pc = 0;
+    000004EA DD 36 FF 00      [19]  708 	ld	-1 (ix), #0x00
+                                    709 ;engine/src/interpreter.c:179: if (instructions == NULL || count == 0) return;
+    000004EE DD 7E FE         [19]  710 	ld	a, -2 (ix)
+    000004F1 DD B6 FD         [19]  711 	or	a, -3 (ix)
+    000004F4 CAr90r10         [10]  712 	jp	z, 00262$
+    000004F7 DD 7E 04         [19]  713 	ld	a, 4 (ix)
+    000004FA B7               [ 4]  714 	or	a, a
+    000004FB CAr90r10         [10]  715 	jp	z, 00262$
+                                    716 ;engine/src/interpreter.c:181: state->flag_espera_cmd = FALSE;
+    000004FE DD 7E 07         [19]  717 	ld	a, 7 (ix)
+    00000501 DD 77 88         [19]  718 	ld	-120 (ix), a
+    00000504 DD 7E 08         [19]  719 	ld	a, 8 (ix)
+    00000507 DD 77 89         [19]  720 	ld	-119 (ix), a
+    0000050A 11 06 01         [10]  721 	ld	de, #0x0106
+    0000050D DD 6E 88         [19]  722 	ld	l, -120 (ix)
+    00000510 DD 66 89         [19]  723 	ld	h, -119 (ix)
+    00000513 19               [11]  724 	add	hl, de
+    00000514 DD 75 8A         [19]  725 	ld	-118 (ix), l
+    00000517 DD 74 8B         [19]  726 	ld	-117 (ix), h
+    0000051A 36 00            [10]  727 	ld	(hl), #0x00
+                                    728 ;engine/src/interpreter.c:183: while (pc < count && !state->flag_espera_cmd && !state->flag_fim && !state->flag_reiniciar)
+    0000051C DD 7E 88         [19]  729 	ld	a, -120 (ix)
+    0000051F DD 77 8C         [19]  730 	ld	-116 (ix), a
+    00000522 DD 7E 89         [19]  731 	ld	a, -119 (ix)
+    00000525 DD 77 8D         [19]  732 	ld	-115 (ix), a
+    00000528 DD 7E 88         [19]  733 	ld	a, -120 (ix)
+    0000052B DD 77 8E         [19]  734 	ld	-114 (ix), a
+    0000052E DD 7E 89         [19]  735 	ld	a, -119 (ix)
+    00000531 DD 77 8F         [19]  736 	ld	-113 (ix), a
+    00000534 DD 7E 88         [19]  737 	ld	a, -120 (ix)
+    00000537 DD 77 90         [19]  738 	ld	-112 (ix), a
+    0000053A DD 7E 89         [19]  739 	ld	a, -119 (ix)
+    0000053D DD 77 91         [19]  740 	ld	-111 (ix), a
+    00000540 DD 7E 88         [19]  741 	ld	a, -120 (ix)
+    00000543 DD 77 92         [19]  742 	ld	-110 (ix), a
+    00000546 DD 7E 89         [19]  743 	ld	a, -119 (ix)
+    00000549 DD 77 93         [19]  744 	ld	-109 (ix), a
+    0000054C DD 7E 88         [19]  745 	ld	a, -120 (ix)
+    0000054F DD 77 94         [19]  746 	ld	-108 (ix), a
+    00000552 DD 7E 89         [19]  747 	ld	a, -119 (ix)
+    00000555 DD 77 95         [19]  748 	ld	-107 (ix), a
+    00000558 11 00 01         [10]  749 	ld	de, #0x0100
+    0000055B DD 6E 88         [19]  750 	ld	l, -120 (ix)
+    0000055E DD 66 89         [19]  751 	ld	h, -119 (ix)
+    00000561 19               [11]  752 	add	hl, de
+    00000562 DD 75 96         [19]  753 	ld	-106 (ix), l
+    00000565 DD 74 97         [19]  754 	ld	-105 (ix), h
+    00000568 DD 7E 88         [19]  755 	ld	a, -120 (ix)
+    0000056B DD 77 98         [19]  756 	ld	-104 (ix), a
+    0000056E DD 7E 89         [19]  757 	ld	a, -119 (ix)
+    00000571 DD 77 99         [19]  758 	ld	-103 (ix), a
+    00000574 DD 6E 88         [19]  759 	ld	l, -120 (ix)
+    00000577 DD 66 89         [19]  760 	ld	h, -119 (ix)
+    0000057A 23               [ 6]  761 	inc	hl
+    0000057B DD 75 9A         [19]  762 	ld	-102 (ix), l
+    0000057E DD 74 9B         [19]  763 	ld	-101 (ix), h
+    00000581 DD 7E 9A         [19]  764 	ld	a, -102 (ix)
+    00000584 DD 77 9C         [19]  765 	ld	-100 (ix), a
+    00000587 DD 7E 9B         [19]  766 	ld	a, -101 (ix)
+    0000058A DD 77 9D         [19]  767 	ld	-99 (ix), a
+    0000058D DD 7E 96         [19]  768 	ld	a, -106 (ix)
+    00000590 DD 77 9E         [19]  769 	ld	-98 (ix), a
+    00000593 DD 7E 97         [19]  770 	ld	a, -105 (ix)
+    00000596 DD 77 9F         [19]  771 	ld	-97 (ix), a
+    00000599 DD 7E 88         [19]  772 	ld	a, -120 (ix)
+    0000059C DD 77 A0         [19]  773 	ld	-96 (ix), a
+    0000059F DD 7E 89         [19]  774 	ld	a, -119 (ix)
+    000005A2 DD 77 A1         [19]  775 	ld	-95 (ix), a
+    000005A5 DD 7E 96         [19]  776 	ld	a, -106 (ix)
+    000005A8 DD 77 A2         [19]  777 	ld	-94 (ix), a
+    000005AB DD 7E 97         [19]  778 	ld	a, -105 (ix)
+    000005AE DD 77 A3         [19]  779 	ld	-93 (ix), a
+    000005B1 DD 7E 88         [19]  780 	ld	a, -120 (ix)
+    000005B4 DD 77 A4         [19]  781 	ld	-92 (ix), a
+    000005B7 DD 7E 89         [19]  782 	ld	a, -119 (ix)
+    000005BA DD 77 A5         [19]  783 	ld	-91 (ix), a
+    000005BD DD 7E 96         [19]  784 	ld	a, -106 (ix)
+    000005C0 DD 77 A6         [19]  785 	ld	-90 (ix), a
+    000005C3 DD 7E 97         [19]  786 	ld	a, -105 (ix)
+    000005C6 DD 77 A7         [19]  787 	ld	-89 (ix), a
+    000005C9 DD 7E 9A         [19]  788 	ld	a, -102 (ix)
+    000005CC DD 77 A8         [19]  789 	ld	-88 (ix), a
+    000005CF DD 7E 9B         [19]  790 	ld	a, -101 (ix)
+    000005D2 DD 77 A9         [19]  791 	ld	-87 (ix), a
+    000005D5 DD 7E 88         [19]  792 	ld	a, -120 (ix)
+    000005D8 DD 77 AA         [19]  793 	ld	-86 (ix), a
+    000005DB DD 7E 89         [19]  794 	ld	a, -119 (ix)
+    000005DE DD 77 AB         [19]  795 	ld	-85 (ix), a
+    000005E1 DD 7E 05         [19]  796 	ld	a, 5 (ix)
+    000005E4 DD 77 AC         [19]  797 	ld	-84 (ix), a
+    000005E7 DD 7E 06         [19]  798 	ld	a, 6 (ix)
+    000005EA DD 77 AD         [19]  799 	ld	-83 (ix), a
+    000005ED 11 0A 00         [10]  800 	ld	de, #0x000a
+    000005F0 DD 6E AC         [19]  801 	ld	l, -84 (ix)
+    000005F3 DD 66 AD         [19]  802 	ld	h, -83 (ix)
+    000005F6 19               [11]  803 	add	hl, de
+    000005F7 DD 75 AE         [19]  804 	ld	-82 (ix), l
+    000005FA DD 74 AF         [19]  805 	ld	-81 (ix), h
+    000005FD DD 7E 96         [19]  806 	ld	a, -106 (ix)
+    00000600 DD 77 B0         [19]  807 	ld	-80 (ix), a
+    00000603 DD 7E 97         [19]  808 	ld	a, -105 (ix)
+    00000606 DD 77 B1         [19]  809 	ld	-79 (ix), a
+    00000609 DD 7E 96         [19]  810 	ld	a, -106 (ix)
+    0000060C DD 77 B2         [19]  811 	ld	-78 (ix), a
+    0000060F DD 7E 97         [19]  812 	ld	a, -105 (ix)
+    00000612 DD 77 B3         [19]  813 	ld	-77 (ix), a
+    00000615 DD 7E 96         [19]  814 	ld	a, -106 (ix)
+    00000618 DD 77 B4         [19]  815 	ld	-76 (ix), a
+    0000061B DD 7E 97         [19]  816 	ld	a, -105 (ix)
+    0000061E DD 77 B5         [19]  817 	ld	-75 (ix), a
+    00000621 DD 7E 96         [19]  818 	ld	a, -106 (ix)
+    00000624 DD 77 B6         [19]  819 	ld	-74 (ix), a
+    00000627 DD 7E 97         [19]  820 	ld	a, -105 (ix)
+    0000062A DD 77 B7         [19]  821 	ld	-73 (ix), a
+    0000062D DD 7E 88         [19]  822 	ld	a, -120 (ix)
+    00000630 DD 77 B8         [19]  823 	ld	-72 (ix), a
+    00000633 DD 7E 89         [19]  824 	ld	a, -119 (ix)
+    00000636 DD 77 B9         [19]  825 	ld	-71 (ix), a
+    00000639 DD 7E 88         [19]  826 	ld	a, -120 (ix)
+    0000063C DD 77 BA         [19]  827 	ld	-70 (ix), a
+    0000063F DD 7E 89         [19]  828 	ld	a, -119 (ix)
+    00000642 DD 77 BB         [19]  829 	ld	-69 (ix), a
+    00000645 DD 7E 88         [19]  830 	ld	a, -120 (ix)
+    00000648 DD 77 BC         [19]  831 	ld	-68 (ix), a
+    0000064B DD 7E 89         [19]  832 	ld	a, -119 (ix)
+    0000064E DD 77 BD         [19]  833 	ld	-67 (ix), a
+    00000651 DD 7E AE         [19]  834 	ld	a, -82 (ix)
+    00000654 DD 77 BE         [19]  835 	ld	-66 (ix), a
+    00000657 DD 7E AF         [19]  836 	ld	a, -81 (ix)
+    0000065A DD 77 BF         [19]  837 	ld	-65 (ix), a
+    0000065D DD 7E 88         [19]  838 	ld	a, -120 (ix)
+    00000660 DD 77 C0         [19]  839 	ld	-64 (ix), a
+    00000663 DD 7E 89         [19]  840 	ld	a, -119 (ix)
+    00000666 DD 77 C1         [19]  841 	ld	-63 (ix), a
+    00000669 DD 7E 88         [19]  842 	ld	a, -120 (ix)
+    0000066C DD 77 C2         [19]  843 	ld	-62 (ix), a
+    0000066F DD 7E 89         [19]  844 	ld	a, -119 (ix)
+    00000672 DD 77 C3         [19]  845 	ld	-61 (ix), a
+    00000675 DD 7E AE         [19]  846 	ld	a, -82 (ix)
+    00000678 DD 77 C4         [19]  847 	ld	-60 (ix), a
+    0000067B DD 7E AF         [19]  848 	ld	a, -81 (ix)
+    0000067E DD 77 C5         [19]  849 	ld	-59 (ix), a
+    00000681 DD 7E 96         [19]  850 	ld	a, -106 (ix)
+    00000684 DD 77 C6         [19]  851 	ld	-58 (ix), a
+    00000687 DD 7E 97         [19]  852 	ld	a, -105 (ix)
+    0000068A DD 77 C7         [19]  853 	ld	-57 (ix), a
+    0000068D DD 7E 88         [19]  854 	ld	a, -120 (ix)
+    00000690 DD 77 C8         [19]  855 	ld	-56 (ix), a
+    00000693 DD 7E 89         [19]  856 	ld	a, -119 (ix)
+    00000696 DD 77 C9         [19]  857 	ld	-55 (ix), a
+    00000699 DD 7E 88         [19]  858 	ld	a, -120 (ix)
+    0000069C DD 77 CA         [19]  859 	ld	-54 (ix), a
+    0000069F DD 7E 89         [19]  860 	ld	a, -119 (ix)
+    000006A2 DD 77 CB         [19]  861 	ld	-53 (ix), a
+    000006A5 DD 7E 88         [19]  862 	ld	a, -120 (ix)
+    000006A8 DD 77 CC         [19]  863 	ld	-52 (ix), a
+    000006AB DD 7E 89         [19]  864 	ld	a, -119 (ix)
+    000006AE DD 77 CD         [19]  865 	ld	-51 (ix), a
+    000006B1 DD 7E 88         [19]  866 	ld	a, -120 (ix)
+    000006B4 DD 77 CE         [19]  867 	ld	-50 (ix), a
+    000006B7 DD 7E 89         [19]  868 	ld	a, -119 (ix)
+    000006BA DD 77 CF         [19]  869 	ld	-49 (ix), a
+    000006BD DD 7E 9A         [19]  870 	ld	a, -102 (ix)
+    000006C0 DD 77 D0         [19]  871 	ld	-48 (ix), a
+    000006C3 DD 7E 9B         [19]  872 	ld	a, -101 (ix)
+    000006C6 DD 77 D1         [19]  873 	ld	-47 (ix), a
+    000006C9 DD 7E AE         [19]  874 	ld	a, -82 (ix)
+    000006CC DD 77 D2         [19]  875 	ld	-46 (ix), a
+    000006CF DD 7E AF         [19]  876 	ld	a, -81 (ix)
+    000006D2 DD 77 D3         [19]  877 	ld	-45 (ix), a
+    000006D5 DD 7E AC         [19]  878 	ld	a, -84 (ix)
+    000006D8 DD 77 D4         [19]  879 	ld	-44 (ix), a
+    000006DB DD 7E AD         [19]  880 	ld	a, -83 (ix)
+    000006DE DD 77 D5         [19]  881 	ld	-43 (ix), a
+    000006E1 DD 7E AC         [19]  882 	ld	a, -84 (ix)
+    000006E4 DD 77 D6         [19]  883 	ld	-42 (ix), a
+    000006E7 DD 7E AD         [19]  884 	ld	a, -83 (ix)
+    000006EA DD 77 D7         [19]  885 	ld	-41 (ix), a
+    000006ED DD 7E 88         [19]  886 	ld	a, -120 (ix)
+    000006F0 DD 77 D8         [19]  887 	ld	-40 (ix), a
+    000006F3 DD 7E 89         [19]  888 	ld	a, -119 (ix)
+    000006F6 DD 77 D9         [19]  889 	ld	-39 (ix), a
+    000006F9 DD 7E 88         [19]  890 	ld	a, -120 (ix)
+    000006FC DD 77 DA         [19]  891 	ld	-38 (ix), a
+    000006FF DD 7E 89         [19]  892 	ld	a, -119 (ix)
+    00000702 DD 77 DB         [19]  893 	ld	-37 (ix), a
+    00000705 DD 7E 88         [19]  894 	ld	a, -120 (ix)
+    00000708 DD 77 DC         [19]  895 	ld	-36 (ix), a
+    0000070B DD 7E 89         [19]  896 	ld	a, -119 (ix)
+    0000070E DD 77 DD         [19]  897 	ld	-35 (ix), a
+    00000711 DD 7E 88         [19]  898 	ld	a, -120 (ix)
+    00000714 DD 77 DE         [19]  899 	ld	-34 (ix), a
+    00000717 DD 7E 89         [19]  900 	ld	a, -119 (ix)
+    0000071A DD 77 DF         [19]  901 	ld	-33 (ix), a
+    0000071D DD 7E 88         [19]  902 	ld	a, -120 (ix)
+    00000720 DD 77 E0         [19]  903 	ld	-32 (ix), a
+    00000723 DD 7E 89         [19]  904 	ld	a, -119 (ix)
+    00000726 DD 77 E1         [19]  905 	ld	-31 (ix), a
+    00000729 DD 7E 88         [19]  906 	ld	a, -120 (ix)
+    0000072C DD 77 E2         [19]  907 	ld	-30 (ix), a
+    0000072F DD 7E 89         [19]  908 	ld	a, -119 (ix)
+    00000732 DD 77 E3         [19]  909 	ld	-29 (ix), a
+    00000735 DD 7E 88         [19]  910 	ld	a, -120 (ix)
+    00000738 DD 77 E4         [19]  911 	ld	-28 (ix), a
+    0000073B DD 7E 89         [19]  912 	ld	a, -119 (ix)
+    0000073E DD 77 E5         [19]  913 	ld	-27 (ix), a
+    00000741 DD 7E 88         [19]  914 	ld	a, -120 (ix)
+    00000744 DD 77 E6         [19]  915 	ld	-26 (ix), a
+    00000747 DD 7E 89         [19]  916 	ld	a, -119 (ix)
+    0000074A DD 77 E7         [19]  917 	ld	-25 (ix), a
+    0000074D DD 7E 9A         [19]  918 	ld	a, -102 (ix)
+    00000750 DD 77 E8         [19]  919 	ld	-24 (ix), a
+    00000753 DD 7E 9B         [19]  920 	ld	a, -101 (ix)
+    00000756 DD 77 E9         [19]  921 	ld	-23 (ix), a
+    00000759 DD 7E 88         [19]  922 	ld	a, -120 (ix)
+    0000075C DD 77 EA         [19]  923 	ld	-22 (ix), a
+    0000075F DD 7E 89         [19]  924 	ld	a, -119 (ix)
+    00000762 DD 77 EB         [19]  925 	ld	-21 (ix), a
+    00000765 DD 7E 9A         [19]  926 	ld	a, -102 (ix)
+    00000768 DD 77 EC         [19]  927 	ld	-20 (ix), a
+    0000076B DD 7E 9B         [19]  928 	ld	a, -101 (ix)
+    0000076E DD 77 ED         [19]  929 	ld	-19 (ix), a
+    00000771 DD 7E 88         [19]  930 	ld	a, -120 (ix)
+    00000774 DD 77 EE         [19]  931 	ld	-18 (ix), a
+    00000777 DD 7E 89         [19]  932 	ld	a, -119 (ix)
+    0000077A DD 77 EF         [19]  933 	ld	-17 (ix), a
+    0000077D DD 7E 88         [19]  934 	ld	a, -120 (ix)
+    00000780 DD 77 F0         [19]  935 	ld	-16 (ix), a
+    00000783 DD 7E 89         [19]  936 	ld	a, -119 (ix)
+    00000786 DD 77 F1         [19]  937 	ld	-15 (ix), a
+    00000789 DD 7E 88         [19]  938 	ld	a, -120 (ix)
+    0000078C DD 77 F2         [19]  939 	ld	-14 (ix), a
+    0000078F DD 7E 89         [19]  940 	ld	a, -119 (ix)
+    00000792 DD 77 F3         [19]  941 	ld	-13 (ix), a
+    00000795 DD 7E 88         [19]  942 	ld	a, -120 (ix)
+    00000798 DD 77 F4         [19]  943 	ld	-12 (ix), a
+    0000079B DD 7E 89         [19]  944 	ld	a, -119 (ix)
+    0000079E DD 77 F5         [19]  945 	ld	-11 (ix), a
+    000007A1 DD 7E 88         [19]  946 	ld	a, -120 (ix)
+    000007A4 DD 77 F6         [19]  947 	ld	-10 (ix), a
+    000007A7 DD 7E 89         [19]  948 	ld	a, -119 (ix)
+    000007AA DD 77 F7         [19]  949 	ld	-9 (ix), a
+    000007AD DD 7E 88         [19]  950 	ld	a, -120 (ix)
+    000007B0 DD 77 F8         [19]  951 	ld	-8 (ix), a
+    000007B3 DD 7E 89         [19]  952 	ld	a, -119 (ix)
+    000007B6 DD 77 F9         [19]  953 	ld	-7 (ix), a
+    000007B9                        954 00239$:
+    000007B9 DD 7E FF         [19]  955 	ld	a, -1 (ix)
+    000007BC DD 96 04         [19]  956 	sub	a, 4 (ix)
+    000007BF D2r90r10         [10]  957 	jp	nc, 00262$
+    000007C2 DD 6E 8A         [19]  958 	ld	l, -118 (ix)
+    000007C5 DD 66 8B         [19]  959 	ld	h, -117 (ix)
+    000007C8 7E               [ 7]  960 	ld	a, (hl)
+    000007C9 B7               [ 4]  961 	or	a, a
+    000007CA C2r90r10         [10]  962 	jp	nz, 00262$
+    000007CD DD 6E 8C         [19]  963 	ld	l, -116 (ix)
+    000007D0 DD 66 8D         [19]  964 	ld	h, -115 (ix)
+    000007D3 11 07 01         [10]  965 	ld	de, #0x0107
+    000007D6 19               [11]  966 	add	hl, de
+    000007D7 7E               [ 7]  967 	ld	a, (hl)
+    000007D8 B7               [ 4]  968 	or	a, a
+    000007D9 C2r90r10         [10]  969 	jp	nz, 00262$
+    000007DC DD 6E 8E         [19]  970 	ld	l, -114 (ix)
+    000007DF DD 66 8F         [19]  971 	ld	h, -113 (ix)
+    000007E2 11 08 01         [10]  972 	ld	de, #0x0108
+    000007E5 19               [11]  973 	add	hl, de
+    000007E6 7E               [ 7]  974 	ld	a, (hl)
+    000007E7 B7               [ 4]  975 	or	a, a
+    000007E8 C2r90r10         [10]  976 	jp	nz, 00262$
+                                    977 ;engine/src/interpreter.c:185: const Game_Instruction* inst = &instructions[pc];
+    000007EB DD 6E FF         [19]  978 	ld	l, -1 (ix)
+    000007EE 26 00            [ 7]  979 	ld	h, #0x00
+    000007F0 29               [11]  980 	add	hl, hl
+    000007F1 29               [11]  981 	add	hl, hl
+    000007F2 7D               [ 4]  982 	ld	a, l
+    000007F3 DD 86 FD         [19]  983 	add	a, -3 (ix)
+    000007F6 5F               [ 4]  984 	ld	e, a
+    000007F7 7C               [ 4]  985 	ld	a, h
+    000007F8 DD 8E FE         [19]  986 	adc	a, -2 (ix)
+    000007FB 57               [ 4]  987 	ld	d, a
+                                    988 ;engine/src/interpreter.c:186: u8 op = inst->op;
+    000007FC 1A               [ 7]  989 	ld	a, (de)
+    000007FD 4F               [ 4]  990 	ld	c, a
+                                    991 ;engine/src/interpreter.c:187: u8 p1 = inst->p1;
+    000007FE D5               [11]  992 	push	de
+    000007FF FD E1            [14]  993 	pop	iy
+    00000801 FD 7E 01         [19]  994 	ld	a, 1 (iy)
+    00000804 DD 77 FC         [19]  995 	ld	-4 (ix), a
+                                    996 ;engine/src/interpreter.c:188: u8 p2 = inst->p2;
+    00000807 D5               [11]  997 	push	de
+    00000808 FD E1            [14]  998 	pop	iy
+    0000080A FD 7E 02         [19]  999 	ld	a, 2 (iy)
+    0000080D DD 77 FA         [19] 1000 	ld	-6 (ix), a
+                                   1001 ;engine/src/interpreter.c:189: u8 p3 = inst->p3;
+    00000810 D5               [11] 1002 	push	de
+    00000811 FD E1            [14] 1003 	pop	iy
+    00000813 FD 7E 03         [19] 1004 	ld	a, 3 (iy)
+    00000816 DD 77 FB         [19] 1005 	ld	-5 (ix), a
+                                   1006 ;engine/src/interpreter.c:191: switch (op)
+    00000819 3E 2C            [ 7] 1007 	ld	a, #0x2c
+    0000081B 91               [ 4] 1008 	sub	a, c
+    0000081C DAr8Ar10         [10] 1009 	jp	c, 00235$
+    0000081F 06 00            [ 7] 1010 	ld	b, #0x00
+    00000821 21r2Br08         [10] 1011 	ld	hl, #00816$
+    00000824 09               [11] 1012 	add	hl, bc
+    00000825 09               [11] 1013 	add	hl, bc
+    00000826 4E               [ 7] 1014 	ld	c, (hl)
+    00000827 23               [ 6] 1015 	inc	hl
+    00000828 66               [ 7] 1016 	ld	h, (hl)
+    00000829 69               [ 4] 1017 	ld	l, c
+    0000082A E9               [ 4] 1018 	jp	(hl)
+    0000082B                       1019 00816$:
+    0000082Br8Ar10                 1020 	.dw	00235$
+    0000082Dr85r08                 1021 	.dw	00105$
+    0000082Fr9Br08                 1022 	.dw	00106$
+    00000831rA6r08                 1023 	.dw	00107$
+    00000833r4Br09                 1024 	.dw	00118$
+    00000835rE8r09                 1025 	.dw	00126$
+    00000837r89r0A                 1026 	.dw	00135$
+    00000839rABr0A                 1027 	.dw	00136$
+    0000083BrBBr0A                 1028 	.dw	00137$
+    0000083DrDAr0A                 1029 	.dw	00140$
+    0000083FrEDr0A                 1030 	.dw	00141$
+    00000841r0Cr0B                 1031 	.dw	00142$
+    00000843r4Ar0B                 1032 	.dw	00145$
+    00000845r66r0B                 1033 	.dw	00148$
+    00000847r83r0B                 1034 	.dw	00151$
+    00000849rA0r0B                 1035 	.dw	00154$
+    0000084BrD4r0B                 1036 	.dw	00157$
+    0000084DrEAr0B                 1037 	.dw	00160$
+    0000084Fr18r0C                 1038 	.dw	00163$
+    00000851rB0r0C                 1039 	.dw	00174$
+    00000853rDFr0C                 1040 	.dw	00175$
+    00000855r0Cr0D                 1041 	.dw	00176$
+    00000857r4Dr0D                 1042 	.dw	00181$
+    00000859r72r0D                 1043 	.dw	00395$
+    0000085BrA0r0D                 1044 	.dw	00398$
+    0000085DrCEr0D                 1045 	.dw	00190$
+    0000085Fr1Ar0E                 1046 	.dw	00404$
+    00000861r6Fr0E                 1047 	.dw	00200$
+    00000863r87r0E                 1048 	.dw	00201$
+    00000865r9Ar0E                 1049 	.dw	00202$
+    00000867rA9r0E                 1050 	.dw	00203$
+    00000869rACr0E                 1051 	.dw	00204$
+    0000086BrBBr0E                 1052 	.dw	00205$
+    0000086DrCAr0E                 1053 	.dw	00206$
+    0000086FrE8r0E                 1054 	.dw	00207$
+    00000871rEBr0E                 1055 	.dw	00208$
+    00000873rF4r0E                 1056 	.dw	00209$
+    00000875rFDr0E                 1057 	.dw	00210$
+    00000877r10r0F                 1058 	.dw	00211$
+    00000879r4Cr0F                 1059 	.dw	00217$
+    0000087Br52r0F                 1060 	.dw	00218$
+    0000087Dr68r0F                 1061 	.dw	00221$
+    0000087Fr71r0F                 1062 	.dw	00222$
+    00000881rA9r0F                 1063 	.dw	00223$
+    00000883rD2r0F                 1064 	.dw	00227$
+                                   1065 ;engine/src/interpreter.c:197: case OP_MSG:
+    00000885                       1066 00105$:
+                                   1067 ;engine/src/interpreter.c:198: UI_PrintCenter(Interpreter_GetMessageText(p1, db));
+    00000885 DD 5E AC         [19] 1068 	ld	e, -84 (ix)
+    00000888 DD 56 AD         [19] 1069 	ld	d, -83 (ix)
+    0000088B DD 7E FC         [19] 1070 	ld	a, -4 (ix)
+    0000088E CDr00r00         [17] 1071 	call	_Interpreter_GetMessageText
+    00000891 EB               [ 4] 1072 	ex	de, hl
+    00000892 CDr00r00         [17] 1073 	call	_UI_PrintCenter
+                                   1074 ;engine/src/interpreter.c:199: UI_NewLineCenter();
+    00000895 CDr00r00         [17] 1075 	call	_UI_NewLineCenter
+                                   1076 ;engine/src/interpreter.c:200: break;
+    00000898 C3r8Ar10         [10] 1077 	jp	00235$
+                                   1078 ;engine/src/interpreter.c:202: case OP_NVC:
+    0000089B                       1079 00106$:
+                                   1080 ;engine/src/interpreter.c:203: state->flag_espera_cmd = TRUE;
+    0000089B DD 6E 8A         [19] 1081 	ld	l, -118 (ix)
+    0000089E DD 66 8B         [19] 1082 	ld	h, -117 (ix)
+    000008A1 36 01            [10] 1083 	ld	(hl), #0x01
+                                   1084 ;engine/src/interpreter.c:204: return;
+    000008A3 C3r90r10         [10] 1085 	jp	00262$
+                                   1086 ;engine/src/interpreter.c:206: case OP_LLIST:
+    000008A6                       1087 00107$:
+                                   1088 ;engine/src/interpreter.c:208: u8 room_id = state->registers[REG_POSICAO];
+    000008A6 DD 4E 88         [19] 1089 	ld	c, -120 (ix)
+    000008A9 DD 46 89         [19] 1090 	ld	b, -119 (ix)
+    000008AC 03               [ 6] 1091 	inc	bc
+    000008AD 0A               [ 7] 1092 	ld	a, (bc)
+    000008AE DD 77 FF         [19] 1093 	ld	-1 (ix), a
+                                   1094 ;engine/src/interpreter.c:210: bool found = FALSE;
+    000008B1 0E 00            [ 7] 1095 	ld	c, #0x00
+                                   1096 ;engine/src/interpreter.c:211: for (i = 1; i <= db->num_objetos; i++)
+    000008B3 DD 7E 88         [19] 1097 	ld	a, -120 (ix)
+    000008B6 DD 77 FB         [19] 1098 	ld	-5 (ix), a
+    000008B9 DD 7E 89         [19] 1099 	ld	a, -119 (ix)
+    000008BC DD 77 FC         [19] 1100 	ld	-4 (ix), a
+    000008BF DD 7E AC         [19] 1101 	ld	a, -84 (ix)
+    000008C2 DD 77 F9         [19] 1102 	ld	-7 (ix), a
+    000008C5 DD 7E AD         [19] 1103 	ld	a, -83 (ix)
+    000008C8 DD 77 FA         [19] 1104 	ld	-6 (ix), a
+    000008CB DD 7E AE         [19] 1105 	ld	a, -82 (ix)
+    000008CE DD 77 F6         [19] 1106 	ld	-10 (ix), a
+    000008D1 DD 7E AF         [19] 1107 	ld	a, -81 (ix)
+    000008D4 DD 77 F7         [19] 1108 	ld	-9 (ix), a
+    000008D7 DD 36 F8 01      [19] 1109 	ld	-8 (ix), #0x01
+    000008DB                       1110 00243$:
+    000008DB DD 6E F6         [19] 1111 	ld	l, -10 (ix)
+    000008DE DD 66 F7         [19] 1112 	ld	h, -9 (ix)
+    000008E1 46               [ 7] 1113 	ld	b, (hl)
+    000008E2 78               [ 4] 1114 	ld	a, b
+    000008E3 DD 96 F8         [19] 1115 	sub	a, -8 (ix)
+    000008E6 38 4B            [12] 1116 	jr	c, 00115$
+                                   1117 ;engine/src/interpreter.c:213: if (i == OBJ_ID_LOCAL) continue;
+    000008E8 DD 7E F8         [19] 1118 	ld	a, -8 (ix)
+    000008EB 3D               [ 4] 1119 	dec	a
+    000008EC 28 40            [12] 1120 	jr	z, 00114$
+                                   1121 ;engine/src/interpreter.c:214: if (state->registers[REG_OBJETO_OFFSET + i] == room_id)
+    000008EE DD 5E F8         [19] 1122 	ld	e, -8 (ix)
+    000008F1 16 00            [ 7] 1123 	ld	d, #0x00
+    000008F3 21 64 00         [10] 1124 	ld	hl, #0x0064
+    000008F6 19               [11] 1125 	add	hl, de
+    000008F7 DD 5E FB         [19] 1126 	ld	e, -5 (ix)
+    000008FA DD 56 FC         [19] 1127 	ld	d, -4 (ix)
+    000008FD 19               [11] 1128 	add	hl, de
+    000008FE 7E               [ 7] 1129 	ld	a, (hl)
+    000008FF DD 96 FF         [19] 1130 	sub	a, -1 (ix)
+    00000902 20 2A            [12] 1131 	jr	nz, 00114$
+                                   1132 ;engine/src/interpreter.c:216: if (!found)
+    00000904 79               [ 4] 1133 	ld	a, c
+    00000905 B7               [ 4] 1134 	or	a, a
+    00000906 20 0B            [12] 1135 	jr	nz, 00111$
+                                   1136 ;engine/src/interpreter.c:218: UI_PrintCenter("Neste local tem:");
+    00000908 21r99r10         [10] 1137 	ld	hl, #___str_16
+    0000090B CDr00r00         [17] 1138 	call	_UI_PrintCenter
+                                   1139 ;engine/src/interpreter.c:219: UI_NewLineCenter();
+    0000090E CDr00r00         [17] 1140 	call	_UI_NewLineCenter
+                                   1141 ;engine/src/interpreter.c:220: found = TRUE;
+    00000911 0E 01            [ 7] 1142 	ld	c, #0x01
+    00000913                       1143 00111$:
+                                   1144 ;engine/src/interpreter.c:222: UI_PrintCenter("- ");
+    00000913 C5               [11] 1145 	push	bc
+    00000914 21rAAr10         [10] 1146 	ld	hl, #___str_17
+    00000917 CDr00r00         [17] 1147 	call	_UI_PrintCenter
+                                   1148 ;engine/src/interpreter.c:223: UI_PrintCenter(Interpreter_GetObjectName(i, db));
+    0000091A DD 5E F9         [19] 1149 	ld	e, -7 (ix)
+    0000091D DD 56 FA         [19] 1150 	ld	d, -6 (ix)
+    00000920 DD 7E F8         [19] 1151 	ld	a, -8 (ix)
+    00000923 CDr10r02         [17] 1152 	call	_Interpreter_GetObjectName
+    00000926 EB               [ 4] 1153 	ex	de, hl
+    00000927 CDr00r00         [17] 1154 	call	_UI_PrintCenter
+                                   1155 ;engine/src/interpreter.c:224: UI_NewLineCenter();
+    0000092A CDr00r00         [17] 1156 	call	_UI_NewLineCenter
+    0000092D C1               [10] 1157 	pop	bc
+    0000092E                       1158 00114$:
+                                   1159 ;engine/src/interpreter.c:211: for (i = 1; i <= db->num_objetos; i++)
+    0000092E DD 34 F8         [23] 1160 	inc	-8 (ix)
+    00000931 18 A8            [12] 1161 	jr	00243$
+    00000933                       1162 00115$:
+                                   1163 ;engine/src/interpreter.c:227: if (!found)
+    00000933 79               [ 4] 1164 	ld	a, c
+    00000934 B7               [ 4] 1165 	or	a, a
+    00000935 20 09            [12] 1166 	jr	nz, 00117$
+                                   1167 ;engine/src/interpreter.c:229: UI_PrintCenter("Não há nada de especial aqui.");
+    00000937 21rADr10         [10] 1168 	ld	hl, #___str_18
+    0000093A CDr00r00         [17] 1169 	call	_UI_PrintCenter
+                                   1170 ;engine/src/interpreter.c:230: UI_NewLineCenter();
+    0000093D CDr00r00         [17] 1171 	call	_UI_NewLineCenter
+    00000940                       1172 00117$:
+                                   1173 ;engine/src/interpreter.c:232: state->flag_espera_cmd = TRUE;
+    00000940 DD 6E 8A         [19] 1174 	ld	l, -118 (ix)
+    00000943 DD 66 8B         [19] 1175 	ld	h, -117 (ix)
+    00000946 36 01            [10] 1176 	ld	(hl), #0x01
+                                   1177 ;engine/src/interpreter.c:233: return;
+    00000948 C3r90r10         [10] 1178 	jp	00262$
+                                   1179 ;engine/src/interpreter.c:236: case OP_CLIST:
+    0000094B                       1180 00118$:
+                                   1181 ;engine/src/interpreter.c:239: bool found = FALSE;
+    0000094B DD 36 FA 00      [19] 1182 	ld	-6 (ix), #0x00
+                                   1183 ;engine/src/interpreter.c:240: for (i = 1; i <= db->num_objetos; i++)
+    0000094F DD 7E 88         [19] 1184 	ld	a, -120 (ix)
+    00000952 DD 77 FB         [19] 1185 	ld	-5 (ix), a
+    00000955 DD 7E 89         [19] 1186 	ld	a, -119 (ix)
+    00000958 DD 77 FC         [19] 1187 	ld	-4 (ix), a
+    0000095B DD 7E 05         [19] 1188 	ld	a, 5 (ix)
+    0000095E DD 77 F6         [19] 1189 	ld	-10 (ix), a
+    00000961 DD 7E 06         [19] 1190 	ld	a, 6 (ix)
+    00000964 DD 77 F7         [19] 1191 	ld	-9 (ix), a
+    00000967 DD 7E F6         [19] 1192 	ld	a, -10 (ix)
+    0000096A DD 77 F8         [19] 1193 	ld	-8 (ix), a
+    0000096D DD 7E F7         [19] 1194 	ld	a, -9 (ix)
+    00000970 DD 77 F9         [19] 1195 	ld	-7 (ix), a
+    00000973 DD 36 FF 01      [19] 1196 	ld	-1 (ix), #0x01
+    00000977                       1197 00245$:
+    00000977 DD 6E F8         [19] 1198 	ld	l, -8 (ix)
+    0000097A DD 66 F9         [19] 1199 	ld	h, -7 (ix)
+    0000097D 11 0A 00         [10] 1200 	ld	de, #0x000a
+    00000980 19               [11] 1201 	add	hl, de
+    00000981 4E               [ 7] 1202 	ld	c, (hl)
+    00000982 79               [ 4] 1203 	ld	a, c
+    00000983 DD 96 FF         [19] 1204 	sub	a, -1 (ix)
+    00000986 38 46            [12] 1205 	jr	c, 00123$
+                                   1206 ;engine/src/interpreter.c:242: if (state->registers[REG_OBJETO_OFFSET + i] == OBJ_SIT_CARREGADO)
+    00000988 DD 4E FF         [19] 1207 	ld	c, -1 (ix)
+    0000098B 06 00            [ 7] 1208 	ld	b, #0x00
+    0000098D 21 64 00         [10] 1209 	ld	hl, #0x0064
+    00000990 09               [11] 1210 	add	hl, bc
+    00000991 DD 5E FB         [19] 1211 	ld	e, -5 (ix)
+    00000994 DD 56 FC         [19] 1212 	ld	d, -4 (ix)
+    00000997 19               [11] 1213 	add	hl, de
+    00000998 7E               [ 7] 1214 	ld	a, (hl)
+    00000999 FE FA            [ 7] 1215 	cp	a, #0xfa
+    0000099B 20 2C            [12] 1216 	jr	nz, 00246$
+                                   1217 ;engine/src/interpreter.c:244: if (!found)
+    0000099D DD 7E FA         [19] 1218 	ld	a, -6 (ix)
+    000009A0 B7               [ 4] 1219 	or	a, a
+    000009A1 20 0D            [12] 1220 	jr	nz, 00120$
+                                   1221 ;engine/src/interpreter.c:246: UI_PrintCenter("Você está carregando:");
+    000009A3 21rCDr10         [10] 1222 	ld	hl, #___str_19
+    000009A6 CDr00r00         [17] 1223 	call	_UI_PrintCenter
+                                   1224 ;engine/src/interpreter.c:247: UI_NewLineCenter();
+    000009A9 CDr00r00         [17] 1225 	call	_UI_NewLineCenter
+                                   1226 ;engine/src/interpreter.c:248: found = TRUE;
+    000009AC DD 36 FA 01      [19] 1227 	ld	-6 (ix), #0x01
+    000009B0                       1228 00120$:
+                                   1229 ;engine/src/interpreter.c:250: UI_PrintCenter("- ");
+    000009B0 21rAAr10         [10] 1230 	ld	hl, #___str_17
+    000009B3 CDr00r00         [17] 1231 	call	_UI_PrintCenter
+                                   1232 ;engine/src/interpreter.c:251: UI_PrintCenter(Interpreter_GetObjectName(i, db));
+    000009B6 DD 5E F6         [19] 1233 	ld	e, -10 (ix)
+    000009B9 DD 56 F7         [19] 1234 	ld	d, -9 (ix)
+    000009BC DD 7E FF         [19] 1235 	ld	a, -1 (ix)
+    000009BF CDr10r02         [17] 1236 	call	_Interpreter_GetObjectName
+    000009C2 EB               [ 4] 1237 	ex	de, hl
+    000009C3 CDr00r00         [17] 1238 	call	_UI_PrintCenter
+                                   1239 ;engine/src/interpreter.c:252: UI_NewLineCenter();
+    000009C6 CDr00r00         [17] 1240 	call	_UI_NewLineCenter
+    000009C9                       1241 00246$:
+                                   1242 ;engine/src/interpreter.c:240: for (i = 1; i <= db->num_objetos; i++)
+    000009C9 DD 34 FF         [23] 1243 	inc	-1 (ix)
+    000009CC 18 A9            [12] 1244 	jr	00245$
+    000009CE                       1245 00123$:
+                                   1246 ;engine/src/interpreter.c:255: if (!found)
+    000009CE DD 7E FA         [19] 1247 	ld	a, -6 (ix)
+    000009D1 B7               [ 4] 1248 	or	a, a
+    000009D2 20 09            [12] 1249 	jr	nz, 00125$
+                                   1250 ;engine/src/interpreter.c:257: UI_PrintCenter("Você não está carregando nada.");
+    000009D4 21rE5r10         [10] 1251 	ld	hl, #___str_20
+    000009D7 CDr00r00         [17] 1252 	call	_UI_PrintCenter
+                                   1253 ;engine/src/interpreter.c:258: UI_NewLineCenter();
+    000009DA CDr00r00         [17] 1254 	call	_UI_NewLineCenter
+    000009DD                       1255 00125$:
+                                   1256 ;engine/src/interpreter.c:260: state->flag_espera_cmd = TRUE;
+    000009DD DD 6E 8A         [19] 1257 	ld	l, -118 (ix)
+    000009E0 DD 66 8B         [19] 1258 	ld	h, -117 (ix)
+    000009E3 36 01            [10] 1259 	ld	(hl), #0x01
+                                   1260 ;engine/src/interpreter.c:261: return;
+    000009E5 C3r90r10         [10] 1261 	jp	00262$
+                                   1262 ;engine/src/interpreter.c:264: case OP_DLIST:
+    000009E8                       1263 00126$:
+                                   1264 ;engine/src/interpreter.c:267: bool found = FALSE;
+    000009E8 DD 36 FA 00      [19] 1265 	ld	-6 (ix), #0x00
+                                   1266 ;engine/src/interpreter.c:268: for (i = 1; i <= db->num_objetos; i++)
+    000009EC DD 7E 88         [19] 1267 	ld	a, -120 (ix)
+    000009EF DD 77 FB         [19] 1268 	ld	-5 (ix), a
+    000009F2 DD 7E 89         [19] 1269 	ld	a, -119 (ix)
+    000009F5 DD 77 FC         [19] 1270 	ld	-4 (ix), a
+    000009F8 DD 7E 05         [19] 1271 	ld	a, 5 (ix)
+    000009FB DD 77 F6         [19] 1272 	ld	-10 (ix), a
+    000009FE DD 7E 06         [19] 1273 	ld	a, 6 (ix)
+    00000A01 DD 77 F7         [19] 1274 	ld	-9 (ix), a
+    00000A04 DD 7E F6         [19] 1275 	ld	a, -10 (ix)
+    00000A07 DD 77 F8         [19] 1276 	ld	-8 (ix), a
+    00000A0A DD 7E F7         [19] 1277 	ld	a, -9 (ix)
+    00000A0D DD 77 F9         [19] 1278 	ld	-7 (ix), a
+    00000A10 DD 36 FF 01      [19] 1279 	ld	-1 (ix), #0x01
+    00000A14                       1280 00248$:
+    00000A14 DD 6E F8         [19] 1281 	ld	l, -8 (ix)
+    00000A17 DD 66 F9         [19] 1282 	ld	h, -7 (ix)
+    00000A1A 11 0A 00         [10] 1283 	ld	de, #0x000a
+    00000A1D 19               [11] 1284 	add	hl, de
+    00000A1E 4E               [ 7] 1285 	ld	c, (hl)
+    00000A1F 79               [ 4] 1286 	ld	a, c
+    00000A20 DD 96 FF         [19] 1287 	sub	a, -1 (ix)
+    00000A23 38 4A            [12] 1288 	jr	c, 00132$
+                                   1289 ;engine/src/interpreter.c:270: u8 sit = state->registers[REG_OBJETO_OFFSET + i];
+    00000A25 DD 4E FF         [19] 1290 	ld	c, -1 (ix)
+    00000A28 06 00            [ 7] 1291 	ld	b, #0x00
+    00000A2A 21 64 00         [10] 1292 	ld	hl, #0x0064
+    00000A2D 09               [11] 1293 	add	hl, bc
+    00000A2E DD 5E FB         [19] 1294 	ld	e, -5 (ix)
+    00000A31 DD 56 FC         [19] 1295 	ld	d, -4 (ix)
+    00000A34 19               [11] 1296 	add	hl, de
+    00000A35 7E               [ 7] 1297 	ld	a, (hl)
+                                   1298 ;engine/src/interpreter.c:271: if (sit == OBJ_SIT_EM_OBJ3_ABERTO || sit == OBJ_SIT_EM_OBJ3_FECHADO)
+    00000A36 FE FB            [ 7] 1299 	cp	a, #0xfb
+    00000A38 28 04            [12] 1300 	jr	z, 00129$
+    00000A3A FE FD            [ 7] 1301 	cp	a, #0xfd
+    00000A3C 20 2C            [12] 1302 	jr	nz, 00249$
+    00000A3E                       1303 00129$:
+                                   1304 ;engine/src/interpreter.c:273: if (!found)
+    00000A3E DD 7E FA         [19] 1305 	ld	a, -6 (ix)
+    00000A41 B7               [ 4] 1306 	or	a, a
+    00000A42 20 0D            [12] 1307 	jr	nz, 00128$
+                                   1308 ;engine/src/interpreter.c:275: UI_PrintCenter("Dentro tem:");
+    00000A44 21r07r11         [10] 1309 	ld	hl, #___str_21
+    00000A47 CDr00r00         [17] 1310 	call	_UI_PrintCenter
+                                   1311 ;engine/src/interpreter.c:276: UI_NewLineCenter();
+    00000A4A CDr00r00         [17] 1312 	call	_UI_NewLineCenter
+                                   1313 ;engine/src/interpreter.c:277: found = TRUE;
+    00000A4D DD 36 FA 01      [19] 1314 	ld	-6 (ix), #0x01
+    00000A51                       1315 00128$:
+                                   1316 ;engine/src/interpreter.c:279: UI_PrintCenter("- ");
+    00000A51 21rAAr10         [10] 1317 	ld	hl, #___str_17
+    00000A54 CDr00r00         [17] 1318 	call	_UI_PrintCenter
+                                   1319 ;engine/src/interpreter.c:280: UI_PrintCenter(Interpreter_GetObjectName(i, db));
+    00000A57 DD 5E F6         [19] 1320 	ld	e, -10 (ix)
+    00000A5A DD 56 F7         [19] 1321 	ld	d, -9 (ix)
+    00000A5D DD 7E FF         [19] 1322 	ld	a, -1 (ix)
+    00000A60 CDr10r02         [17] 1323 	call	_Interpreter_GetObjectName
+    00000A63 EB               [ 4] 1324 	ex	de, hl
+    00000A64 CDr00r00         [17] 1325 	call	_UI_PrintCenter
+                                   1326 ;engine/src/interpreter.c:281: UI_NewLineCenter();
+    00000A67 CDr00r00         [17] 1327 	call	_UI_NewLineCenter
+    00000A6A                       1328 00249$:
+                                   1329 ;engine/src/interpreter.c:268: for (i = 1; i <= db->num_objetos; i++)
+    00000A6A DD 34 FF         [23] 1330 	inc	-1 (ix)
+    00000A6D 18 A5            [12] 1331 	jr	00248$
+    00000A6F                       1332 00132$:
+                                   1333 ;engine/src/interpreter.c:284: if (!found)
+    00000A6F DD 7E FA         [19] 1334 	ld	a, -6 (ix)
+    00000A72 B7               [ 4] 1335 	or	a, a
+    00000A73 20 09            [12] 1336 	jr	nz, 00134$
+                                   1337 ;engine/src/interpreter.c:286: UI_PrintCenter("Está vazio.");
+    00000A75 21r13r11         [10] 1338 	ld	hl, #___str_22
+    00000A78 CDr00r00         [17] 1339 	call	_UI_PrintCenter
+                                   1340 ;engine/src/interpreter.c:287: UI_NewLineCenter();
+    00000A7B CDr00r00         [17] 1341 	call	_UI_NewLineCenter
+    00000A7E                       1342 00134$:
+                                   1343 ;engine/src/interpreter.c:289: state->flag_espera_cmd = TRUE;
+    00000A7E DD 6E 8A         [19] 1344 	ld	l, -118 (ix)
+    00000A81 DD 66 8B         [19] 1345 	ld	h, -117 (ix)
+    00000A84 36 01            [10] 1346 	ld	(hl), #0x01
+                                   1347 ;engine/src/interpreter.c:290: return;
+    00000A86 C3r90r10         [10] 1348 	jp	00262$
+                                   1349 ;engine/src/interpreter.c:293: case OP_OBJ:
+    00000A89                       1350 00135$:
+                                   1351 ;engine/src/interpreter.c:295: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000A89 DD 7E FC         [19] 1352 	ld	a, -4 (ix)
+    00000A8C B7               [ 4] 1353 	or	a, a
+    00000A8D 28 05            [12] 1354 	jr	z, 00264$
+    00000A8F DD 7E FC         [19] 1355 	ld	a, -4 (ix)
+    00000A92 18 07            [12] 1356 	jr	00265$
+    00000A94                       1357 00264$:
+    00000A94 DD 6E A6         [19] 1358 	ld	l, -90 (ix)
+    00000A97 DD 66 A7         [19] 1359 	ld	h, -89 (ix)
+    00000A9A 7E               [ 7] 1360 	ld	a, (hl)
+    00000A9B                       1361 00265$:
+                                   1362 ;engine/src/interpreter.c:296: UI_PrintCenter(Interpreter_GetObjectName(target, db));
+    00000A9B DD 5E 05         [19] 1363 	ld	e, 5 (ix)
+    00000A9E DD 56 06         [19] 1364 	ld	d, 6 (ix)
+    00000AA1 CDr10r02         [17] 1365 	call	_Interpreter_GetObjectName
+    00000AA4 EB               [ 4] 1366 	ex	de, hl
+    00000AA5 CDr00r00         [17] 1367 	call	_UI_PrintCenter
+                                   1368 ;engine/src/interpreter.c:297: break;
+    00000AA8 C3r8Ar10         [10] 1369 	jp	00235$
+                                   1370 ;engine/src/interpreter.c:300: case OP_INC:
+    00000AAB                       1371 00136$:
+                                   1372 ;engine/src/interpreter.c:301: state->registers[p1]++;
+    00000AAB DD 5E FC         [19] 1373 	ld	e, -4 (ix)
+    00000AAE DD 6E F8         [19] 1374 	ld	l, -8 (ix)
+    00000AB1 DD 66 F9         [19] 1375 	ld	h, -7 (ix)
+    00000AB4 16 00            [ 7] 1376 	ld	d, #0x00
+    00000AB6 19               [11] 1377 	add	hl, de
+    00000AB7 34               [11] 1378 	inc	(hl)
+                                   1379 ;engine/src/interpreter.c:302: break;
+    00000AB8 C3r8Ar10         [10] 1380 	jp	00235$
+                                   1381 ;engine/src/interpreter.c:304: case OP_DEC:
+    00000ABB                       1382 00137$:
+                                   1383 ;engine/src/interpreter.c:305: if (state->registers[p1] > 0)
+    00000ABB DD 5E FC         [19] 1384 	ld	e, -4 (ix)
+    00000ABE DD 6E F6         [19] 1385 	ld	l, -10 (ix)
+    00000AC1 DD 66 F7         [19] 1386 	ld	h, -9 (ix)
+    00000AC4 16 00            [ 7] 1387 	ld	d, #0x00
+    00000AC6 19               [11] 1388 	add	hl, de
+    00000AC7 7E               [ 7] 1389 	ld	a, (hl)
+    00000AC8 B7               [ 4] 1390 	or	a, a
+    00000AC9 CAr8Ar10         [10] 1391 	jp	z, 00235$
+                                   1392 ;engine/src/interpreter.c:307: state->registers[p1]--;
+    00000ACC DD 6E 88         [19] 1393 	ld	l, -120 (ix)
+    00000ACF DD 66 89         [19] 1394 	ld	h, -119 (ix)
+    00000AD2 16 00            [ 7] 1395 	ld	d, #0x00
+    00000AD4 19               [11] 1396 	add	hl, de
+    00000AD5 35               [11] 1397 	dec	(hl)
+    00000AD6 4E               [ 7] 1398 	ld	c, (hl)
+                                   1399 ;engine/src/interpreter.c:309: break;
+    00000AD7 C3r8Ar10         [10] 1400 	jp	00235$
+                                   1401 ;engine/src/interpreter.c:311: case OP_LDR:
+    00000ADA                       1402 00140$:
+                                   1403 ;engine/src/interpreter.c:312: state->registers[p1] = p2;
+    00000ADA DD 5E FC         [19] 1404 	ld	e, -4 (ix)
+    00000ADD DD 6E F4         [19] 1405 	ld	l, -12 (ix)
+    00000AE0 DD 66 F5         [19] 1406 	ld	h, -11 (ix)
+    00000AE3 16 00            [ 7] 1407 	ld	d, #0x00
+    00000AE5 19               [11] 1408 	add	hl, de
+    00000AE6 DD 7E FA         [19] 1409 	ld	a, -6 (ix)
+    00000AE9 77               [ 7] 1410 	ld	(hl), a
+                                   1411 ;engine/src/interpreter.c:313: break;
+    00000AEA C3r8Ar10         [10] 1412 	jp	00235$
+                                   1413 ;engine/src/interpreter.c:315: case OP_SOMA:
+    00000AED                       1414 00141$:
+                                   1415 ;engine/src/interpreter.c:316: state->registers[p1] += p2;
+    00000AED DD 5E FC         [19] 1416 	ld	e, -4 (ix)
+    00000AF0 7B               [ 4] 1417 	ld	a, e
+    00000AF1 DD 86 F2         [19] 1418 	add	a, -14 (ix)
+    00000AF4 4F               [ 4] 1419 	ld	c, a
+    00000AF5 3E 00            [ 7] 1420 	ld	a, #0x00
+    00000AF7 DD 8E F3         [19] 1421 	adc	a, -13 (ix)
+    00000AFA 47               [ 4] 1422 	ld	b, a
+    00000AFB DD 6E 88         [19] 1423 	ld	l, -120 (ix)
+    00000AFE DD 66 89         [19] 1424 	ld	h, -119 (ix)
+    00000B01 16 00            [ 7] 1425 	ld	d, #0x00
+    00000B03 19               [11] 1426 	add	hl, de
+    00000B04 7E               [ 7] 1427 	ld	a, (hl)
+    00000B05 DD 86 FA         [19] 1428 	add	a, -6 (ix)
+    00000B08 02               [ 7] 1429 	ld	(bc), a
+                                   1430 ;engine/src/interpreter.c:317: break;
+    00000B09 C3r8Ar10         [10] 1431 	jp	00235$
+                                   1432 ;engine/src/interpreter.c:319: case OP_RND:
+    00000B0C                       1433 00142$:
+                                   1434 ;engine/src/interpreter.c:320: if (p2 > 0)
+    00000B0C DD 7E FA         [19] 1435 	ld	a, -6 (ix)
+    00000B0F B7               [ 4] 1436 	or	a, a
+    00000B10 CAr8Ar10         [10] 1437 	jp	z, 00235$
+                                   1438 ;engine/src/interpreter.c:322: state->registers[p1] += (u8)(rand() % (p2 + 1));
+    00000B13 DD 5E FC         [19] 1439 	ld	e, -4 (ix)
+    00000B16 7B               [ 4] 1440 	ld	a, e
+    00000B17 DD 86 F0         [19] 1441 	add	a, -16 (ix)
+    00000B1A 4F               [ 4] 1442 	ld	c, a
+    00000B1B 3E 00            [ 7] 1443 	ld	a, #0x00
+    00000B1D DD 8E F1         [19] 1444 	adc	a, -15 (ix)
+    00000B20 47               [ 4] 1445 	ld	b, a
+    00000B21 DD 6E 88         [19] 1446 	ld	l, -120 (ix)
+    00000B24 DD 66 89         [19] 1447 	ld	h, -119 (ix)
+    00000B27 16 00            [ 7] 1448 	ld	d, #0x00
+    00000B29 19               [11] 1449 	add	hl, de
+    00000B2A E5               [11] 1450 	push	hl
+    00000B2B C5               [11] 1451 	push	bc
+    00000B2C CDr00r00         [17] 1452 	call	_rand
+    00000B2F D5               [11] 1453 	push	de
+    00000B30 FD E1            [14] 1454 	pop	iy
+    00000B32 C1               [10] 1455 	pop	bc
+    00000B33 E1               [10] 1456 	pop	hl
+    00000B34 DD 5E FA         [19] 1457 	ld	e, -6 (ix)
+    00000B37 16 00            [ 7] 1458 	ld	d, #0x00
+    00000B39 13               [ 6] 1459 	inc	de
+    00000B3A E5               [11] 1460 	push	hl
+    00000B3B C5               [11] 1461 	push	bc
+    00000B3C FD E5            [15] 1462 	push	iy
+    00000B3E E1               [10] 1463 	pop	hl
+    00000B3F CDr00r00         [17] 1464 	call	__modsint
+    00000B42 C1               [10] 1465 	pop	bc
+    00000B43 E1               [10] 1466 	pop	hl
+    00000B44 7E               [ 7] 1467 	ld	a, (hl)
+    00000B45 83               [ 4] 1468 	add	a, e
+    00000B46 02               [ 7] 1469 	ld	(bc), a
+                                   1470 ;engine/src/interpreter.c:324: break;
+    00000B47 C3r8Ar10         [10] 1471 	jp	00235$
+                                   1472 ;engine/src/interpreter.c:326: case OP_REG_EQ:
+    00000B4A                       1473 00145$:
+                                   1474 ;engine/src/interpreter.c:327: if (state->registers[p1] == p2)
+    00000B4A DD 5E FC         [19] 1475 	ld	e, -4 (ix)
+    00000B4D DD 6E 90         [19] 1476 	ld	l, -112 (ix)
+    00000B50 DD 66 91         [19] 1477 	ld	h, -111 (ix)
+    00000B53 16 00            [ 7] 1478 	ld	d, #0x00
+    00000B55 19               [11] 1479 	add	hl, de
+    00000B56 7E               [ 7] 1480 	ld	a, (hl)
+    00000B57 DD 96 FA         [19] 1481 	sub	a, -6 (ix)
+    00000B5A C2r8Ar10         [10] 1482 	jp	nz, 00235$
+                                   1483 ;engine/src/interpreter.c:329: pc = p3;
+    00000B5D DD 7E FB         [19] 1484 	ld	a, -5 (ix)
+    00000B60 DD 77 FF         [19] 1485 	ld	-1 (ix), a
+                                   1486 ;engine/src/interpreter.c:330: continue;
+    00000B63 C3rB9r07         [10] 1487 	jp	00239$
+                                   1488 ;engine/src/interpreter.c:334: case OP_REG_GT:
+    00000B66                       1489 00148$:
+                                   1490 ;engine/src/interpreter.c:335: if (state->registers[p1] > p2)
+    00000B66 DD 5E FC         [19] 1491 	ld	e, -4 (ix)
+    00000B69 DD 6E 92         [19] 1492 	ld	l, -110 (ix)
+    00000B6C DD 66 93         [19] 1493 	ld	h, -109 (ix)
+    00000B6F 16 00            [ 7] 1494 	ld	d, #0x00
+    00000B71 19               [11] 1495 	add	hl, de
+    00000B72 4E               [ 7] 1496 	ld	c, (hl)
+    00000B73 DD 7E FA         [19] 1497 	ld	a, -6 (ix)
+    00000B76 91               [ 4] 1498 	sub	a, c
+    00000B77 D2r8Ar10         [10] 1499 	jp	nc, 00235$
+                                   1500 ;engine/src/interpreter.c:337: pc = p3;
+    00000B7A DD 7E FB         [19] 1501 	ld	a, -5 (ix)
+    00000B7D DD 77 FF         [19] 1502 	ld	-1 (ix), a
+                                   1503 ;engine/src/interpreter.c:338: continue;
+    00000B80 C3rB9r07         [10] 1504 	jp	00239$
+                                   1505 ;engine/src/interpreter.c:342: case OP_REG_LT:
+    00000B83                       1506 00151$:
+                                   1507 ;engine/src/interpreter.c:343: if (state->registers[p1] < p2)
+    00000B83 DD 5E FC         [19] 1508 	ld	e, -4 (ix)
+    00000B86 DD 6E 94         [19] 1509 	ld	l, -108 (ix)
+    00000B89 DD 66 95         [19] 1510 	ld	h, -107 (ix)
+    00000B8C 16 00            [ 7] 1511 	ld	d, #0x00
+    00000B8E 19               [11] 1512 	add	hl, de
+    00000B8F 4E               [ 7] 1513 	ld	c, (hl)
+    00000B90 79               [ 4] 1514 	ld	a, c
+    00000B91 DD 96 FA         [19] 1515 	sub	a, -6 (ix)
+    00000B94 D2r8Ar10         [10] 1516 	jp	nc, 00235$
+                                   1517 ;engine/src/interpreter.c:345: pc = p3;
+    00000B97 DD 7E FB         [19] 1518 	ld	a, -5 (ix)
+    00000B9A DD 77 FF         [19] 1519 	ld	-1 (ix), a
+                                   1520 ;engine/src/interpreter.c:346: continue;
+    00000B9D C3rB9r07         [10] 1521 	jp	00239$
+                                   1522 ;engine/src/interpreter.c:350: case OP_AQUI:
+    00000BA0                       1523 00154$:
+                                   1524 ;engine/src/interpreter.c:352: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000BA0 DD 7E FC         [19] 1525 	ld	a, -4 (ix)
+    00000BA3 B7               [ 4] 1526 	or	a, a
+    00000BA4 28 05            [12] 1527 	jr	z, 00266$
+    00000BA6 DD 4E FC         [19] 1528 	ld	c, -4 (ix)
+    00000BA9 18 07            [12] 1529 	jr	00267$
+    00000BAB                       1530 00266$:
+    00000BAB DD 6E 96         [19] 1531 	ld	l, -106 (ix)
+    00000BAE DD 66 97         [19] 1532 	ld	h, -105 (ix)
+    00000BB1 4E               [ 7] 1533 	ld	c, (hl)
+    00000BB2                       1534 00267$:
+                                   1535 ;engine/src/interpreter.c:353: if (state->registers[REG_OBJETO_OFFSET + target] == state->registers[REG_POSICAO])
+    00000BB2 06 00            [ 7] 1536 	ld	b, #0x00
+    00000BB4 21 64 00         [10] 1537 	ld	hl, #0x0064
+    00000BB7 09               [11] 1538 	add	hl, bc
+    00000BB8 DD 5E 98         [19] 1539 	ld	e, -104 (ix)
+    00000BBB DD 56 99         [19] 1540 	ld	d, -103 (ix)
+    00000BBE 19               [11] 1541 	add	hl, de
+    00000BBF 7E               [ 7] 1542 	ld	a, (hl)
+    00000BC0 DD 6E 9A         [19] 1543 	ld	l, -102 (ix)
+    00000BC3 DD 66 9B         [19] 1544 	ld	h, -101 (ix)
+    00000BC6 4E               [ 7] 1545 	ld	c, (hl)
+    00000BC7 91               [ 4] 1546 	sub	a, c
+    00000BC8 C2r8Ar10         [10] 1547 	jp	nz, 00235$
+                                   1548 ;engine/src/interpreter.c:355: pc = p2;
+    00000BCB DD 7E FA         [19] 1549 	ld	a, -6 (ix)
+    00000BCE DD 77 FF         [19] 1550 	ld	-1 (ix), a
+                                   1551 ;engine/src/interpreter.c:356: continue;
+    00000BD1 C3rB9r07         [10] 1552 	jp	00239$
+                                   1553 ;engine/src/interpreter.c:361: case OP_LOCAL:
+    00000BD4                       1554 00157$:
+                                   1555 ;engine/src/interpreter.c:362: if (state->registers[REG_POSICAO] == p1)
+    00000BD4 DD 6E 9C         [19] 1556 	ld	l, -100 (ix)
+    00000BD7 DD 66 9D         [19] 1557 	ld	h, -99 (ix)
+    00000BDA 7E               [ 7] 1558 	ld	a, (hl)
+    00000BDB DD 96 FC         [19] 1559 	sub	a, -4 (ix)
+    00000BDE C2r8Ar10         [10] 1560 	jp	nz, 00235$
+                                   1561 ;engine/src/interpreter.c:364: pc = p2;
+    00000BE1 DD 7E FA         [19] 1562 	ld	a, -6 (ix)
+    00000BE4 DD 77 FF         [19] 1563 	ld	-1 (ix), a
+                                   1564 ;engine/src/interpreter.c:365: continue;
+    00000BE7 C3rB9r07         [10] 1565 	jp	00239$
+                                   1566 ;engine/src/interpreter.c:369: case OP_TEMOS:
+    00000BEA                       1567 00160$:
+                                   1568 ;engine/src/interpreter.c:371: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000BEA DD 7E FC         [19] 1569 	ld	a, -4 (ix)
+    00000BED B7               [ 4] 1570 	or	a, a
+    00000BEE 28 05            [12] 1571 	jr	z, 00268$
+    00000BF0 DD 4E FC         [19] 1572 	ld	c, -4 (ix)
+    00000BF3 18 07            [12] 1573 	jr	00269$
+    00000BF5                       1574 00268$:
+    00000BF5 DD 6E 9E         [19] 1575 	ld	l, -98 (ix)
+    00000BF8 DD 66 9F         [19] 1576 	ld	h, -97 (ix)
+    00000BFB 4E               [ 7] 1577 	ld	c, (hl)
+    00000BFC                       1578 00269$:
+                                   1579 ;engine/src/interpreter.c:372: if (state->registers[REG_OBJETO_OFFSET + target] == OBJ_SIT_CARREGADO)
+    00000BFC 06 00            [ 7] 1580 	ld	b, #0x00
+    00000BFE 21 64 00         [10] 1581 	ld	hl, #0x0064
+    00000C01 09               [11] 1582 	add	hl, bc
+    00000C02 DD 5E A0         [19] 1583 	ld	e, -96 (ix)
+    00000C05 DD 56 A1         [19] 1584 	ld	d, -95 (ix)
+    00000C08 19               [11] 1585 	add	hl, de
+    00000C09 7E               [ 7] 1586 	ld	a, (hl)
+    00000C0A FE FA            [ 7] 1587 	cp	a, #0xfa
+    00000C0C C2r8Ar10         [10] 1588 	jp	nz, 00235$
+                                   1589 ;engine/src/interpreter.c:374: pc = p2;
+    00000C0F DD 7E FA         [19] 1590 	ld	a, -6 (ix)
+    00000C12 DD 77 FF         [19] 1591 	ld	-1 (ix), a
+                                   1592 ;engine/src/interpreter.c:375: continue;
+    00000C15 C3rB9r07         [10] 1593 	jp	00239$
+                                   1594 ;engine/src/interpreter.c:380: case OP_SOLTA:
+    00000C18                       1595 00163$:
+                                   1596 ;engine/src/interpreter.c:382: if (p1 == 100) // Solta todos os objetos carregados
+    00000C18 DD 7E FC         [19] 1597 	ld	a, -4 (ix)
+    00000C1B D6 64            [ 7] 1598 	sub	a, #0x64
+    00000C1D 20 45            [12] 1599 	jr	nz, 00172$
+                                   1600 ;engine/src/interpreter.c:385: for (i = 1; i <= db->num_objetos; i++)
+    00000C1F 0E 01            [ 7] 1601 	ld	c, #0x01
+    00000C21                       1602 00251$:
+    00000C21 DD 6E AE         [19] 1603 	ld	l, -82 (ix)
+    00000C24 DD 66 AF         [19] 1604 	ld	h, -81 (ix)
+    00000C27 46               [ 7] 1605 	ld	b, (hl)
+    00000C28 78               [ 4] 1606 	ld	a, b
+    00000C29 91               [ 4] 1607 	sub	a, c
+    00000C2A 38 29            [12] 1608 	jr	c, 00166$
+                                   1609 ;engine/src/interpreter.c:387: if (state->registers[REG_OBJETO_OFFSET + i] == OBJ_SIT_CARREGADO)
+    00000C2C 59               [ 4] 1610 	ld	e, c
+    00000C2D 16 00            [ 7] 1611 	ld	d, #0x00
+    00000C2F 21 64 00         [10] 1612 	ld	hl, #0x0064
+    00000C32 19               [11] 1613 	add	hl, de
+    00000C33 EB               [ 4] 1614 	ex	de, hl
+    00000C34 DD 6E AA         [19] 1615 	ld	l, -86 (ix)
+    00000C37 DD 66 AB         [19] 1616 	ld	h, -85 (ix)
+    00000C3A 19               [11] 1617 	add	hl, de
+    00000C3B 7E               [ 7] 1618 	ld	a, (hl)
+    00000C3C FE FA            [ 7] 1619 	cp	a, #0xfa
+    00000C3E 20 12            [12] 1620 	jr	nz, 00252$
+                                   1621 ;engine/src/interpreter.c:389: state->registers[REG_OBJETO_OFFSET + i] = state->registers[REG_POSICAO];
+    00000C40 7B               [ 4] 1622 	ld	a, e
+    00000C41 DD 86 88         [19] 1623 	add	a, -120 (ix)
+    00000C44 5F               [ 4] 1624 	ld	e, a
+    00000C45 7A               [ 4] 1625 	ld	a, d
+    00000C46 DD 8E 89         [19] 1626 	adc	a, -119 (ix)
+    00000C49 57               [ 4] 1627 	ld	d, a
+    00000C4A DD 6E A8         [19] 1628 	ld	l, -88 (ix)
+    00000C4D DD 66 A9         [19] 1629 	ld	h, -87 (ix)
+    00000C50 7E               [ 7] 1630 	ld	a, (hl)
+    00000C51 12               [ 7] 1631 	ld	(de), a
+    00000C52                       1632 00252$:
+                                   1633 ;engine/src/interpreter.c:385: for (i = 1; i <= db->num_objetos; i++)
+    00000C52 0C               [ 4] 1634 	inc	c
+    00000C53 18 CC            [12] 1635 	jr	00251$
+    00000C55                       1636 00166$:
+                                   1637 ;engine/src/interpreter.c:392: state->registers[REG_OBJETOS_CARREGADOS] = 0;
+    00000C55 DD 6E 88         [19] 1638 	ld	l, -120 (ix)
+    00000C58 DD 66 89         [19] 1639 	ld	h, -119 (ix)
+    00000C5B 11 08 00         [10] 1640 	ld	de, #0x0008
+    00000C5E 19               [11] 1641 	add	hl, de
+    00000C5F 36 00            [10] 1642 	ld	(hl), #0x00
+    00000C61 C3r8Ar10         [10] 1643 	jp	00235$
+    00000C64                       1644 00172$:
+                                   1645 ;engine/src/interpreter.c:396: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000C64 DD 7E FC         [19] 1646 	ld	a, -4 (ix)
+    00000C67 B7               [ 4] 1647 	or	a, a
+    00000C68 28 05            [12] 1648 	jr	z, 00270$
+    00000C6A DD 4E FC         [19] 1649 	ld	c, -4 (ix)
+    00000C6D 18 07            [12] 1650 	jr	00271$
+    00000C6F                       1651 00270$:
+    00000C6F DD 6E B0         [19] 1652 	ld	l, -80 (ix)
+    00000C72 DD 66 B1         [19] 1653 	ld	h, -79 (ix)
+    00000C75 4E               [ 7] 1654 	ld	c, (hl)
+    00000C76                       1655 00271$:
+                                   1656 ;engine/src/interpreter.c:397: if (state->registers[REG_OBJETO_OFFSET + target] == OBJ_SIT_CARREGADO)
+    00000C76 06 00            [ 7] 1657 	ld	b, #0x00
+    00000C78 21 64 00         [10] 1658 	ld	hl, #0x0064
+    00000C7B 09               [11] 1659 	add	hl, bc
+    00000C7C EB               [ 4] 1660 	ex	de, hl
+    00000C7D DD 6E EE         [19] 1661 	ld	l, -18 (ix)
+    00000C80 DD 66 EF         [19] 1662 	ld	h, -17 (ix)
+    00000C83 19               [11] 1663 	add	hl, de
+    00000C84 7E               [ 7] 1664 	ld	a, (hl)
+    00000C85 FE FA            [ 7] 1665 	cp	a, #0xfa
+    00000C87 C2r8Ar10         [10] 1666 	jp	nz, 00235$
+                                   1667 ;engine/src/interpreter.c:399: state->registers[REG_OBJETO_OFFSET + target] = state->registers[REG_POSICAO];
+    00000C8A 7B               [ 4] 1668 	ld	a, e
+    00000C8B DD 86 88         [19] 1669 	add	a, -120 (ix)
+    00000C8E 4F               [ 4] 1670 	ld	c, a
+    00000C8F 7A               [ 4] 1671 	ld	a, d
+    00000C90 DD 8E 89         [19] 1672 	adc	a, -119 (ix)
+    00000C93 47               [ 4] 1673 	ld	b, a
+    00000C94 DD 6E EC         [19] 1674 	ld	l, -20 (ix)
+    00000C97 DD 66 ED         [19] 1675 	ld	h, -19 (ix)
+    00000C9A 7E               [ 7] 1676 	ld	a, (hl)
+    00000C9B 02               [ 7] 1677 	ld	(bc), a
+                                   1678 ;engine/src/interpreter.c:400: if (state->registers[REG_OBJETOS_CARREGADOS] > 0)
+    00000C9C DD 6E 88         [19] 1679 	ld	l, -120 (ix)
+    00000C9F DD 66 89         [19] 1680 	ld	h, -119 (ix)
+    00000CA2 11 08 00         [10] 1681 	ld	de, #0x0008
+    00000CA5 19               [11] 1682 	add	hl, de
+    00000CA6 7E               [ 7] 1683 	ld	a, (hl)
+    00000CA7 B7               [ 4] 1684 	or	a, a
+    00000CA8 CAr8Ar10         [10] 1685 	jp	z, 00235$
+                                   1686 ;engine/src/interpreter.c:402: state->registers[REG_OBJETOS_CARREGADOS]--;
+    00000CAB 3D               [ 4] 1687 	dec	a
+    00000CAC 77               [ 7] 1688 	ld	(hl), a
+                                   1689 ;engine/src/interpreter.c:406: break;
+    00000CAD C3r8Ar10         [10] 1690 	jp	00235$
+                                   1691 ;engine/src/interpreter.c:409: case OP_PEGA:
+    00000CB0                       1692 00174$:
+                                   1693 ;engine/src/interpreter.c:411: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000CB0 DD 7E FC         [19] 1694 	ld	a, -4 (ix)
+    00000CB3 B7               [ 4] 1695 	or	a, a
+    00000CB4 28 05            [12] 1696 	jr	z, 00272$
+    00000CB6 DD 4E FC         [19] 1697 	ld	c, -4 (ix)
+    00000CB9 18 07            [12] 1698 	jr	00273$
+    00000CBB                       1699 00272$:
+    00000CBB DD 6E B2         [19] 1700 	ld	l, -78 (ix)
+    00000CBE DD 66 B3         [19] 1701 	ld	h, -77 (ix)
+    00000CC1 4E               [ 7] 1702 	ld	c, (hl)
+    00000CC2                       1703 00273$:
+                                   1704 ;engine/src/interpreter.c:412: state->registers[REG_OBJETO_OFFSET + target] = OBJ_SIT_CARREGADO;
+    00000CC2 06 00            [ 7] 1705 	ld	b, #0x00
+    00000CC4 21 64 00         [10] 1706 	ld	hl, #0x0064
+    00000CC7 09               [11] 1707 	add	hl, bc
+    00000CC8 DD 5E EA         [19] 1708 	ld	e, -22 (ix)
+    00000CCB DD 56 EB         [19] 1709 	ld	d, -21 (ix)
+    00000CCE 19               [11] 1710 	add	hl, de
+    00000CCF 36 FA            [10] 1711 	ld	(hl), #0xfa
+                                   1712 ;engine/src/interpreter.c:413: state->registers[REG_OBJETOS_CARREGADOS]++;
+    00000CD1 DD 6E 88         [19] 1713 	ld	l, -120 (ix)
+    00000CD4 DD 66 89         [19] 1714 	ld	h, -119 (ix)
+    00000CD7 11 08 00         [10] 1715 	ld	de, #0x0008
+    00000CDA 19               [11] 1716 	add	hl, de
+    00000CDB 34               [11] 1717 	inc	(hl)
+                                   1718 ;engine/src/interpreter.c:414: break;
+    00000CDC C3r8Ar10         [10] 1719 	jp	00235$
+                                   1720 ;engine/src/interpreter.c:417: case OP_CRIA:
+    00000CDF                       1721 00175$:
+                                   1722 ;engine/src/interpreter.c:419: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000CDF DD 7E FC         [19] 1723 	ld	a, -4 (ix)
+    00000CE2 B7               [ 4] 1724 	or	a, a
+    00000CE3 28 05            [12] 1725 	jr	z, 00274$
+    00000CE5 DD 4E FC         [19] 1726 	ld	c, -4 (ix)
+    00000CE8 18 07            [12] 1727 	jr	00275$
+    00000CEA                       1728 00274$:
+    00000CEA DD 6E B4         [19] 1729 	ld	l, -76 (ix)
+    00000CED DD 66 B5         [19] 1730 	ld	h, -75 (ix)
+    00000CF0 4E               [ 7] 1731 	ld	c, (hl)
+    00000CF1                       1732 00275$:
+                                   1733 ;engine/src/interpreter.c:420: state->registers[REG_OBJETO_OFFSET + target] = state->registers[REG_POSICAO];
+    00000CF1 06 00            [ 7] 1734 	ld	b, #0x00
+    00000CF3 21 64 00         [10] 1735 	ld	hl, #0x0064
+    00000CF6 09               [11] 1736 	add	hl, bc
+    00000CF7 7D               [ 4] 1737 	ld	a, l
+    00000CF8 DD 86 E6         [19] 1738 	add	a, -26 (ix)
+    00000CFB 4F               [ 4] 1739 	ld	c, a
+    00000CFC 7C               [ 4] 1740 	ld	a, h
+    00000CFD DD 8E E7         [19] 1741 	adc	a, -25 (ix)
+    00000D00 47               [ 4] 1742 	ld	b, a
+    00000D01 DD 6E E8         [19] 1743 	ld	l, -24 (ix)
+    00000D04 DD 66 E9         [19] 1744 	ld	h, -23 (ix)
+    00000D07 7E               [ 7] 1745 	ld	a, (hl)
+    00000D08 02               [ 7] 1746 	ld	(bc), a
+                                   1747 ;engine/src/interpreter.c:421: break;
+    00000D09 C3r8Ar10         [10] 1748 	jp	00235$
+                                   1749 ;engine/src/interpreter.c:424: case OP_APAG:
+    00000D0C                       1750 00176$:
+                                   1751 ;engine/src/interpreter.c:426: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000D0C DD 7E FC         [19] 1752 	ld	a, -4 (ix)
+    00000D0F B7               [ 4] 1753 	or	a, a
+    00000D10 28 05            [12] 1754 	jr	z, 00276$
+    00000D12 DD 4E FC         [19] 1755 	ld	c, -4 (ix)
+    00000D15 18 07            [12] 1756 	jr	00277$
+    00000D17                       1757 00276$:
+    00000D17 DD 6E B6         [19] 1758 	ld	l, -74 (ix)
+    00000D1A DD 66 B7         [19] 1759 	ld	h, -73 (ix)
+    00000D1D 4E               [ 7] 1760 	ld	c, (hl)
+    00000D1E                       1761 00277$:
+                                   1762 ;engine/src/interpreter.c:427: if (state->registers[REG_OBJETO_OFFSET + target] == OBJ_SIT_CARREGADO)
+    00000D1E 06 00            [ 7] 1763 	ld	b, #0x00
+    00000D20 21 64 00         [10] 1764 	ld	hl, #0x0064
+    00000D23 09               [11] 1765 	add	hl, bc
+    00000D24 EB               [ 4] 1766 	ex	de, hl
+    00000D25 DD 6E B8         [19] 1767 	ld	l, -72 (ix)
+    00000D28 DD 66 B9         [19] 1768 	ld	h, -71 (ix)
+    00000D2B 19               [11] 1769 	add	hl, de
+    00000D2C 7E               [ 7] 1770 	ld	a, (hl)
+    00000D2D FE FA            [ 7] 1771 	cp	a, #0xfa
+    00000D2F 20 10            [12] 1772 	jr	nz, 00180$
+                                   1773 ;engine/src/interpreter.c:429: if (state->registers[REG_OBJETOS_CARREGADOS] > 0)
+    00000D31 DD 6E 88         [19] 1774 	ld	l, -120 (ix)
+    00000D34 DD 66 89         [19] 1775 	ld	h, -119 (ix)
+    00000D37 01 08 00         [10] 1776 	ld	bc, #0x0008
+    00000D3A 09               [11] 1777 	add	hl, bc
+    00000D3B 7E               [ 7] 1778 	ld	a, (hl)
+    00000D3C B7               [ 4] 1779 	or	a, a
+    00000D3D 28 02            [12] 1780 	jr	z, 00180$
+                                   1781 ;engine/src/interpreter.c:431: state->registers[REG_OBJETOS_CARREGADOS]--;
+    00000D3F 3D               [ 4] 1782 	dec	a
+    00000D40 77               [ 7] 1783 	ld	(hl), a
+    00000D41                       1784 00180$:
+                                   1785 ;engine/src/interpreter.c:434: state->registers[REG_OBJETO_OFFSET + target] = OBJ_SIT_INEXISTENTE;
+    00000D41 DD 6E 88         [19] 1786 	ld	l, -120 (ix)
+    00000D44 DD 66 89         [19] 1787 	ld	h, -119 (ix)
+    00000D47 19               [11] 1788 	add	hl, de
+    00000D48 36 00            [10] 1789 	ld	(hl), #0x00
+                                   1790 ;engine/src/interpreter.c:435: break;
+    00000D4A C3r8Ar10         [10] 1791 	jp	00235$
+                                   1792 ;engine/src/interpreter.c:438: case OP_GOSUB:
+    00000D4D                       1793 00181$:
+                                   1794 ;engine/src/interpreter.c:439: state->gosub_ret_pc = pc + 1;
+    00000D4D DD 6E 88         [19] 1795 	ld	l, -120 (ix)
+    00000D50 DD 66 89         [19] 1796 	ld	h, -119 (ix)
+    00000D53 11 05 01         [10] 1797 	ld	de, #0x0105
+    00000D56 19               [11] 1798 	add	hl, de
+    00000D57 DD 7E FF         [19] 1799 	ld	a, -1 (ix)
+    00000D5A 3C               [ 4] 1800 	inc	a
+    00000D5B 77               [ 7] 1801 	ld	(hl), a
+                                   1802 ;engine/src/interpreter.c:440: Interpreter_CallFunction(p1, db, state);
+    00000D5C DD 6E 88         [19] 1803 	ld	l, -120 (ix)
+    00000D5F DD 66 89         [19] 1804 	ld	h, -119 (ix)
+    00000D62 E5               [11] 1805 	push	hl
+    00000D63 DD 5E 05         [19] 1806 	ld	e, 5 (ix)
+    00000D66 DD 56 06         [19] 1807 	ld	d, 6 (ix)
+    00000D69 DD 7E FC         [19] 1808 	ld	a, -4 (ix)
+    00000D6C CDr5Ar04         [17] 1809 	call	_Interpreter_CallFunction
+                                   1810 ;engine/src/interpreter.c:441: break;
+    00000D6F C3r8Ar10         [10] 1811 	jp	00235$
+                                   1812 ;engine/src/interpreter.c:446: for (i = 1; i <= db->num_objetos; i++)
+    00000D72                       1813 00395$:
+    00000D72 0E 01            [ 7] 1814 	ld	c, #0x01
+    00000D74                       1815 00254$:
+    00000D74 DD 6E BE         [19] 1816 	ld	l, -66 (ix)
+    00000D77 DD 66 BF         [19] 1817 	ld	h, -65 (ix)
+    00000D7A 46               [ 7] 1818 	ld	b, (hl)
+    00000D7B 78               [ 4] 1819 	ld	a, b
+    00000D7C 91               [ 4] 1820 	sub	a, c
+    00000D7D DAr8Ar10         [10] 1821 	jp	c, 00235$
+                                   1822 ;engine/src/interpreter.c:448: if (state->registers[REG_OBJETO_OFFSET + i] == OBJ_SIT_EM_OBJ3_FECHADO)
+    00000D80 59               [ 4] 1823 	ld	e, c
+    00000D81 16 00            [ 7] 1824 	ld	d, #0x00
+    00000D83 21 64 00         [10] 1825 	ld	hl, #0x0064
+    00000D86 19               [11] 1826 	add	hl, de
+    00000D87 EB               [ 4] 1827 	ex	de, hl
+    00000D88 DD 6E BC         [19] 1828 	ld	l, -68 (ix)
+    00000D8B DD 66 BD         [19] 1829 	ld	h, -67 (ix)
+    00000D8E 19               [11] 1830 	add	hl, de
+    00000D8F 7E               [ 7] 1831 	ld	a, (hl)
+    00000D90 FE FD            [ 7] 1832 	cp	a, #0xfd
+    00000D92 20 09            [12] 1833 	jr	nz, 00255$
+                                   1834 ;engine/src/interpreter.c:450: state->registers[REG_OBJETO_OFFSET + i] = OBJ_SIT_EM_OBJ3_ABERTO;
+    00000D94 DD 6E BA         [19] 1835 	ld	l, -70 (ix)
+    00000D97 DD 66 BB         [19] 1836 	ld	h, -69 (ix)
+    00000D9A 19               [11] 1837 	add	hl, de
+    00000D9B 36 FB            [10] 1838 	ld	(hl), #0xfb
+    00000D9D                       1839 00255$:
+                                   1840 ;engine/src/interpreter.c:446: for (i = 1; i <= db->num_objetos; i++)
+    00000D9D 0C               [ 4] 1841 	inc	c
+    00000D9E 18 D4            [12] 1842 	jr	00254$
+                                   1843 ;engine/src/interpreter.c:459: for (i = 1; i <= db->num_objetos; i++)
+    00000DA0                       1844 00398$:
+    00000DA0 0E 01            [ 7] 1845 	ld	c, #0x01
+    00000DA2                       1846 00257$:
+    00000DA2 DD 6E C4         [19] 1847 	ld	l, -60 (ix)
+    00000DA5 DD 66 C5         [19] 1848 	ld	h, -59 (ix)
+    00000DA8 46               [ 7] 1849 	ld	b, (hl)
+    00000DA9 78               [ 4] 1850 	ld	a, b
+    00000DAA 91               [ 4] 1851 	sub	a, c
+    00000DAB DAr8Ar10         [10] 1852 	jp	c, 00235$
+                                   1853 ;engine/src/interpreter.c:461: if (state->registers[REG_OBJETO_OFFSET + i] == OBJ_SIT_EM_OBJ3_ABERTO)
+    00000DAE 59               [ 4] 1854 	ld	e, c
+    00000DAF 16 00            [ 7] 1855 	ld	d, #0x00
+    00000DB1 21 64 00         [10] 1856 	ld	hl, #0x0064
+    00000DB4 19               [11] 1857 	add	hl, de
+    00000DB5 EB               [ 4] 1858 	ex	de, hl
+    00000DB6 DD 6E C2         [19] 1859 	ld	l, -62 (ix)
+    00000DB9 DD 66 C3         [19] 1860 	ld	h, -61 (ix)
+    00000DBC 19               [11] 1861 	add	hl, de
+    00000DBD 7E               [ 7] 1862 	ld	a, (hl)
+    00000DBE FE FB            [ 7] 1863 	cp	a, #0xfb
+    00000DC0 20 09            [12] 1864 	jr	nz, 00258$
+                                   1865 ;engine/src/interpreter.c:463: state->registers[REG_OBJETO_OFFSET + i] = OBJ_SIT_EM_OBJ3_FECHADO;
+    00000DC2 DD 6E C0         [19] 1866 	ld	l, -64 (ix)
+    00000DC5 DD 66 C1         [19] 1867 	ld	h, -63 (ix)
+    00000DC8 19               [11] 1868 	add	hl, de
+    00000DC9 36 FD            [10] 1869 	ld	(hl), #0xfd
+    00000DCB                       1870 00258$:
+                                   1871 ;engine/src/interpreter.c:459: for (i = 1; i <= db->num_objetos; i++)
+    00000DCB 0C               [ 4] 1872 	inc	c
+    00000DCC 18 D4            [12] 1873 	jr	00257$
+                                   1874 ;engine/src/interpreter.c:469: case OP_POE:
+    00000DCE                       1875 00190$:
+                                   1876 ;engine/src/interpreter.c:471: u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+    00000DCE DD 7E FC         [19] 1877 	ld	a, -4 (ix)
+    00000DD1 B7               [ 4] 1878 	or	a, a
+    00000DD2 28 05            [12] 1879 	jr	z, 00278$
+    00000DD4 DD 4E FC         [19] 1880 	ld	c, -4 (ix)
+    00000DD7 18 07            [12] 1881 	jr	00279$
+    00000DD9                       1882 00278$:
+    00000DD9 DD 6E C6         [19] 1883 	ld	l, -58 (ix)
+    00000DDC DD 66 C7         [19] 1884 	ld	h, -57 (ix)
+    00000DDF 4E               [ 7] 1885 	ld	c, (hl)
+    00000DE0                       1886 00279$:
+                                   1887 ;engine/src/interpreter.c:472: if (state->registers[REG_OBJETO_OFFSET + target] == OBJ_SIT_CARREGADO)
+    00000DE0 06 00            [ 7] 1888 	ld	b, #0x00
+    00000DE2 21 64 00         [10] 1889 	ld	hl, #0x0064
+    00000DE5 09               [11] 1890 	add	hl, bc
+    00000DE6 EB               [ 4] 1891 	ex	de, hl
+    00000DE7 DD 6E CA         [19] 1892 	ld	l, -54 (ix)
+    00000DEA DD 66 CB         [19] 1893 	ld	h, -53 (ix)
+    00000DED 19               [11] 1894 	add	hl, de
+    00000DEE 7E               [ 7] 1895 	ld	a, (hl)
+    00000DEF FE FA            [ 7] 1896 	cp	a, #0xfa
+    00000DF1 20 10            [12] 1897 	jr	nz, 00194$
+                                   1898 ;engine/src/interpreter.c:474: if (state->registers[REG_OBJETOS_CARREGADOS] > 0)
+    00000DF3 DD 6E C8         [19] 1899 	ld	l, -56 (ix)
+    00000DF6 DD 66 C9         [19] 1900 	ld	h, -55 (ix)
+    00000DF9 01 08 00         [10] 1901 	ld	bc, #0x0008
+    00000DFC 09               [11] 1902 	add	hl, bc
+    00000DFD 7E               [ 7] 1903 	ld	a, (hl)
+    00000DFE B7               [ 4] 1904 	or	a, a
+    00000DFF 28 02            [12] 1905 	jr	z, 00194$
+                                   1906 ;engine/src/interpreter.c:476: state->registers[REG_OBJETOS_CARREGADOS]--;
+    00000E01 3D               [ 4] 1907 	dec	a
+    00000E02 77               [ 7] 1908 	ld	(hl), a
+    00000E03                       1909 00194$:
+                                   1910 ;engine/src/interpreter.c:479: state->registers[REG_OBJETO_OFFSET + target] = OBJ_SIT_EM_OBJ3_ABERTO;
+    00000E03 DD 6E C8         [19] 1911 	ld	l, -56 (ix)
+    00000E06 DD 66 C9         [19] 1912 	ld	h, -55 (ix)
+    00000E09 19               [11] 1913 	add	hl, de
+    00000E0A 36 FB            [10] 1914 	ld	(hl), #0xfb
+                                   1915 ;engine/src/interpreter.c:480: state->registers[REG_OBJETOS_NO_OBJ3]++;
+    00000E0C DD 6E C8         [19] 1916 	ld	l, -56 (ix)
+    00000E0F DD 66 C9         [19] 1917 	ld	h, -55 (ix)
+    00000E12 11 07 00         [10] 1918 	ld	de, #0x0007
+    00000E15 19               [11] 1919 	add	hl, de
+    00000E16 34               [11] 1920 	inc	(hl)
+                                   1921 ;engine/src/interpreter.c:481: break;
+    00000E17 C3r8Ar10         [10] 1922 	jp	00235$
+                                   1923 ;engine/src/interpreter.c:487: for (i = 1; i <= db->num_objetos; i++)
+    00000E1A                       1924 00404$:
+    00000E1A 0E 01            [ 7] 1925 	ld	c, #0x01
+    00000E1C                       1926 00260$:
+    00000E1C DD 6E D2         [19] 1927 	ld	l, -46 (ix)
+    00000E1F DD 66 D3         [19] 1928 	ld	h, -45 (ix)
+    00000E22 46               [ 7] 1929 	ld	b, (hl)
+    00000E23 78               [ 4] 1930 	ld	a, b
+    00000E24 91               [ 4] 1931 	sub	a, c
+    00000E25 38 39            [12] 1932 	jr	c, 00199$
+                                   1933 ;engine/src/interpreter.c:489: u8 sit = state->registers[REG_OBJETO_OFFSET + i];
+    00000E27 59               [ 4] 1934 	ld	e, c
+    00000E28 16 00            [ 7] 1935 	ld	d, #0x00
+    00000E2A 21 64 00         [10] 1936 	ld	hl, #0x0064
+    00000E2D 19               [11] 1937 	add	hl, de
+    00000E2E DD 5E CC         [19] 1938 	ld	e, -52 (ix)
+    00000E31 DD 56 CD         [19] 1939 	ld	d, -51 (ix)
+    00000E34 19               [11] 1940 	add	hl, de
+    00000E35 7E               [ 7] 1941 	ld	a, (hl)
+                                   1942 ;engine/src/interpreter.c:490: if (sit == OBJ_SIT_EM_OBJ3_ABERTO || sit == OBJ_SIT_EM_OBJ3_FECHADO)
+    00000E36 DD 77 FC         [19] 1943 	ld	-4 (ix), a
+    00000E39 D6 FB            [ 7] 1944 	sub	a, #0xfb
+    00000E3B 28 07            [12] 1945 	jr	z, 00196$
+    00000E3D DD 7E FC         [19] 1946 	ld	a, -4 (ix)
+    00000E40 D6 FD            [ 7] 1947 	sub	a, #0xfd
+    00000E42 20 19            [12] 1948 	jr	nz, 00261$
+    00000E44                       1949 00196$:
+                                   1950 ;engine/src/interpreter.c:492: state->registers[REG_OBJETO_OFFSET + i] = state->registers[REG_POSICAO];
+    00000E44 59               [ 4] 1951 	ld	e, c
+    00000E45 16 00            [ 7] 1952 	ld	d, #0x00
+    00000E47 21 64 00         [10] 1953 	ld	hl, #0x0064
+    00000E4A 19               [11] 1954 	add	hl, de
+    00000E4B 7D               [ 4] 1955 	ld	a, l
+    00000E4C DD 86 CE         [19] 1956 	add	a, -50 (ix)
+    00000E4F 5F               [ 4] 1957 	ld	e, a
+    00000E50 7C               [ 4] 1958 	ld	a, h
+    00000E51 DD 8E CF         [19] 1959 	adc	a, -49 (ix)
+    00000E54 57               [ 4] 1960 	ld	d, a
+    00000E55 DD 6E D0         [19] 1961 	ld	l, -48 (ix)
+    00000E58 DD 66 D1         [19] 1962 	ld	h, -47 (ix)
+    00000E5B 7E               [ 7] 1963 	ld	a, (hl)
+    00000E5C 12               [ 7] 1964 	ld	(de), a
+    00000E5D                       1965 00261$:
+                                   1966 ;engine/src/interpreter.c:487: for (i = 1; i <= db->num_objetos; i++)
+    00000E5D 0C               [ 4] 1967 	inc	c
+    00000E5E 18 BC            [12] 1968 	jr	00260$
+    00000E60                       1969 00199$:
+                                   1970 ;engine/src/interpreter.c:495: state->registers[REG_OBJETOS_NO_OBJ3] = 0;
+    00000E60 DD 6E E4         [19] 1971 	ld	l, -28 (ix)
+    00000E63 DD 66 E5         [19] 1972 	ld	h, -27 (ix)
+    00000E66 11 07 00         [10] 1973 	ld	de, #0x0007
+    00000E69 19               [11] 1974 	add	hl, de
+    00000E6A 36 00            [10] 1975 	ld	(hl), #0x00
+                                   1976 ;engine/src/interpreter.c:496: break;
+    00000E6C C3r8Ar10         [10] 1977 	jp	00235$
+                                   1978 ;engine/src/interpreter.c:499: case OP_OK:
+    00000E6F                       1979 00200$:
+                                   1980 ;engine/src/interpreter.c:500: UI_PrintCenter("Ok.");
+    00000E6F 21r20r11         [10] 1981 	ld	hl, #___str_23
+    00000E72 CDr00r00         [17] 1982 	call	_UI_PrintCenter
+                                   1983 ;engine/src/interpreter.c:501: UI_NewLineCenter();
+    00000E75 CDr00r00         [17] 1984 	call	_UI_NewLineCenter
+                                   1985 ;engine/src/interpreter.c:502: state->flag_espera_cmd = TRUE;
+    00000E78 DD 4E 07         [19] 1986 	ld	c, 7 (ix)
+    00000E7B DD 46 08         [19] 1987 	ld	b, 8 (ix)
+    00000E7E 21 06 01         [10] 1988 	ld	hl, #0x0106
+    00000E81 09               [11] 1989 	add	hl, bc
+    00000E82 36 01            [10] 1990 	ld	(hl), #0x01
+                                   1991 ;engine/src/interpreter.c:503: return;
+    00000E84 C3r90r10         [10] 1992 	jp	00262$
+                                   1993 ;engine/src/interpreter.c:505: case OP_REGN:
+    00000E87                       1994 00201$:
+                                   1995 ;engine/src/interpreter.c:506: UI_PrintNumberCenter(state->registers[p1]);
+    00000E87 DD 5E FC         [19] 1996 	ld	e, -4 (ix)
+    00000E8A DD 6E E2         [19] 1997 	ld	l, -30 (ix)
+    00000E8D DD 66 E3         [19] 1998 	ld	h, -29 (ix)
+    00000E90 16 00            [ 7] 1999 	ld	d, #0x00
+    00000E92 19               [11] 2000 	add	hl, de
+    00000E93 7E               [ 7] 2001 	ld	a, (hl)
+    00000E94 CDr00r00         [17] 2002 	call	_UI_PrintNumberCenter
+                                   2003 ;engine/src/interpreter.c:507: break;
+    00000E97 C3r8Ar10         [10] 2004 	jp	00235$
+                                   2005 ;engine/src/interpreter.c:509: case OP_NVF:
+    00000E9A                       2006 00202$:
+                                   2007 ;engine/src/interpreter.c:510: state->flag_espera_cmd = TRUE;
+    00000E9A DD 4E 07         [19] 2008 	ld	c, 7 (ix)
+    00000E9D DD 46 08         [19] 2009 	ld	b, 8 (ix)
+    00000EA0 21 06 01         [10] 2010 	ld	hl, #0x0106
+    00000EA3 09               [11] 2011 	add	hl, bc
+    00000EA4 36 01            [10] 2012 	ld	(hl), #0x01
+                                   2013 ;engine/src/interpreter.c:511: return;
+    00000EA6 C3r90r10         [10] 2014 	jp	00262$
+                                   2015 ;engine/src/interpreter.c:513: case OP_REF:
+    00000EA9                       2016 00203$:
+                                   2017 ;engine/src/interpreter.c:514: return;
+    00000EA9 C3r90r10         [10] 2018 	jp	00262$
+                                   2019 ;engine/src/interpreter.c:516: case OP_FIM:
+    00000EAC                       2020 00204$:
+                                   2021 ;engine/src/interpreter.c:517: state->flag_fim = TRUE;
+    00000EAC DD 4E 07         [19] 2022 	ld	c, 7 (ix)
+    00000EAF DD 46 08         [19] 2023 	ld	b, 8 (ix)
+    00000EB2 21 07 01         [10] 2024 	ld	hl, #0x0107
+    00000EB5 09               [11] 2025 	add	hl, bc
+    00000EB6 36 01            [10] 2026 	ld	(hl), #0x01
+                                   2027 ;engine/src/interpreter.c:518: return;
+    00000EB8 C3r90r10         [10] 2028 	jp	00262$
+                                   2029 ;engine/src/interpreter.c:520: case OP_NEU:
+    00000EBB                       2030 00205$:
+                                   2031 ;engine/src/interpreter.c:521: state->flag_reiniciar = TRUE;
+    00000EBB DD 4E 07         [19] 2032 	ld	c, 7 (ix)
+    00000EBE DD 46 08         [19] 2033 	ld	b, 8 (ix)
+    00000EC1 21 08 01         [10] 2034 	ld	hl, #0x0108
+    00000EC4 09               [11] 2035 	add	hl, bc
+    00000EC5 36 01            [10] 2036 	ld	(hl), #0x01
+                                   2037 ;engine/src/interpreter.c:522: return;
+    00000EC7 C3r90r10         [10] 2038 	jp	00262$
+                                   2039 ;engine/src/interpreter.c:524: case OP_DESC:
+    00000ECA                       2040 00206$:
+                                   2041 ;engine/src/interpreter.c:525: Interpreter_DescribeCurrentRoom(db, state);
+    00000ECA DD 5E 07         [19] 2042 	ld	e, 7 (ix)
+    00000ECD DD 56 08         [19] 2043 	ld	d, 8 (ix)
+    00000ED0 DD 6E 05         [19] 2044 	ld	l, 5 (ix)
+    00000ED3 DD 66 06         [19] 2045 	ld	h, 6 (ix)
+    00000ED6 CDr9Br02         [17] 2046 	call	_Interpreter_DescribeCurrentRoom
+                                   2047 ;engine/src/interpreter.c:526: state->flag_espera_cmd = TRUE;
+    00000ED9 DD 4E 07         [19] 2048 	ld	c, 7 (ix)
+    00000EDC DD 46 08         [19] 2049 	ld	b, 8 (ix)
+    00000EDF 21 06 01         [10] 2050 	ld	hl, #0x0106
+    00000EE2 09               [11] 2051 	add	hl, bc
+    00000EE3 36 01            [10] 2052 	ld	(hl), #0x01
+                                   2053 ;engine/src/interpreter.c:527: return;
+    00000EE5 C3r90r10         [10] 2054 	jp	00262$
+                                   2055 ;engine/src/interpreter.c:529: case OP_RET:
+    00000EE8                       2056 00207$:
+                                   2057 ;engine/src/interpreter.c:530: return;
+    00000EE8 C3r90r10         [10] 2058 	jp	00262$
+                                   2059 ;engine/src/interpreter.c:532: case OP_GOTO:
+    00000EEB                       2060 00208$:
+                                   2061 ;engine/src/interpreter.c:533: pc = p1;
+    00000EEB DD 7E FC         [19] 2062 	ld	a, -4 (ix)
+    00000EEE DD 77 FF         [19] 2063 	ld	-1 (ix), a
+                                   2064 ;engine/src/interpreter.c:534: continue;
+    00000EF1 C3rB9r07         [10] 2065 	jp	00239$
+                                   2066 ;engine/src/interpreter.c:536: case OP_PAUSA:
+    00000EF4                       2067 00209$:
+                                   2068 ;engine/src/interpreter.c:537: UI_PauseSeconds(p1);
+    00000EF4 DD 7E FC         [19] 2069 	ld	a, -4 (ix)
+    00000EF7 CDr00r00         [17] 2070 	call	_UI_PauseSeconds
+                                   2071 ;engine/src/interpreter.c:538: break;
+    00000EFA C3r8Ar10         [10] 2072 	jp	00235$
+                                   2073 ;engine/src/interpreter.c:540: case OP_FLAG:
+    00000EFD                       2074 00210$:
+                                   2075 ;engine/src/interpreter.c:541: state->registers[p1] = p2;
+    00000EFD DD 5E FC         [19] 2076 	ld	e, -4 (ix)
+    00000F00 DD 6E E0         [19] 2077 	ld	l, -32 (ix)
+    00000F03 DD 66 E1         [19] 2078 	ld	h, -31 (ix)
+    00000F06 16 00            [ 7] 2079 	ld	d, #0x00
+    00000F08 19               [11] 2080 	add	hl, de
+    00000F09 DD 7E FA         [19] 2081 	ld	a, -6 (ix)
+    00000F0C 77               [ 7] 2082 	ld	(hl), a
+                                   2083 ;engine/src/interpreter.c:542: break;
+    00000F0D C3r8Ar10         [10] 2084 	jp	00235$
+                                   2085 ;engine/src/interpreter.c:544: case OP_EVID:
+    00000F10                       2086 00211$:
+                                   2087 ;engine/src/interpreter.c:545: if (p1 == 1) state->obj_evidencia = state->obj_buffer[0];
+    00000F10 DD 7E FC         [19] 2088 	ld	a, -4 (ix)
+    00000F13 3D               [ 4] 2089 	dec	a
+    00000F14 20 17            [12] 2090 	jr	nz, 00215$
+    00000F16 DD 4E DC         [19] 2091 	ld	c, -36 (ix)
+    00000F19 DD 7E DD         [19] 2092 	ld	a, -35 (ix)
+    00000F1C 3C               [ 4] 2093 	inc	a
+    00000F1D 47               [ 4] 2094 	ld	b, a
+    00000F1E DD 6E DE         [19] 2095 	ld	l, -34 (ix)
+    00000F21 DD 66 DF         [19] 2096 	ld	h, -33 (ix)
+    00000F24 11 01 01         [10] 2097 	ld	de, #0x0101
+    00000F27 19               [11] 2098 	add	hl, de
+    00000F28 7E               [ 7] 2099 	ld	a, (hl)
+    00000F29 02               [ 7] 2100 	ld	(bc), a
+    00000F2A C3r8Ar10         [10] 2101 	jp	00235$
+    00000F2D                       2102 00215$:
+                                   2103 ;engine/src/interpreter.c:546: else if (p1 == 2) state->obj_evidencia = state->obj_buffer[1];
+    00000F2D DD 7E FC         [19] 2104 	ld	a, -4 (ix)
+    00000F30 D6 02            [ 7] 2105 	sub	a, #0x02
+    00000F32 C2r8Ar10         [10] 2106 	jp	nz, 00235$
+    00000F35 DD 4E D8         [19] 2107 	ld	c, -40 (ix)
+    00000F38 DD 7E D9         [19] 2108 	ld	a, -39 (ix)
+    00000F3B 3C               [ 4] 2109 	inc	a
+    00000F3C 47               [ 4] 2110 	ld	b, a
+    00000F3D DD 6E DA         [19] 2111 	ld	l, -38 (ix)
+    00000F40 DD 66 DB         [19] 2112 	ld	h, -37 (ix)
+    00000F43 11 02 01         [10] 2113 	ld	de, #0x0102
+    00000F46 19               [11] 2114 	add	hl, de
+    00000F47 7E               [ 7] 2115 	ld	a, (hl)
+    00000F48 02               [ 7] 2116 	ld	(bc), a
+                                   2117 ;engine/src/interpreter.c:547: break;
+    00000F49 C3r8Ar10         [10] 2118 	jp	00235$
+                                   2119 ;engine/src/interpreter.c:549: case OP_CLS:
+    00000F4C                       2120 00217$:
+                                   2121 ;engine/src/interpreter.c:550: UI_ClearCenter();
+    00000F4C CDr00r00         [17] 2122 	call	_UI_ClearCenter
+                                   2123 ;engine/src/interpreter.c:551: break;
+    00000F4F C3r8Ar10         [10] 2124 	jp	00235$
+                                   2125 ;engine/src/interpreter.c:553: case OP_EVD_EQ:
+    00000F52                       2126 00218$:
+                                   2127 ;engine/src/interpreter.c:554: if (state->obj_evidencia == p1)
+    00000F52 DD 6E A2         [19] 2128 	ld	l, -94 (ix)
+    00000F55 DD 66 A3         [19] 2129 	ld	h, -93 (ix)
+    00000F58 7E               [ 7] 2130 	ld	a, (hl)
+    00000F59 DD 96 FC         [19] 2131 	sub	a, -4 (ix)
+    00000F5C C2r8Ar10         [10] 2132 	jp	nz, 00235$
+                                   2133 ;engine/src/interpreter.c:556: pc = p2;
+    00000F5F DD 7E FA         [19] 2134 	ld	a, -6 (ix)
+    00000F62 DD 77 FF         [19] 2135 	ld	-1 (ix), a
+                                   2136 ;engine/src/interpreter.c:557: continue;
+    00000F65 C3rB9r07         [10] 2137 	jp	00239$
+                                   2138 ;engine/src/interpreter.c:561: case OP_CHRS:
+    00000F68                       2139 00221$:
+                                   2140 ;engine/src/interpreter.c:562: UI_PrintCharCenter((char)p1);
+    00000F68 DD 7E FC         [19] 2141 	ld	a, -4 (ix)
+    00000F6B CDr00r00         [17] 2142 	call	_UI_PrintCharCenter
+                                   2143 ;engine/src/interpreter.c:563: break;
+    00000F6E C3r8Ar10         [10] 2144 	jp	00235$
+                                   2145 ;engine/src/interpreter.c:565: case OP_PRT:
+    00000F71                       2146 00222$:
+                                   2147 ;engine/src/interpreter.c:566: UI_PrintCenter(Interpreter_GetMessageText(p1, db));
+    00000F71 DD 5E 05         [19] 2148 	ld	e, 5 (ix)
+    00000F74 DD 56 06         [19] 2149 	ld	d, 6 (ix)
+    00000F77 DD 7E FC         [19] 2150 	ld	a, -4 (ix)
+    00000F7A CDr00r00         [17] 2151 	call	_Interpreter_GetMessageText
+    00000F7D EB               [ 4] 2152 	ex	de, hl
+    00000F7E CDr00r00         [17] 2153 	call	_UI_PrintCenter
+                                   2154 ;engine/src/interpreter.c:567: UI_PrintCenter(" ");
+    00000F81 21r24r11         [10] 2155 	ld	hl, #___str_24
+    00000F84 CDr00r00         [17] 2156 	call	_UI_PrintCenter
+                                   2157 ;engine/src/interpreter.c:568: UI_PrintCenter(Interpreter_GetObjectName(p2, db));
+    00000F87 DD 5E 05         [19] 2158 	ld	e, 5 (ix)
+    00000F8A DD 56 06         [19] 2159 	ld	d, 6 (ix)
+    00000F8D DD 7E FA         [19] 2160 	ld	a, -6 (ix)
+    00000F90 CDr10r02         [17] 2161 	call	_Interpreter_GetObjectName
+    00000F93 EB               [ 4] 2162 	ex	de, hl
+    00000F94 CDr00r00         [17] 2163 	call	_UI_PrintCenter
+                                   2164 ;engine/src/interpreter.c:569: UI_NewLineCenter();
+    00000F97 CDr00r00         [17] 2165 	call	_UI_NewLineCenter
+                                   2166 ;engine/src/interpreter.c:570: state->flag_espera_cmd = TRUE;
+    00000F9A DD 4E 07         [19] 2167 	ld	c, 7 (ix)
+    00000F9D DD 46 08         [19] 2168 	ld	b, 8 (ix)
+    00000FA0 21 06 01         [10] 2169 	ld	hl, #0x0106
+    00000FA3 09               [11] 2170 	add	hl, bc
+    00000FA4 36 01            [10] 2171 	ld	(hl), #0x01
+                                   2172 ;engine/src/interpreter.c:571: return;
+    00000FA6 C3r90r10         [10] 2173 	jp	00262$
+                                   2174 ;engine/src/interpreter.c:573: case OP_DNT:
+    00000FA9                       2175 00223$:
+                                   2176 ;engine/src/interpreter.c:575: u8 sit = state->registers[REG_OBJETO_OFFSET + p1];
+    00000FA9 DD 4E FC         [19] 2177 	ld	c, -4 (ix)
+    00000FAC 06 00            [ 7] 2178 	ld	b, #0x00
+    00000FAE 21 64 00         [10] 2179 	ld	hl, #0x0064
+    00000FB1 09               [11] 2180 	add	hl, bc
+    00000FB2 DD 5E A4         [19] 2181 	ld	e, -92 (ix)
+    00000FB5 DD 56 A5         [19] 2182 	ld	d, -91 (ix)
+    00000FB8 19               [11] 2183 	add	hl, de
+    00000FB9 7E               [ 7] 2184 	ld	a, (hl)
+                                   2185 ;engine/src/interpreter.c:576: if (sit == OBJ_SIT_EM_OBJ3_ABERTO || sit == OBJ_SIT_EM_OBJ3_FECHADO)
+    00000FBA DD 77 FC         [19] 2186 	ld	-4 (ix), a
+    00000FBD D6 FB            [ 7] 2187 	sub	a, #0xfb
+    00000FBF 28 08            [12] 2188 	jr	z, 00224$
+    00000FC1 DD 7E FC         [19] 2189 	ld	a, -4 (ix)
+    00000FC4 D6 FD            [ 7] 2190 	sub	a, #0xfd
+    00000FC6 C2r8Ar10         [10] 2191 	jp	nz, 00235$
+    00000FC9                       2192 00224$:
+                                   2193 ;engine/src/interpreter.c:578: pc = p2;
+    00000FC9 DD 7E FA         [19] 2194 	ld	a, -6 (ix)
+    00000FCC DD 77 FF         [19] 2195 	ld	-1 (ix), a
+                                   2196 ;engine/src/interpreter.c:579: continue;
+    00000FCF C3rB9r07         [10] 2197 	jp	00239$
+                                   2198 ;engine/src/interpreter.c:584: case OP_CMD:
+    00000FD2                       2199 00227$:
+                                   2200 ;engine/src/interpreter.c:585: if (p1 > 0 && p1 <= db->num_comandos && db->comandos != NULL)
+    00000FD2 DD 7E FC         [19] 2201 	ld	a, -4 (ix)
+    00000FD5 B7               [ 4] 2202 	or	a, a
+    00000FD6 CAr8Ar10         [10] 2203 	jp	z, 00235$
+    00000FD9 DD 6E D6         [19] 2204 	ld	l, -42 (ix)
+    00000FDC DD 66 D7         [19] 2205 	ld	h, -41 (ix)
+    00000FDF 11 0D 00         [10] 2206 	ld	de, #0x000d
+    00000FE2 19               [11] 2207 	add	hl, de
+    00000FE3 4E               [ 7] 2208 	ld	c, (hl)
+    00000FE4 79               [ 4] 2209 	ld	a, c
+    00000FE5 DD 96 FC         [19] 2210 	sub	a, -4 (ix)
+    00000FE8 DAr8Ar10         [10] 2211 	jp	c, 00235$
+    00000FEB DD 4E D4         [19] 2212 	ld	c, -44 (ix)
+    00000FEE DD 46 D5         [19] 2213 	ld	b, -43 (ix)
+    00000FF1 21 0B 00         [10] 2214 	ld	hl, #11
+    00000FF4 09               [11] 2215 	add	hl, bc
+    00000FF5 7E               [ 7] 2216 	ld	a, (hl)
+    00000FF6 DD 77 84         [19] 2217 	ld	-124 (ix), a
+    00000FF9 23               [ 6] 2218 	inc	hl
+    00000FFA 7E               [ 7] 2219 	ld	a, (hl)
+    00000FFB DD 77 85         [19] 2220 	ld	-123 (ix), a
+    00000FFE DD B6 84         [19] 2221 	or	a, -124 (ix)
+    00001001 CAr8Ar10         [10] 2222 	jp	z, 00235$
+                                   2223 ;engine/src/interpreter.c:587: const Game_Command* cmd = db->comandos[p1 - 1];
+    00001004 DD 7E FC         [19] 2224 	ld	a, -4 (ix)
+    00001007 DD 77 86         [19] 2225 	ld	-122 (ix), a
+    0000100A DD 36 87 00      [19] 2226 	ld	-121 (ix), #0x00
+    0000100E E1               [10] 2227 	pop	hl
+    0000100F C1               [10] 2228 	pop	bc
+    00001010 C5               [11] 2229 	push	bc
+    00001011 E5               [11] 2230 	push	hl
+    00001012 0B               [ 6] 2231 	dec	bc
+    00001013 DD 71 FB         [19] 2232 	ld	-5 (ix), c
+    00001016 DD 70 FC         [19] 2233 	ld	-4 (ix), b
+    00001019 DD 7E FB         [19] 2234 	ld	a, -5 (ix)
+    0000101C DD 77 86         [19] 2235 	ld	-122 (ix), a
+    0000101F DD 36 87 00      [19] 2236 	ld	-121 (ix), #0x00
+    00001023 DD CB 86 26      [23] 2237 	sla	-122 (ix)
+    00001027 DD CB 87 16      [23] 2238 	rl	-121 (ix)
+    0000102B E1               [10] 2239 	pop	hl
+    0000102C D1               [10] 2240 	pop	de
+    0000102D D5               [11] 2241 	push	de
+    0000102E E5               [11] 2242 	push	hl
+    0000102F 19               [11] 2243 	add	hl, de
+    00001030 DD 75 FB         [19] 2244 	ld	-5 (ix), l
+    00001033 DD 74 FC         [19] 2245 	ld	-4 (ix), h
+    00001036 7E               [ 7] 2246 	ld	a, (hl)
+    00001037 DD 77 FB         [19] 2247 	ld	-5 (ix), a
+    0000103A 23               [ 6] 2248 	inc	hl
+    0000103B 7E               [ 7] 2249 	ld	a, (hl)
+                                   2250 ;engine/src/interpreter.c:588: if (cmd != NULL)
+    0000103C DD 77 FC         [19] 2251 	ld	-4 (ix), a
+    0000103F DD B6 FB         [19] 2252 	or	a, -5 (ix)
+    00001042 28 46            [12] 2253 	jr	z, 00235$
+                                   2254 ;engine/src/interpreter.c:590: Interpreter_Execute(cmd->instructions, cmd->instruction_count, db, state);
+    00001044 DD 7E FB         [19] 2255 	ld	a, -5 (ix)
+    00001047 DD 77 86         [19] 2256 	ld	-122 (ix), a
+    0000104A DD 7E FC         [19] 2257 	ld	a, -4 (ix)
+    0000104D DD 77 87         [19] 2258 	ld	-121 (ix), a
+    00001050 C1               [10] 2259 	pop	bc
+    00001051 E1               [10] 2260 	pop	hl
+    00001052 E5               [11] 2261 	push	hl
+    00001053 C5               [11] 2262 	push	bc
+    00001054 11 05 00         [10] 2263 	ld	de, #0x0005
+    00001057 19               [11] 2264 	add	hl, de
+    00001058 7E               [ 7] 2265 	ld	a, (hl)
+    00001059 DD 77 FA         [19] 2266 	ld	-6 (ix), a
+    0000105C DD 6E FB         [19] 2267 	ld	l, -5 (ix)
+    0000105F DD 66 FC         [19] 2268 	ld	h, -4 (ix)
+    00001062 23               [ 6] 2269 	inc	hl
+    00001063 23               [ 6] 2270 	inc	hl
+    00001064 23               [ 6] 2271 	inc	hl
+    00001065 7E               [ 7] 2272 	ld	a, (hl)
+    00001066 DD 77 FB         [19] 2273 	ld	-5 (ix), a
+    00001069 23               [ 6] 2274 	inc	hl
+    0000106A 7E               [ 7] 2275 	ld	a, (hl)
+    0000106B DD 77 FC         [19] 2276 	ld	-4 (ix), a
+    0000106E DD 6E 07         [19] 2277 	ld	l, 7 (ix)
+    00001071 DD 66 08         [19] 2278 	ld	h, 8 (ix)
+    00001074 E5               [11] 2279 	push	hl
+    00001075 DD 6E D4         [19] 2280 	ld	l, -44 (ix)
+    00001078 DD 66 D5         [19] 2281 	ld	h, -43 (ix)
+    0000107B E5               [11] 2282 	push	hl
+    0000107C DD 7E FA         [19] 2283 	ld	a, -6 (ix)
+    0000107F F5               [11] 2284 	push	af
+    00001080 33               [ 6] 2285 	inc	sp
+    00001081 DD 6E FB         [19] 2286 	ld	l, -5 (ix)
+    00001084 DD 66 FC         [19] 2287 	ld	h, -4 (ix)
+    00001087 CDrD4r04         [17] 2288 	call	_Interpreter_Execute
+                                   2289 ;engine/src/interpreter.c:597: }
+    0000108A                       2290 00235$:
+                                   2291 ;engine/src/interpreter.c:599: pc++;
+    0000108A DD 34 FF         [23] 2292 	inc	-1 (ix)
+    0000108D C3rB9r07         [10] 2293 	jp	00239$
+    00001090                       2294 00262$:
+                                   2295 ;engine/src/interpreter.c:601: }
+    00001090 DD F9            [10] 2296 	ld	sp, ix
+    00001092 DD E1            [14] 2297 	pop	ix
+    00001094 E1               [10] 2298 	pop	hl
+    00001095 F1               [10] 2299 	pop	af
+    00001096 F1               [10] 2300 	pop	af
+    00001097 33               [ 6] 2301 	inc	sp
+    00001098 E9               [ 4] 2302 	jp	(hl)
+    00001099                       2303 ___str_16:
+    00001099 4E 65 73 74 65 20 6C  2304 	.ascii "Neste local tem:"
+             6F 63 61 6C 20 74 65
+             6D 3A
+    000010A9 00                    2305 	.db 0x00
+    000010AA                       2306 ___str_17:
+    000010AA 2D 20                 2307 	.ascii "- "
+    000010AC 00                    2308 	.db 0x00
+    000010AD                       2309 ___str_18:
+    000010AD 4E                    2310 	.ascii "N"
+    000010AE C3                    2311 	.db 0xc3
+    000010AF A3                    2312 	.db 0xa3
+    000010B0 6F 20 68              2313 	.ascii "o h"
+    000010B3 C3                    2314 	.db 0xc3
+    000010B4 A1                    2315 	.db 0xa1
+    000010B5 20 6E 61 64 61 20 64  2316 	.ascii " nada de especial aqui."
+             65 20 65 73 70 65 63
+             69 61 6C 20 61 71 75
+             69 2E
+    000010CC 00                    2317 	.db 0x00
+    000010CD                       2318 ___str_19:
+    000010CD 56 6F 63              2319 	.ascii "Voc"
+    000010D0 C3                    2320 	.db 0xc3
+    000010D1 AA                    2321 	.db 0xaa
+    000010D2 20 65 73 74           2322 	.ascii " est"
+    000010D6 C3                    2323 	.db 0xc3
+    000010D7 A1                    2324 	.db 0xa1
+    000010D8 20 63 61 72 72 65 67  2325 	.ascii " carregando:"
+             61 6E 64 6F 3A
+    000010E4 00                    2326 	.db 0x00
+    000010E5                       2327 ___str_20:
+    000010E5 56 6F 63              2328 	.ascii "Voc"
+    000010E8 C3                    2329 	.db 0xc3
+    000010E9 AA                    2330 	.db 0xaa
+    000010EA 20 6E                 2331 	.ascii " n"
+    000010EC C3                    2332 	.db 0xc3
+    000010ED A3                    2333 	.db 0xa3
+    000010EE 6F 20 65 73 74        2334 	.ascii "o est"
+    000010F3 C3                    2335 	.db 0xc3
+    000010F4 A1                    2336 	.db 0xa1
+    000010F5 20 63 61 72 72 65 67  2337 	.ascii " carregando nada."
+             61 6E 64 6F 20 6E 61
+             64 61 2E
+    00001106 00                    2338 	.db 0x00
+    00001107                       2339 ___str_21:
+    00001107 44 65 6E 74 72 6F 20  2340 	.ascii "Dentro tem:"
+             74 65 6D 3A
+    00001112 00                    2341 	.db 0x00
+    00001113                       2342 ___str_22:
+    00001113 45 73 74              2343 	.ascii "Est"
+    00001116 C3                    2344 	.db 0xc3
+    00001117 A1                    2345 	.db 0xa1
+    00001118 20 76 61 7A 69 6F 2E  2346 	.ascii " vazio."
+    0000111F 00                    2347 	.db 0x00
+    00001120                       2348 ___str_23:
+    00001120 4F 6B 2E              2349 	.ascii "Ok."
+    00001123 00                    2350 	.db 0x00
+    00001124                       2351 ___str_24:
+    00001124 20                    2352 	.ascii " "
+    00001125 00                    2353 	.db 0x00
+                                   2354 	.area _CODE
+                                   2355 	.area _INITIALIZER
+                                   2356 	.area _CABS (ABS)

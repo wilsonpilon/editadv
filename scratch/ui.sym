@@ -1,0 +1,48 @@
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+  0 _Bios_Chget                                                     00000020 R
+  0 _Bios_Chput                                                     00000017 R
+  0 _Bios_Cls                                                       00000004 R
+  0 _Bios_InitText                                                  00000000 R
+  0 _Bios_SetCursor                                                 00000008 R
+  0 _Bios_WaitFrame                                                 00000025 R
+  0 _UI_ClearCenter                                                 0000008E GR
+  0 _UI_DrawLayout                                                  00000034 GR
+  0 _UI_Init                                                        00000028 GR
+  0 _UI_NewLineCenter                                               000000B5 GR
+  0 _UI_PauseSeconds                                                00000286 GR
+  0 _UI_PrintCenter                                                 0000011E GR
+  0 _UI_PrintCharCenter                                             000000F5 GR
+  0 _UI_PrintNumberCenter                                           0000012D GR
+  0 _UI_ReadLine                                                    000001B9 GR
+  0 _UI_SetTopText                                                  0000005F GR
+  0 ___str_0                                                        000000DF R
+    __divuchar                                                      ******** GX
+    __moduchar                                                      ******** GX
+  7 __xinit__g_CenterCursorX                                        00000000 R
+  7 __xinit__g_CenterCursorY                                        00000001 R
+  2 _g_CenterCursorX                                                00000000 R
+  2 _g_CenterCursorY                                                00000001 R
+
+ASxxxx Assembler V05.50.4+NoICE+SDCCmods-WIP-R14  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                               Page 2
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size      2A5   flags    0
+   1 _DATA                                      size        0   flags    0
+   2 _INITIALIZED                               size        2   flags    0
+   3 _DABS                                      size        0   flags    8
+   4 _HOME                                      size        0   flags    0
+   5 _GSINIT                                    size        0   flags    0
+   6 _GSFINAL                                   size        0   flags    0
+   7 _INITIALIZER                               size        2   flags    0
+   8 _CABS                                      size        0   flags    8
+
