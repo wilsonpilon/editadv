@@ -197,7 +197,7 @@ mensagens:
   - id: 51
     texto: "Caminhando às cegas no escuro, você despencou em um poço profundo! Fim da partida."
   - id: 52
-    texto: "Sua boca está seca como poeira. A sede consome suas forças! Encontre água logo!"
+    texto: "[AVISO DE SEDE] Sua boca está seca como poeira. A sede consome suas forças! Encontre água logo!"
   - id: 53
     texto: "Pegou."
   - id: 54
@@ -422,8 +422,7 @@ comandos:
       - op: RET # 7
       - op: MSG # 8: Venceu o jogo!
         p1: 36
-      - op: NVC # 9
-      - op: FIM # 10
+      - op: FIM # 9
 
   # 8. EXAMINAR A MOCHILA (EXAMINE MOCHILA)
   - verbo: 28
@@ -473,7 +472,6 @@ funcoes:
     instrucoes:
       - op: MSG
         p1: 50
-      - op: NVC
       - op: FIM
 
   # 3. Morte no escuro (quando passos no escuro REG 6 >= 5)
@@ -481,7 +479,6 @@ funcoes:
     instrucoes:
       - op: MSG
         p1: 51
-      - op: NVC
       - op: FIM
 
   # 4. Relógio do sistema / real-time
@@ -505,6 +502,7 @@ funcoes:
       - op: LDR # 2
         p1: 9
         p2: 0
+        p3: 0
       - op: GOTO # 3
         p1: 8
       - op: RET # 4
@@ -514,10 +512,11 @@ funcoes:
       - op: LDR # 7
         p1: 9
         p2: 1
-      # Verifica aviso de sede quando REG 5 == 5 (Pos 8)
-      - op: REG= # 8
+        p3: 0
+      # Verifica aviso de sede quando REG 5 < 6 (Pos 8: quando restam 5 turnos ou menos)
+      - op: REG< # 8
         p1: 5
-        p2: 5
+        p2: 6
         p3: 11 # Salta para aviso de sede
       - op: RET # 9
       - op: RET # 10

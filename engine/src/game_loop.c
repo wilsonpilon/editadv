@@ -70,13 +70,53 @@ void Game_Init(const Game_Database* db, Game_State* state)
     UI_Init();
     UI_SetTopText(db->titulo);
 
-    // Executa a FUNÇÃO 1 (Reset do Jogo - Capítulo 10.1)
-    Interpreter_CallFunction(FUNC_RESET, db, state);
+    // Carrega atalhos SHIFT pré-calculados do banco de dados (se fornecidos)
+    if (db->atalhos_shift != NULL)
+    {
+        for (i = 0; i < 10; i++)
+        {
+            if (db->atalhos_shift[i] != 0)
+            {
+                g_ShiftShortcuts[i] = db->atalhos_shift[i];
+            }
+        }
+    }
 
-    // Imprime a apresentação inicial e a descrição do local de início
-    UI_PrintCenter(Interpreter_GetMessageText(MSG_INTRO, db));
-    UI_NewLineCenter();
-    UI_NewLineCenter();
+    // 1. Apresentação da História (Prólogo - MSG 10 / MSG_INTRO)
+    {
+        const char* intro = Interpreter_GetMessageText(MSG_INTRO, db);
+        if (intro != NULL && intro[0] != '\0')
+        {
+            UI_ClearCenter();
+            UI_PrintCenter(intro);
+            UI_NewLineCenter();
+            UI_NewLineCenter();
+            UI_PrintCenter("[ Pressione uma tecla para continuar ]");
+            UI_WaitKey();
+        }
+    }
+
+    // 2. Tela de Instruções e Orientações do Sistema (MSG 197 se presente no jogo)
+    {
+        const char* guide = Interpreter_GetMessageText(197, db);
+        if (guide != NULL && guide[0] != '\0')
+        {
+            UI_ClearCenter();
+            UI_PrintCenter(guide);
+            UI_NewLineCenter();
+            UI_NewLineCenter();
+            UI_PrintCenter("[ Pressione uma tecla para jogar ]");
+            UI_WaitKey();
+        }
+    }
+
+    UI_ClearCenter();
+
+    // 3. Executa a FUNÇÃO 1 (Reset do Jogo - Inicialização dos registradores)
+    Interpreter_CallFunction(FUNC_RESET, db, state);
+    state->flag_espera_cmd = FALSE;
+
+    // 4. Descreve o local de início (com saídas visíveis)
     Interpreter_DescribeCurrentRoom(db, state);
 }
 
@@ -136,6 +176,11 @@ void Game_Run(const Game_Database* db, Game_State* state)
     {
         if (state->flag_reiniciar)
         {
+            UI_NewLineCenter();
+            UI_PrintCenter("*** AVISO: REINICIANDO O JOGO ***");
+            UI_NewLineCenter();
+            UI_PrintCenter("[ Pressione tecla para recome\207ar ]");
+            UI_WaitKey();
             Game_Init(db, state);
             continue;
         }
@@ -205,8 +250,12 @@ void Game_Run(const Game_Database* db, Game_State* state)
             state->registers[REG_CONTADOR_5]--;
             if (state->registers[REG_CONTADOR_5] == 0)
             {
+                UI_NewLineCenter();
+                UI_PrintCenter("*** AVISO: VOC\210 SUCUMBIU \205 SEDE! ***");
+                UI_NewLineCenter();
                 Interpreter_CallFunction(FUNC_TIMER_BOMBA, db, state);
-                if (state->flag_fim || state->flag_reiniciar) continue;
+                state->flag_fim = TRUE;
+                continue;
             }
         }
 
@@ -216,8 +265,12 @@ void Game_Run(const Game_Database* db, Game_State* state)
             state->registers[REG_PASSOS_ESCURO]++;
             if (state->registers[REG_PASSOS_ESCURO] >= 5)
             {
+                UI_NewLineCenter();
+                UI_PrintCenter("*** AVISO: MORTE NO ESCURO! ***");
+                UI_NewLineCenter();
                 Interpreter_CallFunction(FUNC_ESCURO, db, state);
-                if (state->flag_fim || state->flag_reiniciar) continue;
+                state->flag_fim = TRUE;
+                continue;
             }
         }
         else
@@ -456,7 +509,9 @@ void Game_Run(const Game_Database* db, Game_State* state)
         // =====================================================================
     }
 
-    UI_ClearCenter();
+    // Preserva o aviso e a causa de morte na tela central (sem limpar a tela)
+    UI_NewLineCenter();
+    UI_PrintCenter("========================================");
     UI_PrintCenter("Fim da partida.");
     UI_NewLineCenter();
 }

@@ -119,6 +119,41 @@ Um bloco contíguo de memória onde cada byte possui significado próprio:
 A VM da engine suporta os 45 mnemônicos do sistema original:
 `NOP`, `MSG`, `NVC`, `LLIST`, `CLIST`, `DLIST`, `OBJ`, `INC`, `DEC`, `LDR`, `SOMA`, `RND`, `REG=`, `REG>`, `REG<`, `AQUI`, `LOCAL`, `TEMOS`, `SOLTA`, `PEGA`, `CRIA`, `APAG`, `GOSUB`, `LIBR`, `TRC`, `POE`, `ESV`, `OK`, `REGN`, `NVF`, `REF`, `FIM`, `NEU`, `DESC`, `RET`, `GOTO`, `PAUSA`, `FLAG`, `EVID`, `CLS`, `EVD=`, `CHRS`, `PRT`, `DNT`, `CMD`.
 
+### 6. Navegação pelos 8 Pontos Cardeais
+A engine e o editor TUI suportam todas as 8 direções (cardeais e colaterais):
+- **Cardeais:** Norte (`N`), Sul (`S`), Leste (`L`/`E`), Oeste (`O`/`W`)
+- **Colaterais:** Nordeste (`NE`), Noroeste (`NO`/`NW`), Sudeste (`SE`), Sudoeste (`SO`/`SW`)
+- O mapa visual na aba Salas desenha uma rosa dos ventos interativa para visualização imediata das conexões.
+
+### 7. Tipografia Autêntica & Acentuação Brasileira (VRAM Screen 0)
+- Decodificação e renderização direta no padrão de fonte de Renato Degiovani (`vram.dat` / `vram.scr`).
+- Mapeamento correto de caracteres acentuados (`á, é, í, ó, ú, â, ê, ô, ã, õ, ç` e maiúsculas).
+- Correção do glifo de exclamação (`!` mapeado para o código `0x5B` da fonte Degiovani).
+- Marcadores de margem (`0x18`) e divisórias de meia-linha (`0x1B` e `0x1A`) autênticas.
+
+### 8. Debounce de Teclado no Hardware MSX
+- Varredura direta na matriz `NEWKEY` nas linhas 0 a 8 do PSG/PPI no MSX, com espera ativa de liberação da tecla física, eliminando duplicações indesejadas de caracteres durante a digitação rápida.
+
+### 9. Sistema Avançado de Acentuação e Atalhos (TAB / SELECT)
+- Suporte a 13 letras maiúsculas acentuadas da língua portuguesa: `À, Á, Â, Ã, Ç, É, Ê, Í, Ó, Ô, Õ, Ú, Ü` (com glifo personalizado em VRAM para `Ü` em `0x9F`).
+- **Tecla [TAB]:** Abre janela centralizada estilo IBM-PC dos anos 1990 com moldura gráfica clássica do MSX, grade perfeitamente alinhada em ordem alfabética e navegação por setas do teclado.
+- **Tecla [SELECT]:** Menu interativo de configuração dos 10 atalhos instantâneos (`Shift+1`..`Shift+9` e `Shift+0`), com fluxo de duas fases via cursor.
+- **Otimização Inteligente pelo Compilador:** Análise estatística de frequência de caracteres no arquivo de história para definir os melhores atalhos de fábrica.
+- **Comandos de Suporte:** Reconhecimento canônico de `VERBOS` (lista vocabulário), `INSTRUCAO` (reexibe telas introdutórias) e `DICA` (orientações contextuais).
+
+---
+
+## 📚 Documentação e Aventuras Inclusas
+
+- **[manual.md](file:///e:/editadv/manual.md):** Manual técnico completo do usuário, arquitetura, acentuação e especificação dos 45 bytecodes da VM.
+- **[docs/editor_adventure.md](file:///e:/editadv/docs/editor_adventure.md):** Transcrição integral via OCR do manual original do *Sistema Editor de Adventures Versão 3.4 (1986)* de Renato Degiovani.
+- **[games/demo.yaml](file:///e:/editadv/games/demo.yaml):** Aventura de introdução ("O Templo Perdido").
+- **[games/amazonia.yaml](file:///e:/editadv/games/amazonia.yaml):** O clássico adventure nacional *Amazônia* (Renato Degiovani) totalmente transcrito e jogável.
+- **[games/mina_do_abismo.yaml](file:///e:/editadv/games/mina_do_abismo.yaml):** Aventura completa em 8 salas com temporizador de sede, salas escuras com vela e pederneira, recipiente Mochila, baú com chave e abismo com corda.
+- **[manual_do_jogador.md](file:///e:/editadv/manual_do_jogador.md):** Manual e guia de sobrevivência para os jogadores de *A Mina do Abismo*.
+- **[solucao_mina_do_abismo.md](file:///e:/editadv/solucao_mina_do_abismo.md):** Mapa completo de salas, tabela de registradores e passo a passo speedrun com backtracking para vencer o jogo.
+- **[tutorial_tui_mina.md](file:///e:/editadv/tutorial_tui_mina.md):** Tutorial passo a passo de como recriar *A Mina do Abismo* do zero usando a ferramenta TUI no terminal.
+
 ---
 
 ## 📁 Estrutura do Repositório

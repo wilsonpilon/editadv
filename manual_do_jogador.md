@@ -58,10 +58,36 @@ Seu objetivo é sobreviver, encontrar água potável, iluminar o labirinto e enc
 | `ABRA BAU` | Destranca o baú de ferro (requer a chave correspondente). |
 | `AMARRE CORDA` | Fixa a corda de escalada no pilar de sustentação à beira do abismo. |
 | `DESCA` | Desce pelo abismo (requer que a corda já esteja amarrada com segurança). |
+| `VERBO` ou `VERBOS` | Lista todos os verbos aceitos pelo analisador do jogo. |
+| `INSTRUCAO` | Exibe a tela com as orientações e história inicial do jogo. |
+| `DICA` ou `DICAS` | Solicita uma pista ou orientação quando estiver perdido. |
 
 ---
 
-## 💡 4. Dicas Estratégicas para o Explorador (Sem Spoilers Críticos)
+## 🔤 4. Acentuação e Teclado MSX
+
+O jogo reconhece e preserva a acentuação correta da língua portuguesa:
+$$\text{À, Á, Â, Ã, Ç, É, Ê, Í, Ó, Ô, Õ, Ú, Ü}$$
+
+### ⚡ Atalhos Rápidos (Shift + 1 a 0)
+- Ao segurar **Shift** e pressionar os números **1 a 9** ou **0**, o caractere acentuado correspondente é inserido instantaneamente no texto.
+- Os atalhos já vêm pré-configurados de fábrica com as letras mais usadas na aventura.
+
+### 📑 Tecla [TAB] — Tabela de Acentos Interativa
+- Pressione **[TAB]** durante a digitação para abrir uma elegante janela com moldura gráfica clássica.
+- Use as **setas do teclado** ($\leftarrow, \rightarrow, \uparrow, \downarrow$) para navegar entre os acentos em ordem alfabética.
+- Pressione **ENTER** sobre a letra escolhida para inseri-la de volta no comando.
+- Pressione **ESC** para cancelar.
+
+### ⚙️ Tecla [SELECT] — Personalizar os Atalhos
+- Deseja trocar os atalhos `Shift+1..0` pelas suas letras favoritas? Pressione **[SELECT]**.
+- Com as setas, escolha o número do atalho que quer alterar (ex: `1:..`) e aperte **ENTER**.
+- O cursor subirá para a tabela de acentos: escolha a nova letra e aperte **ENTER**.
+- A nova configuração passa a valer imediatamente! Pressione **ESC** para sair.
+
+---
+
+## 💡 5. Dicas Estratégicas para o Explorador (Sem Spoilers Críticos)
 
 1. **Priorize a água cedo:** Não se aventure pelas fendas profundas antes de localizar uma fonte estável de água potável. Saber onde se hidratar é a diferença entre a vida e a morte.
 2. **Crie um depósito seguro:** A Galeria Central (Sala 2) e o Almoxarifado (Sala 3) são salas centrais e claras. Elas são ótimos pontos para deixar temporariamente itens pesados que você não vai usar naquele momento.

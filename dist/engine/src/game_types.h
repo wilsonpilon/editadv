@@ -145,6 +145,11 @@ typedef enum {
     VERBO_CUSTOM_START = 41
 } Game_VerbId;
 
+typedef struct {
+    u8          id;     // ID do verbo (ex: 50, 51, 52)
+    const char* nome;   // Nome e sinônimos separados por barra: "VERBO/SIN1/SIN2"
+} Game_Verb;
+
 // =============================================================================
 // 4. OBJETOS, SITUAÇÃO E BYTE DE CONSISTÊNCIA (Capítulo 5)
 // =============================================================================
@@ -335,18 +340,18 @@ typedef struct {
 // Mensagens pré-definidas utilizadas autonomamente pelo sistema.
 // =============================================================================
 typedef enum {
-    MSG_INTRO               = 11,   // Apresentação inicial do jogo
-    MSG_ACHEI               = 12,   // "Achei o que você queria."
-    MSG_ESCURO              = 13,   // "Está muito escuro aqui. É melhor arranjar alguma luz..."
-    MSG_NAO_ENTENDI         = 14,   // "Perdão, não entendi..."
-    MSG_MOVIMENTO_INVALIDO  = 15,   // "É impossível ir nesta direção."
-    MSG_NAO_POSSIVEL        = 16,   // "Isto não é possível."
-    MSG_NAO_TEMOS           = 17,   // "Nós não temos (objeto)."
-    MSG_JA_TEMOS            = 18,   // "Nós já temos (objeto)."
-    MSG_NAO_ESTOU_VENDO     = 19,   // "Eu não estou vendo..."
-    MSG_OBJETO_COMUM        = 20,   // "É apenas (objeto)."
-    MSG_CARGA_MAXIMA        = 21,   // "Não dá para carregar mais nada."
-    MSG_OBJ3_LOTADO         = 22    // "Não cabe mais nada."
+    MSG_INTRO               = 10,   // Apresentação inicial do jogo
+    MSG_ACHEI               = 11,   // "Achei o que você queria."
+    MSG_ESCURO              = 12,   // "Está muito escuro aqui. É melhor arranjar alguma luz..."
+    MSG_NAO_ENTENDI         = 13,   // "Perdão, não entendi..."
+    MSG_MOVIMENTO_INVALIDO  = 14,   // "É impossível ir nesta direção."
+    MSG_NAO_POSSIVEL        = 15,   // "Isto não é possível."
+    MSG_NAO_TEMOS           = 16,   // "Nós não temos (objeto)."
+    MSG_JA_TEMOS            = 17,   // "Nós já temos (objeto)."
+    MSG_NAO_ESTOU_VENDO     = 18,   // "Eu não estou vendo..."
+    MSG_OBJETO_COMUM        = 19,   // "É apenas (objeto)."
+    MSG_CARGA_MAXIMA        = 20,   // "Não dá para carregar mais nada."
+    MSG_OBJ3_LOTADO         = 21    // "Não cabe mais nada."
 } Game_SystemMessageId;
 
 typedef struct {
@@ -392,6 +397,11 @@ typedef struct {
 
     const Game_Message* const*  mensagens;      // Tabela de mensagens
     u8                          num_mensagens;
+
+    const Game_Verb* const*     verbos;         // Tabela de verbos customizados
+    u8                          num_verbos;
+
+    const u8*                   atalhos_shift;  // 10 atalhos de acentos calculados (Shift+0..9)
 } Game_Database;
 
 #endif // GAME_TYPES_H

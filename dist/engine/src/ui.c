@@ -91,10 +91,14 @@ void UI_Init(void)
     VDP_SetMode(VDP_MODE_SCREEN0);
     VDP_ClearVRAM();
     VDP_SetColor(0xF1);
-    Print_SetTextFont(NULL, 1);
     // Carrega o alfabeto customizado de vram.dat para a VRAM (0x0800 ~ 0x0FFF)
     VDP_WriteVRAM_16K(g_FontCustom, 0x0800, 2048);
-    Print_SetColor(COLOR_WHITE, COLOR_BLACK);
+
+    // Carrega o glifo customizado para Ü maiúsculo na posição 0x9F
+    {
+        static const u8 s_GlyphUmlautU[8] = { 0x50, 0x00, 0x88, 0x88, 0x88, 0x88, 0xF8, 0x00 };
+        VDP_WriteVRAM_16K(s_GlyphUmlautU, 0x0800 + (0x9F * 8), 8);
+    }
 
     // Configura taxa de repetição do teclado da BIOS para digitação confortável
     // REPCNT (0xF3F7): atraso inicial antes de iniciar repetição (~50 frames / ~0.8s)
@@ -299,6 +303,80 @@ void UI_ClearCenter(void)
     g_CenterCursorX = SCREEN_MARGIN_LEFT;
     g_CenterCursorY = SCREEN_ROW_CENTER_START;
 }
+// Helper para verificar se a tecla SHIFT está pressionada no MSX (matriz NEWKEY linha 6, bit 0)
+static u8 UI_IsShiftPressed(void)
+{
+#if defined(MSXGL) || defined(__SDCC)
+    volatile u8* pNewKeyRow6 = (volatile u8*)0xFBEB;
+    return ((*pNewKeyRow6 & 0x01) == 0);
+#else
+    return 0;
+#endif
+}
+
+// Helper para verificar se QUALQUER tecla física está pressionada (linhas 0..5 e 7..8)
+static bool UI_IsAnyKeyPressed(void)
+{
+#if defined(MSXGL) || defined(__SDCC)
+    volatile u8* pNewKey = (volatile u8*)0xFBE5;
+    u8 r;
+    for (r = 0; r <= 8; r++)
+    {
+        if (r == 6) continue; // Ignora modificadoras (SHIFT, CTRL, GRAPH, CODE)
+        if (pNewKey[r] != 0xFF) return TRUE;
+    }
+    return FALSE;
+#else
+    return FALSE;
+#endif
+}
+
+#if defined(MSXGL) && (TARGET_TYPE == TYPE_DOS)
+static u8 DOS_CheckKey(void) __naked
+{
+__asm
+    push ix
+    ld   c, #0x0B   ; DOS_FUNC_CONST: A = 0x00 se vazio, 0xFF se caractere pronto
+    call 0x0005
+    pop  ix
+    ld   l, a
+    ret
+__endasm;
+}
+#endif
+
+// -----------------------------------------------------------------------------
+// UI_ReadRawKey
+// Lê uma tecla do teclado de forma confiável em ROM e MSX-DOS
+// -----------------------------------------------------------------------------
+#if defined(MSXGL) && (TARGET_TYPE == TYPE_DOS)
+static u8 UI_ReadRawKey(void) __naked
+{
+__asm
+    push ix
+    ld   c, #0x07   ; MSX-DOS BDOS Direct Console Input without echo (espera tecla)
+    call 0x0005     ; Chama BDOS
+    pop  ix
+    ld   l, a       ; Retorna caractere em L para o SDCC
+    ret
+__endasm;
+}
+#elif defined(MSXGL)
+static u8 UI_ReadRawKey(void)
+{
+    return (u8)BIOS_GetCharacter();
+}
+#elif defined(__SDCC)
+static u8 UI_ReadRawKey(void)
+{
+    return (u8)Bios_Chget();
+}
+#else
+static u8 UI_ReadRawKey(void)
+{
+    return (u8)getchar();
+}
+#endif
 
 // -----------------------------------------------------------------------------
 // UI_NewLineCenter
@@ -311,9 +389,14 @@ void UI_NewLineCenter(void)
     if (g_CenterCursorY > SCREEN_ROW_CENTER_END)
     {
 #if defined(MSXGL)
-        Print_SetPosition(SCREEN_MARGIN_LEFT, SCREEN_ROW_CENTER_END);
-        Print_DrawText("-- Pressione uma tecla --");
-        BIOS_GetCharacter();
+        {
+            const char* msg = "-- Pressione uma tecla --";
+            u8 col = SCREEN_MARGIN_LEFT;
+            while (*msg) {
+                VDP_Poke_16K(*msg++, VRAM_TEXT_ADDR(col++, SCREEN_ROW_CENTER_END));
+            }
+        }
+        UI_WaitKey();
         UI_ClearCenter();
 #elif defined(__SDCC)
         Bios_SetCursor(SCREEN_MARGIN_LEFT, SCREEN_ROW_CENTER_END);
@@ -321,7 +404,7 @@ void UI_NewLineCenter(void)
             const char* msg = "-- Pressione tecla --";
             while (*msg) Bios_Chput(*msg++);
         }
-        Bios_Chget();
+        UI_WaitKey();
         UI_ClearCenter();
 #else
         printf("\n");
@@ -466,38 +549,555 @@ void UI_PrintNumberCenter(u8 value)
     UI_PrintCenter(buf);
 }
 
-// Helper para verificar se a tecla SHIFT está pressionada no MSX (matriz NEWKEY linha 6, bit 0)
-static u8 UI_IsShiftPressed(void)
+
+// Tabela de 10 atalhos padrão ativos para Shift+0..9
+// Padrão de fábrica: 1:Á 2:É 3:Í 4:Ó 5:Ú 6:Ã 7:Õ 8:Ê 9:Ô e 0:Ç
+u8 g_ShiftShortcuts[10] = {
+    0x80, // Shift+0: Ç
+    0x84, // Shift+1: Á
+    0x90, // Shift+2: É
+    0x89, // Shift+3: Í
+    0x8A, // Shift+4: Ó
+    0x8B, // Shift+5: Ú
+    0xB0, // Shift+6: Ã
+    0xB4, // Shift+7: Õ
+    0x8D, // Shift+8: Ê
+    0x8E  // Shift+9: Ô
+};
+
+// 13 caracteres acentuados em estrita ordem alfabética:
+// À (0x8F), Á (0x84), Â (0x8C), Ã (0xB0), Ç (0x80), É (0x90), Ê (0x8D), Í (0x89), Ó (0x8A), Ô (0x8E), Õ (0xB4), Ú (0x8B), Ü (0x9F)
+static const u8 s_AccentCodes[13] = {
+    0x8F, // 0: À
+    0x84, // 1: Á
+    0x8C, // 2: Â
+    0xB0, // 3: Ã
+    0x80, // 4: Ç
+    0x90, // 5: É
+    0x8D, // 6: Ê
+    0x89, // 7: Í
+    0x8A, // 8: Ó
+    0x8E, // 9: Ô
+    0xB4, // 10: Õ
+    0x8B, // 11: Ú
+    0x9F  // 12: Ü
+};
+
+// 10 atalhos das teclas Shift+1..9 e Shift+0
+static const u8 s_ShortcutSlots[10] = {
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+};
+static const u8 s_ShortcutKeyNames[10] = {
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
+};
+
+#if defined(MSXGL)
+// Desenha a moldura de quadro usando caracteres gráficos do MSX (0x81, 0x9A, 0xA6, 0xA7, 0x5F, 0x5E)
+static void UI_DrawWindowFrame(u8 x, u8 y, u8 width, u8 height)
 {
-#if defined(MSXGL) || defined(__SDCC)
-    volatile u8* pNewKeyRow6 = (volatile u8*)0xFBEB;
-    return ((*pNewKeyRow6 & 0x01) == 0);
+    u8 i, row;
+    u16 addr;
+
+    // Borda superior: Canto Sup-Esq (0x81), Barra Horiz (0x5F), Canto Sup-Dir (0x9A)
+    addr = VRAM_TEXT_ADDR(x, y);
+    VDP_Poke_16K(0x81, addr++);
+    for (i = 0; i < width - 2; i++) VDP_Poke_16K(0x5F, addr++);
+    VDP_Poke_16K(0x9A, addr);
+
+    // Laterais verticais (0x5E) e interior limpo
+    for (row = 1; row < height - 1; row++)
+    {
+        addr = VRAM_TEXT_ADDR(x, y + row);
+        VDP_Poke_16K(0x5E, addr++);
+        for (i = 0; i < width - 2; i++) VDP_Poke_16K(' ', addr++);
+        VDP_Poke_16K(0x5E, addr);
+    }
+
+    // Borda inferior: Canto Inf-Esq (0xA6), Barra Horiz (0x5F), Canto Inf-Dir (0xA7)
+    addr = VRAM_TEXT_ADDR(x, y + height - 1);
+    VDP_Poke_16K(0xA6, addr++);
+    for (i = 0; i < width - 2; i++) VDP_Poke_16K(0x5F, addr++);
+    VDP_Poke_16K(0xA7, addr);
+}
+
+// Desenha linha divisória interna conectada às bordas laterais
+static void UI_DrawWindowDivider(u8 x, u8 y, u8 width)
+{
+    u8 i;
+    u16 addr = VRAM_TEXT_ADDR(x, y);
+    VDP_Poke_16K(0x5E, addr++);
+    for (i = 0; i < width - 2; i++) VDP_Poke_16K(0x5F, addr++);
+    VDP_Poke_16K(0x5E, addr);
+}
+
+// Imprime texto centralizado dentro de uma linha da janela
+static void UI_PrintWindowText(u8 x, u8 y, u8 width, const char* text)
+{
+    u8 len = 0;
+    const char* p = text;
+    u8 col, offset;
+    while (*p++) len++;
+    if (len > width - 2) len = width - 2;
+    offset = (width - 2 - len) / 2;
+
+    for (col = 0; col < width - 2; col++)
+    {
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 1 + col, y));
+    }
+    for (col = 0; col < len; col++)
+    {
+        VDP_Poke_16K((u8)text[col], VRAM_TEXT_ADDR(x + 1 + offset + col, y));
+    }
+}
+
+// Desenha uma célula de acento na grade de 5 colunas x 3 linhas
+static void UI_DrawAccentCell(u8 win_x, u8 start_y, u8 idx, bool is_selected)
+{
+    u8 r = idx / 5;
+    u8 c = idx % 5;
+    u8 x = win_x + 1 + c * 6;
+    u8 y = start_y + r;
+    u8 ch = s_AccentCodes[idx];
+
+    // Célula de 6 colunas rigorosamente alinhada
+    if (is_selected)
+    {
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x,     y));
+        VDP_Poke_16K('[', VRAM_TEXT_ADDR(x + 1, y));
+        VDP_Poke_16K(ch,  VRAM_TEXT_ADDR(x + 2, y));
+        VDP_Poke_16K(']', VRAM_TEXT_ADDR(x + 3, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 4, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 5, y));
+    }
+    else
+    {
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x,     y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 1, y));
+        VDP_Poke_16K(ch,  VRAM_TEXT_ADDR(x + 2, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 3, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 4, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 5, y));
+    }
+}
+
+// Desenha uma célula de atalho na grade de 5 colunas x 2 linhas
+// state: 0 = normal (" 1:Á  "), 1 = cursor em foco ("[1:Á] "), 2 = editando (">1:Á< ")
+static void UI_DrawShortcutCell(u8 win_x, u8 start_y, u8 sidx, u8 state)
+{
+    u8 r = sidx / 5;
+    u8 c = sidx % 5;
+    u8 x = win_x + 1 + c * 6;
+    u8 y = start_y + r;
+    u8 slot = s_ShortcutSlots[sidx];
+    u8 key_char = s_ShortcutKeyNames[sidx];
+    u8 acc_char = g_ShiftShortcuts[slot];
+
+    if (state == 1) // Cursor no atalho (Fase 1)
+    {
+        VDP_Poke_16K('[', VRAM_TEXT_ADDR(x,     y));
+        VDP_Poke_16K(key_char, VRAM_TEXT_ADDR(x + 1, y));
+        VDP_Poke_16K(':', VRAM_TEXT_ADDR(x + 2, y));
+        VDP_Poke_16K(acc_char, VRAM_TEXT_ADDR(x + 3, y));
+        VDP_Poke_16K(']', VRAM_TEXT_ADDR(x + 4, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 5, y));
+    }
+    else if (state == 2) // Atalho selecionado sendo editado (Fase 2)
+    {
+        VDP_Poke_16K('>', VRAM_TEXT_ADDR(x,     y));
+        VDP_Poke_16K(key_char, VRAM_TEXT_ADDR(x + 1, y));
+        VDP_Poke_16K(':', VRAM_TEXT_ADDR(x + 2, y));
+        VDP_Poke_16K(acc_char, VRAM_TEXT_ADDR(x + 3, y));
+        VDP_Poke_16K('<', VRAM_TEXT_ADDR(x + 4, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 5, y));
+    }
+    else // Atalho comum
+    {
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x,     y));
+        VDP_Poke_16K(key_char, VRAM_TEXT_ADDR(x + 1, y));
+        VDP_Poke_16K(':', VRAM_TEXT_ADDR(x + 2, y));
+        VDP_Poke_16K(acc_char, VRAM_TEXT_ADDR(x + 3, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 4, y));
+        VDP_Poke_16K(' ', VRAM_TEXT_ADDR(x + 5, y));
+    }
+}
+#endif
+
+// -----------------------------------------------------------------------------
+// UI_SelectAccentedChar
+// Exibe janela sobreposta com as 13 letras acentuadas (tecla TAB)
+// Centralizada, com moldura de quadro MSX e navegação interativa por cursor
+// -----------------------------------------------------------------------------
+u8 UI_SelectAccentedChar(void)
+{
+#if defined(MSXGL)
+    static u8 s_VramBuf[400];
+    u8 key, i;
+    u8 cur_idx = 0;
+    u8 result = 0;
+    const u8 win_x = 4;
+    const u8 win_y = 6;
+    const u8 win_w = 32;
+    const u8 win_h = 10;
+    u16 base_addr = VRAM_TEXT_ADDR(0, win_y);
+
+    // Salva 10 linhas da VRAM (linhas 6 a 15 = 400 bytes)
+    VDP_ReadVRAM_16K(base_addr, s_VramBuf, 400);
+
+    // Desenha a moldura de quadro do MSX
+    UI_DrawWindowFrame(win_x, win_y, win_w, win_h);
+    UI_PrintWindowText(win_x, win_y + 1, win_w, "TABELA DE ACENTOS");
+    UI_DrawWindowDivider(win_x, win_y + 2, win_w);
+
+    // Desenha todos os 13 acentos na ordem alfabética
+    for (i = 0; i < 13; i++)
+    {
+        UI_DrawAccentCell(win_x, win_y + 3, i, (i == cur_idx));
+    }
+
+    UI_DrawWindowDivider(win_x, win_y + 6, win_w);
+    UI_PrintWindowText(win_x, win_y + 7, win_w, "[Setas] Navega  [ENTER] Escolhe");
+    UI_PrintWindowText(win_x, win_y + 8, win_w, "[ESC / TAB] Cancela");
+
+    while (UI_IsAnyKeyPressed()) Halt();
+
+    while (1)
+    {
+        key = UI_ReadRawKey();
+
+        if (key == 27 || key == 9) // ESC ou TAB cancela
+        {
+            result = 0;
+            break;
+        }
+        if (key == 13) // ENTER escolhe o acento atual
+        {
+            result = s_AccentCodes[cur_idx];
+            break;
+        }
+
+        // Navegação com setas do teclado MSX
+        if (key == 29) // Esquerda
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = (cur_idx > 0) ? cur_idx - 1 : 12;
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 28) // Direita
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = (cur_idx < 12) ? cur_idx + 1 : 0;
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 30) // Cima
+        {
+            if (cur_idx >= 5)
+            {
+                UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+                cur_idx -= 5;
+                UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+            }
+        }
+        else if (key == 31) // Baixo
+        {
+            if (cur_idx + 5 <= 12)
+            {
+                UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+                cur_idx += 5;
+                UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+            }
+        }
+        // Atalhos diretos por letra base
+        else if (key == 'a' || key == 'A')
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = (cur_idx < 3) ? cur_idx + 1 : 0;
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 'c' || key == 'C')
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = 4; // Ç
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 'e' || key == 'E')
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = (cur_idx == 5) ? 6 : 5; // É ou Ê
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 'i' || key == 'I')
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = 7; // Í
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 'o' || key == 'O')
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = (cur_idx >= 8 && cur_idx < 10) ? cur_idx + 1 : 8; // Ó, Ô, Õ
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+        else if (key == 'u' || key == 'U')
+        {
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, FALSE);
+            cur_idx = (cur_idx == 11) ? 12 : 11; // Ú ou Ü
+            UI_DrawAccentCell(win_x, win_y + 3, cur_idx, TRUE);
+        }
+    }
+
+    // Restaura a tela original
+    VDP_WriteVRAM_16K(s_VramBuf, base_addr, 400);
+    while (UI_IsAnyKeyPressed()) Halt();
+
+    return result;
 #else
     return 0;
 #endif
 }
 
-// Helper para verificar se QUALQUER tecla alfanumérica/direcional está pressionada (linhas 0..5 e 7..8)
-static bool UI_IsAnyKeyPressed(void)
+// -----------------------------------------------------------------------------
+// UI_ConfigShiftShortcuts
+// Exibe janela para configurar os 10 atalhos SHIFT (tecla SELECT)
+// Fluxo em 2 fases: 1º escolhe o atalho e dá ENTER -> vai pro quadro de cima,
+// escolhe o acento e dá ENTER, associando imediatamente ao atalho.
+// -----------------------------------------------------------------------------
+void UI_ConfigShiftShortcuts(void)
 {
-#if defined(MSXGL) || defined(__SDCC)
-    volatile u8* pNewKey = (volatile u8*)0xFBE5;
-    u8 r;
-    for (r = 0; r <= 8; r++)
+#if defined(MSXGL)
+    static u8 s_VramBuf[520];
+    u8 key, i;
+    u8 step = 0; // 0 = escolhendo atalho (0..9); 1 = escolhendo acento (quadro superior)
+    u8 slot_idx = 0; // 0..9 (índice em s_ShortcutSlots)
+    u8 accent_idx = 0; // 0..12 (índice em s_AccentCodes)
+    const u8 win_x = 4;
+    const u8 win_y = 4;
+    const u8 win_w = 32;
+    const u8 win_h = 13;
+    u16 base_addr = VRAM_TEXT_ADDR(0, win_y);
+
+    // Salva 13 linhas da VRAM (linhas 4 a 16 = 520 bytes)
+    VDP_ReadVRAM_16K(base_addr, s_VramBuf, 520);
+
+    // Desenha a moldura de quadro do MSX
+    UI_DrawWindowFrame(win_x, win_y, win_w, win_h);
+    UI_PrintWindowText(win_x, win_y + 1, win_w, "TABELA DE ACENTOS");
+
+    // Desenha todos os 13 acentos (sem seleção inicial)
+    for (i = 0; i < 13; i++)
     {
-        if (r == 6) continue; // Ignora teclas modificadoras (SHIFT, CTRL, GRAPH, CODE)
-        if (pNewKey[r] != 0xFF) return TRUE;
+        UI_DrawAccentCell(win_x, win_y + 2, i, FALSE);
     }
-    return FALSE;
-#else
-    return FALSE;
+
+    UI_DrawWindowDivider(win_x, win_y + 5, win_w);
+    UI_PrintWindowText(win_x, win_y + 6, win_w, "ATALHOS (SHIFT + 1..9, 0)");
+
+    // Desenha os 10 atalhos (slot 0 selecionado inicialmente)
+    for (i = 0; i < 10; i++)
+    {
+        UI_DrawShortcutCell(win_x, win_y + 7, i, (i == slot_idx ? 1 : 0));
+    }
+
+    UI_DrawWindowDivider(win_x, win_y + 9, win_w);
+    UI_PrintWindowText(win_x, win_y + 10, win_w, "Escolha o atalho e tecle ENTER");
+    UI_PrintWindowText(win_x, win_y + 11, win_w, "[Setas/0-9] Navega   ESC: Sair");
+
+    while (UI_IsAnyKeyPressed()) Halt();
+
+    while (1)
+    {
+        key = UI_ReadRawKey();
+
+        if (step == 0) // ================= FASE 1: Escolhendo atalho (0..9) =================
+        {
+            if (key == 27 || key == 24) // ESC ou SELECT conclui
+            {
+                break;
+            }
+
+            if (key == 13) // ENTER confirma atalho escolhido e sobe para o quadro de acentos!
+            {
+                step = 1;
+                // Posiciona cursor inicial de acento no acento atual daquele atalho
+                {
+                    u8 cur_char = g_ShiftShortcuts[s_ShortcutSlots[slot_idx]];
+                    accent_idx = 0;
+                    for (i = 0; i < 13; i++)
+                    {
+                        if (s_AccentCodes[i] == cur_char) { accent_idx = i; break; }
+                    }
+                }
+
+                // Destaca atalho como "em edição" (>X:Y<) e ativa cursor no quadro de acentos ([Z])
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 2);
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+                UI_PrintWindowText(win_x, win_y + 10, win_w, "Escolha o acento e tecle ENTER");
+                UI_PrintWindowText(win_x, win_y + 11, win_w, "[Setas] Navega   ESC: Voltar");
+                continue;
+            }
+
+            // Seleção direta de tecla numérica '1'..'9'
+            if (key >= '1' && key <= '9')
+            {
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 0);
+                slot_idx = key - '1';
+                step = 1;
+                {
+                    u8 cur_char = g_ShiftShortcuts[s_ShortcutSlots[slot_idx]];
+                    accent_idx = 0;
+                    for (i = 0; i < 13; i++)
+                    {
+                        if (s_AccentCodes[i] == cur_char) { accent_idx = i; break; }
+                    }
+                }
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 2);
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+                UI_PrintWindowText(win_x, win_y + 10, win_w, "Escolha o acento e tecle ENTER");
+                UI_PrintWindowText(win_x, win_y + 11, win_w, "[Setas] Navega   ESC: Voltar");
+                continue;
+            }
+            if (key == '0')
+            {
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 0);
+                slot_idx = 9; // Slot 0
+                step = 1;
+                {
+                    u8 cur_char = g_ShiftShortcuts[s_ShortcutSlots[slot_idx]];
+                    accent_idx = 0;
+                    for (i = 0; i < 13; i++)
+                    {
+                        if (s_AccentCodes[i] == cur_char) { accent_idx = i; break; }
+                    }
+                }
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 2);
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+                UI_PrintWindowText(win_x, win_y + 10, win_w, "Escolha o acento e tecle ENTER");
+                UI_PrintWindowText(win_x, win_y + 11, win_w, "[Setas] Navega   ESC: Voltar");
+                continue;
+            }
+
+            // Navegação por setas nos atalhos
+            if (key == 29) // Esquerda
+            {
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 0);
+                slot_idx = (slot_idx > 0) ? slot_idx - 1 : 9;
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 1);
+            }
+            else if (key == 28) // Direita
+            {
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 0);
+                slot_idx = (slot_idx < 9) ? slot_idx + 1 : 0;
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 1);
+            }
+            else if (key == 30 || key == 31) // Cima / Baixo (alterna entre linha 1..5 e 6..0)
+            {
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 0);
+                slot_idx = (slot_idx + 5) % 10;
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 1);
+            }
+        }
+        else // ================= FASE 2: Escolhendo acento no quadro de cima =================
+        {
+            if (key == 27) // ESC volta para escolher outro atalho sem alterar
+            {
+                step = 0;
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 1);
+                UI_PrintWindowText(win_x, win_y + 10, win_w, "Escolha o atalho e tecle ENTER");
+                UI_PrintWindowText(win_x, win_y + 11, win_w, "[Setas/0-9] Navega   ESC: Sair");
+                continue;
+            }
+
+            if (key == 13) // ENTER associa o acento ao atalho e ativa para o jogo!
+            {
+                step = 0;
+                u8 target_slot = s_ShortcutSlots[slot_idx];
+                g_ShiftShortcuts[target_slot] = s_AccentCodes[accent_idx];
+
+                // Atualiza tela: desliga cursor do quadro de cima, atualiza atalho
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                UI_DrawShortcutCell(win_x, win_y + 7, slot_idx, 1);
+                UI_PrintWindowText(win_x, win_y + 10, win_w, "Atalho alterado com sucesso!");
+                UI_PrintWindowText(win_x, win_y + 11, win_w, "[Setas/0-9] Navega   ESC: Sair");
+                continue;
+            }
+
+            // Navegação com setas no quadro de acentos
+            if (key == 29) // Esquerda
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = (accent_idx > 0) ? accent_idx - 1 : 12;
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 28) // Direita
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = (accent_idx < 12) ? accent_idx + 1 : 0;
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 30) // Cima
+            {
+                if (accent_idx >= 5)
+                {
+                    UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                    accent_idx -= 5;
+                    UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+                }
+            }
+            else if (key == 31) // Baixo
+            {
+                if (accent_idx + 5 <= 12)
+                {
+                    UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                    accent_idx += 5;
+                    UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+                }
+            }
+            // Atalhos diretos por letra no quadro de acentos
+            else if (key == 'a' || key == 'A')
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = (accent_idx < 3) ? accent_idx + 1 : 0;
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 'c' || key == 'C')
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = 4; // Ç
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 'e' || key == 'E')
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = (accent_idx == 5) ? 6 : 5; // É ou Ê
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 'i' || key == 'I')
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = 7; // Í
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 'o' || key == 'O')
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = (accent_idx >= 8 && accent_idx < 10) ? accent_idx + 1 : 8; // Ó, Ô, Õ
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+            else if (key == 'u' || key == 'U')
+            {
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, FALSE);
+                accent_idx = (accent_idx == 11) ? 12 : 11; // Ú ou Ü
+                UI_DrawAccentCell(win_x, win_y + 2, accent_idx, TRUE);
+            }
+        }
+    }
+
+    // Restaura tela original
+    VDP_WriteVRAM_16K(s_VramBuf, base_addr, 520);
+    while (UI_IsAnyKeyPressed()) Halt();
 #endif
 }
 
-// -----------------------------------------------------------------------------
-// UI_ReadLine
-// Entrada de dados na linha 23 com atalhos para Ç e letras acentuadas
-// -----------------------------------------------------------------------------
 void UI_ReadLine(char* buffer, u8 max_len)
 {
     u8 len = 0;
@@ -525,12 +1125,7 @@ void UI_ReadLine(char* buffer, u8 max_len)
 
     while (TRUE)
     {
-        u8 ch;
-        #if defined(MSXGL)
-            ch = (u8)BIOS_GetCharacter();
-        #else
-            ch = (u8)Bios_Chget();
-        #endif
+        u8 ch = UI_ReadRawKey();
 
         if (ch == 13 || ch == 10) // ENTER
         {
@@ -559,6 +1154,38 @@ void UI_ReadLine(char* buffer, u8 max_len)
                     Bios_Chput(' ');
                 #endif
             }
+            continue;
+        }
+        else if (ch == 9) // TAB: Menu de seleção de caractere acentuado
+        {
+            u8 sel = UI_SelectAccentedChar();
+            if (sel != 0 && len < (max_len - 1) && (4 + len) <= SCREEN_MARGIN_RIGHT)
+            {
+                buffer[len] = (char)sel;
+                #if defined(MSXGL)
+                    VDP_Poke_16K(sel, prompt_base + len);
+                    len++;
+                    if ((4 + len) <= SCREEN_MARGIN_RIGHT)
+                    {
+                        VDP_Poke_16K('_', prompt_base + len);
+                    }
+                #else
+                    Bios_SetCursor(4 + len, SCREEN_ROW_BOTTOM_START);
+                    Bios_Chput((char)sel);
+                    len++;
+                #endif
+            }
+            continue;
+        }
+        else if (ch == 24) // SELECT: Configuração dos atalhos SHIFT
+        {
+            UI_ConfigShiftShortcuts();
+            #if defined(MSXGL)
+                if ((4 + len) <= SCREEN_MARGIN_RIGHT)
+                {
+                    VDP_Poke_16K('_', prompt_base + len);
+                }
+            #endif
             continue;
         }
 
@@ -615,19 +1242,19 @@ void UI_ReadLine(char* buffer, u8 max_len)
             ch = 0x80; // Ç
         }
         // 3. Teclas de atalho SHIFT + NÚMEROS (Padrão MSX do Editor de Adventures):
-        // SHIFT+0 = Ç, SHIFT+1..9 = Á, É, Í, Ó, Ú, Ã, Õ, Â, Ô
+        // SHIFT+1..9 e SHIFT+0 mapeados conforme g_ShiftShortcuts
         else if (UI_IsShiftPressed())
         {
-            if (ch == '0' || ch == ')') ch = 0x80; // SHIFT+0 -> Ç
-            else if (ch == '1' || ch == '!') ch = 0x84; // SHIFT+1 -> Á
-            else if (ch == '2' || ch == '"' || ch == '@') ch = 0x90; // SHIFT+2 -> É
-            else if (ch == '3' || ch == '#') ch = 0x89; // SHIFT+3 -> Í
-            else if (ch == '4' || ch == '$') ch = 0x8A; // SHIFT+4 -> Ó
-            else if (ch == '5' || ch == '%') ch = 0x8B; // SHIFT+5 -> Ú
-            else if (ch == '6' || ch == '&') ch = 0xB0; // SHIFT+6 -> Ã
-            else if (ch == '7') ch = 0xB4; // SHIFT+7 -> Õ
-            else if (ch == '8' || ch == '*' || ch == '(') ch = 0x8C; // SHIFT+8 -> Â
-            else if (ch == '9') ch = 0x8E; // SHIFT+9 -> Ô
+            if (ch == '0' || ch == ')') ch = g_ShiftShortcuts[0];
+            else if (ch >= '1' && ch <= '9') ch = g_ShiftShortcuts[ch - '0'];
+            else if (ch == '!') ch = g_ShiftShortcuts[1];
+            else if (ch == '"' || ch == '@') ch = g_ShiftShortcuts[2];
+            else if (ch == '#') ch = g_ShiftShortcuts[3];
+            else if (ch == '$') ch = g_ShiftShortcuts[4];
+            else if (ch == '%') ch = g_ShiftShortcuts[5];
+            else if (ch == '&') ch = g_ShiftShortcuts[6];
+            else if (ch == '\'') ch = g_ShiftShortcuts[7];
+            else if (ch == '*' || ch == '(') ch = g_ShiftShortcuts[8];
         }
         // 4. Suporte a Dead Keys (teclado internacional / emuladores):
         // ' + C -> Ç, ' + vogal -> Á/É/Í/Ó/Ú, ~ + A/O -> Ã/Õ, ^ + vogal -> Â/Ê/Ô
@@ -685,12 +1312,6 @@ void UI_ReadLine(char* buffer, u8 max_len)
                 {
                     VDP_Poke_16K('_', prompt_base + len);
                 }
-                // Aguarda o usuário soltar a tecla para NUNCA duplicar ou triplicar letras
-                while (UI_IsAnyKeyPressed())
-                {
-                    Halt();
-                }
-                while (BIOS_HasCharacter());
             #else
                 Bios_SetCursor(4 + len, SCREEN_ROW_BOTTOM_START);
                 Bios_Chput((char)ch);
@@ -733,3 +1354,51 @@ void UI_PauseSeconds(u8 seconds)
     (void)seconds;
 #endif
 }
+
+// -----------------------------------------------------------------------------
+// UI_WaitKey
+// Aguarda confiavelmente que o jogador solte teclas anteriores, pressione uma
+// tecla nova e solte-a, drenando buffers residuais do DOS.
+// -----------------------------------------------------------------------------
+void UI_WaitKey(void)
+{
+#if defined(MSXGL)
+    // 1. Aguarda que qualquer tecla previamente pressionada (ex: ENTER inicial) seja solta
+    while (UI_IsAnyKeyPressed())
+    {
+        Halt();
+    }
+
+    // 2. Drena caracteres residuais do buffer do MSX-DOS
+    #if (TARGET_TYPE == TYPE_DOS)
+    while (DOS_CheckKey() != 0)
+    {
+        UI_ReadRawKey();
+    }
+    #endif
+
+    // 3. Aguarda que uma nova tecla seja pressionada
+    UI_ReadRawKey();
+
+    // 4. Aguarda que o jogador solte a tecla para não disparar a tela seguinte acidentalmente
+    while (UI_IsAnyKeyPressed())
+    {
+        Halt();
+    }
+
+    // 5. Garante que o buffer do DOS fique limpo
+    #if (TARGET_TYPE == TYPE_DOS)
+    while (DOS_CheckKey() != 0)
+    {
+        UI_ReadRawKey();
+    }
+    #endif
+#elif defined(__SDCC)
+    while (UI_IsAnyKeyPressed()) Bios_WaitFrame();
+    UI_ReadRawKey();
+    while (UI_IsAnyKeyPressed()) Bios_WaitFrame();
+#else
+    getchar();
+#endif
+}
+

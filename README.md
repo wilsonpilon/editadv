@@ -134,12 +134,21 @@ A engine e o editor TUI suportam todas as 8 direções (cardeais e colaterais):
 ### 8. Debounce de Teclado no Hardware MSX
 - Varredura direta na matriz `NEWKEY` nas linhas 0 a 8 do PSG/PPI no MSX, com espera ativa de liberação da tecla física, eliminando duplicações indesejadas de caracteres durante a digitação rápida.
 
+### 9. Sistema Avançado de Acentuação e Atalhos (TAB / SELECT)
+- Suporte a 13 letras maiúsculas acentuadas da língua portuguesa: `À, Á, Â, Ã, Ç, É, Ê, Í, Ó, Ô, Õ, Ú, Ü` (com glifo personalizado em VRAM para `Ü` em `0x9F`).
+- **Tecla [TAB]:** Abre janela centralizada estilo IBM-PC dos anos 1990 com moldura gráfica clássica do MSX, grade perfeitamente alinhada em ordem alfabética e navegação por setas do teclado.
+- **Tecla [SELECT]:** Menu interativo de configuração dos 10 atalhos instantâneos (`Shift+1`..`Shift+9` e `Shift+0`), com fluxo de duas fases via cursor.
+- **Otimização Inteligente pelo Compilador:** Análise estatística de frequência de caracteres no arquivo de história para definir os melhores atalhos de fábrica.
+- **Comandos de Suporte:** Reconhecimento canônico de `VERBOS` (lista vocabulário), `INSTRUCAO` (reexibe telas introdutórias) e `DICA` (orientações contextuais).
+
 ---
 
 ## 📚 Documentação e Aventuras Inclusas
 
-- **[manual.md](file:///e:/editadv/manual.md):** Manual técnico completo do usuário, arquitetura e especificação de todos os 45 bytecodes da VM.
+- **[manual.md](file:///e:/editadv/manual.md):** Manual técnico completo do usuário, arquitetura, acentuação e especificação dos 45 bytecodes da VM.
+- **[docs/editor_adventure.md](file:///e:/editadv/docs/editor_adventure.md):** Transcrição integral via OCR do manual original do *Sistema Editor de Adventures Versão 3.4 (1986)* de Renato Degiovani.
 - **[games/demo.yaml](file:///e:/editadv/games/demo.yaml):** Aventura de introdução ("O Templo Perdido").
+- **[games/amazonia.yaml](file:///e:/editadv/games/amazonia.yaml):** O clássico adventure nacional *Amazônia* (Renato Degiovani) totalmente transcrito e jogável.
 - **[games/mina_do_abismo.yaml](file:///e:/editadv/games/mina_do_abismo.yaml):** Aventura completa em 8 salas com temporizador de sede, salas escuras com vela e pederneira, recipiente Mochila, baú com chave e abismo com corda.
 - **[manual_do_jogador.md](file:///e:/editadv/manual_do_jogador.md):** Manual e guia de sobrevivência para os jogadores de *A Mina do Abismo*.
 - **[solucao_mina_do_abismo.md](file:///e:/editadv/solucao_mina_do_abismo.md):** Mapa completo de salas, tabela de registradores e passo a passo speedrun com backtracking para vencer o jogo.

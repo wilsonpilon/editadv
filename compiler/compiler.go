@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -281,7 +282,32 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 	}
 	cBuf.WriteString("};\n\n")
 
-	// 6. Estrutura Principal: Game_Database
+	// 6. Verbos Customizados
+	cBuf.WriteString("// --- Verbos Customizados ---\n")
+	if len(c.Game.Verbs) > 0 {
+		for i, v := range c.Game.Verbs {
+			fullName := v.FullName()
+			cBuf.WriteString(fmt.Sprintf("static const Game_Verb s_verb_%d = { %d, \"%s\" };\n",
+				i, v.ID, EscapeCStringMSX(fullName)))
+		}
+		cBuf.WriteString("static const Game_Verb* const s_verbs[] = {\n")
+		for i := range c.Game.Verbs {
+			cBuf.WriteString(fmt.Sprintf("    &s_verb_%d,\n", i))
+		}
+		cBuf.WriteString("};\n\n")
+	}
+
+	// 7. Atalhos de Acentos (Top 10 mais frequentes)
+	shortcuts := c.ComputeTopAccentedShortcuts()
+	cBuf.WriteString("// --- Atalhos de Acentos (Top 10 mais frequentes) ---\n")
+	cBuf.WriteString("static const u8 s_shortcuts[10] = {\n")
+	cBuf.WriteString(fmt.Sprintf("    0x%02X, // Shift+0\n", shortcuts[0]))
+	for k := 1; k <= 9; k++ {
+		cBuf.WriteString(fmt.Sprintf("    0x%02X, // Shift+%d\n", shortcuts[k], k))
+	}
+	cBuf.WriteString("};\n\n")
+
+	// 8. Estrutura Principal: Game_Database
 	initialPos := c.Game.Config.InitialPosition
 	if initialPos == 0 {
 		initialPos = 1
@@ -310,7 +336,14 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 	cBuf.WriteString("    s_functions,\n")
 	cBuf.WriteString(fmt.Sprintf("    %d,\n", len(c.Game.Functions)))
 	cBuf.WriteString("    s_messages,\n")
-	cBuf.WriteString(fmt.Sprintf("    %d\n", len(c.Game.Messages)))
+	cBuf.WriteString(fmt.Sprintf("    %d,\n", len(c.Game.Messages)))
+	if len(c.Game.Verbs) > 0 {
+		cBuf.WriteString("    s_verbs,\n")
+		cBuf.WriteString(fmt.Sprintf("    %d,\n", len(c.Game.Verbs)))
+	} else {
+		cBuf.WriteString("    NULL,\n    0,\n")
+	}
+	cBuf.WriteString("    s_shortcuts\n")
 	cBuf.WriteString("};\n")
 
 	// Grava os arquivos
@@ -319,3 +352,132 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 	}
 	return os.WriteFile(cPath, cBuf.Bytes(), 0644)
 }
+
+// ComputeTopAccentedShortcuts quantifica os 13 caracteres acentuados mais usados no jogo
+// e preenche os 10 atalhos Shift+0..9 em ordem decrescente de frequência.
+// Factory default: Shift 1..9 = Á, É, Í, Ó, Ú, Ã, Õ, Ê, Ô e Shift 0 = Ç.
+func (c *Compiler) ComputeTopAccentedShortcuts() [10]uint8 {
+	type AccentedChar struct {
+		Code    uint8
+		Name    string
+		Count   int
+		TieRank int
+	}
+
+	factoryOrder := []struct {
+		code uint8
+		name string
+	}{
+		{0x84, "Á"},
+		{0x90, "É"},
+		{0x89, "Í"},
+		{0x8A, "Ó"},
+		{0x8B, "Ú"},
+		{0xB0, "Ã"},
+		{0xB4, "Õ"},
+		{0x8D, "Ê"},
+		{0x8E, "Ô"},
+		{0x80, "Ç"},
+		{0x8F, "À"},
+		{0x8C, "Â"},
+		{0x9F, "Ü"},
+	}
+
+	counts := make(map[uint8]int)
+	for _, f := range factoryOrder {
+		counts[f.code] = 0
+	}
+
+	countRune := func(r rune) {
+		switch r {
+		case 'ç', 'Ç':
+			counts[0x80]++
+		case 'á', 'Á':
+			counts[0x84]++
+		case 'é', 'É', 'è', 'È':
+			counts[0x90]++
+		case 'í', 'Í', 'ì', 'Ì':
+			counts[0x89]++
+		case 'ó', 'Ó', 'ò', 'Ò':
+			counts[0x8A]++
+		case 'ú', 'Ú', 'ù', 'Ù':
+			counts[0x8B]++
+		case 'ã', 'Ã':
+			counts[0xB0]++
+		case 'õ', 'Õ':
+			counts[0xB4]++
+		case 'ê', 'Ê':
+			counts[0x8D]++
+		case 'ô', 'Ô':
+			counts[0x8E]++
+		case 'à', 'À':
+			counts[0x8F]++
+		case 'â', 'Â':
+			counts[0x8C]++
+		case 'ü', 'Ü':
+			counts[0x9F]++
+		}
+	}
+
+	scanText := func(s string) {
+		for _, r := range s {
+			countRune(r)
+		}
+	}
+
+	// 1. Posições
+	for _, p := range c.Game.Positions {
+		scanText(p.Description)
+	}
+	// 2. Objetos
+	for _, o := range c.Game.Objects {
+		scanText(o.Name)
+		for _, syn := range o.Synonyms {
+			scanText(syn)
+		}
+		scanText(o.Description)
+	}
+	// 3. Mensagens
+	for _, m := range c.Game.Messages {
+		scanText(m.Text)
+	}
+	// 4. Verbos
+	for _, v := range c.Game.Verbs {
+		scanText(v.Name)
+		for _, syn := range v.Synonyms {
+			scanText(syn)
+		}
+	}
+
+	var list []AccentedChar
+	for i, f := range factoryOrder {
+		list = append(list, AccentedChar{
+			Code:    f.code,
+			Name:    f.name,
+			Count:   counts[f.code],
+			TieRank: i,
+		})
+	}
+
+	// Ordena por maior frequência. Em caso de empate, mantém ordem de fábrica.
+	sort.SliceStable(list, func(i, j int) bool {
+		if list[i].Count != list[j].Count {
+			return list[i].Count > list[j].Count
+		}
+		return list[i].TieRank < list[j].TieRank
+	})
+
+	// Preenche atalhos:
+	// Top 1..9 vão para Shift 1..9 (índices 1 a 9)
+	// Top 10 vai para Shift 0 (índice 0)
+	var shortcuts [10]uint8
+	for i := 0; i < 9 && i < len(list); i++ {
+		shortcuts[i+1] = list[i].Code
+	}
+	if len(list) >= 10 {
+		shortcuts[0] = list[9].Code
+	}
+
+	return shortcuts
+}
+

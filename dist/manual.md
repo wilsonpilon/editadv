@@ -21,6 +21,9 @@
 10. [Guia do Editor TUI (edadv.exe)](#10-guia-do-editor-tui-edadvexe)
 11. [Guia do Compilador CLI (edadvc.exe)](#11-guia-do-compilador-cli-edadvcexe)
 12. [Compilação da ROM para MSX e Emulação](#12-compilação-da-rom-para-msx-e-emulação)
+13. [Sistema Avançado de Acentuação e Teclado MSX](#13-sistema-avançado-de-acentuação-e-teclado-msx)
+14. [Comandos Especiais do Jogador (Padrão Renato Degiovani 1986)](#14-comandos-especiais-do-jogador-padrão-renato-degiovani-1986)
+15. [Documentação Histórica & OCR do Manual Original](#15-documentação-histórica--ocr-do-manual-original)
 
 ---
 
@@ -137,11 +140,19 @@ Cada sala possui um identificador numérico de `1` a `99`, um nome curto, uma de
 
 - `Norte` (N)
 - `Sul` (S)
-- `Leste` (L)
-- `Oeste` (O)
+### Direções Suportadas (8 Pontos Cardeais e Colaterais):
+A engine aceita navegação pelas **8 direções cardeais e colaterais** com suporte a sinônimos em português e abreviações internacionais:
+- `Norte` (`N`, `NORTE`)
+- `Sul` (`S`, `SUL`)
+- `Leste` (`L`, `LESTE`, `E`, `ESTE`)
+- `Oeste` (`O`, `OESTE`, `W`, `WEST`)
+- `Nordeste` (`NE`, `NORDESTE`)
+- `Noroeste` (`NO`, `NOROESTE`, `NW`)
+- `Sudeste` (`SE`, `SUDESTE`)
+- `Sudoeste` (`SO`, `SUDOESTE`, `SW`)
 
 ### Valores Possíveis de Saída:
-- `0`: **Bloqueada.** O jogador não pode seguir nessa direção; exibe a **Mensagem 15**.
+- `0`: **Bloqueada.** O jogador não pode seguir nessa direção; exibe a **Mensagem 15** (*"Você não pode ir nessa direção."*).
 - `1 a 99`: **Saída Direta.** O jogador move-se imediatamente para a sala correspondente (`Reg 1 = Destino`) e o ambiente é redesenhado.
 - `> 100`: **Saída Condicional.** Dispara automaticamente a **Função (`Saída - 100`)**.
   - *Exemplo:* Uma saída configurada como `104` executa a **Função 4**, que pode verificar se o jogador possui a chave para abrir a porta antes de alterar `Reg 1`.
@@ -154,8 +165,8 @@ Cada objeto do jogo (identificadores `1` a `99`) possui nome, sinônimos, descri
 
 ### Objetos Reservados pelo Sistema:
 - **Objeto 1 (`LOCAL`):** Palavra reservada usada para examinar o ambiente atual (`OLHE LOCAL` ou `EXAMINE`).
-- **Objeto 2 (Fonte de Luz):** Lanterna, vela, tocha ou lampião. Seu estado é refletido no `Reg 10`.
-- **Objeto 3 (Recipiente):** Mala, saco, mochila ou baú. Pode conter outros itens do jogo (`Reg 7` controla o volume).
+- **Objeto 2 (Fonte de Luz):** Lanterna, vela, tocha ou lampião. Seu estado é refletido no `Reg 10` (0 = apagada, 1 = acesa).
+- **Objeto 3 (Recipiente):** Mochila, saco, mala ou baú. Pode conter outros itens do jogo (`Reg 7` controla a quantidade de itens guardados dentro dele).
 
 ### Tabela de Situação do Objeto:
 | Valor | Significado |
@@ -163,7 +174,7 @@ Cada objeto do jogo (identificadores `1` a `99`) possui nome, sinônimos, descri
 | `0` | Inexistente no mundo ou usado apenas como palavra sintática. |
 | `1 a 99` | Presente na respectiva sala (visível no chão ao examinar a sala). |
 | `101 a 199` | Presente na sala (`Situação - 100`), porém **oculto** (ex: chave sob o tapete). |
-| `250` | **Carregado pelo jogador** (no inventário / na mão). |
+| `250` | **Carregado pelo jogador** (na mão / inventário direto). |
 | `251` | Guardado dentro do Objeto 3 **aberto** (acessível para pegar/tirar). |
 | `253` | Guardado dentro do Objeto 3 **trancado / fechado** (inacessível). |
 
@@ -172,19 +183,25 @@ O comportamento do objeto frente às ações fundamentais do jogo é determinado
 
 | Bit | Hex | Ação Permitida | Função Padrão Disparada |
 |:---:|:---:|:---|:---|
-| `0` | `0x01` | Pode Pegar (*Take*) | **Função 6** |
-| `1` | `0x02` | Pode Guardar no Objeto 3 (*Put in*) | **Função 7** |
-| `2` | `0x04` | Pode Trocar (*Trade*) | **Função 8** |
-| `3` | `0x08` | Pode Comprar (*Buy*) | **Função 9** |
-| `4` | `0x10` | Pode Roubar (*Steal*) | **Função 10** |
-| `5` | `0x20` | Pode Tirar do Objeto 3 (*Remove*) | **Função 11** |
-| `6` | `0x40` | Pode Quebrar (*Break*) | **Função 12** |
+| `0` | `0x01` | Pode Pegar (*Take*) | **Função 6** (Padrão Pegar) |
+| `1` | `0x02` | Pode Guardar no Objeto 3 (*Put in*) | **Função 7** (Padrão Guardar) |
+| `2` | `0x04` | Pode Trocar (*Trade*) | **Função 8** (Padrão Trocar) |
+| `3` | `0x08` | Pode Comprar (*Buy*) | **Função 9** (Padrão Comprar) |
+| `4` | `0x10` | Pode Roubar (*Steal*) | **Função 10** (Padrão Roubar) |
+| `5` | `0x20` | Pode Tirar do Objeto 3 (*Remove*) | **Função 11** (Padrão Tirar) |
+| `6` | `0x40` | Pode Quebrar (*Break*) | **Função 12** (Padrão Quebrar) |
 
 Se o jogador tentar executar uma ação cujo bit correspondente seja `0`, o jogo responde automaticamente com a **Mensagem 16** (*"Não é possível fazer isso com este objeto."*).
 
+### Regras de Manipulação de Recipientes:
+- **`TEMOS` Expandido:** A instrução de máquina virtual `TEMOS` reconhece que o jogador tem o objeto em sua posse tanto se estiver diretamente na mão quanto se estiver guardado dentro da mochila carregada.
+- **Tirar Itens:** Objetos guardados no Objeto 3 podem ser retirados com `TIRE <objeto>` (Função 11) ou diretamente com `PEGUE <objeto>` (Função 6 avalia chão e container).
+- **Listar Conteúdo:** `EXAMINE MOCHILA` executa a instrução `DLIST` para mostrar tudo que está guardado.
+- **Controle de Capacidade:** O `Reg 7` é automaticamente mantido pela VM ao guardar (`POE`), retirar (`PEGA`) ou soltar (`SOLTA`).
+
 ---
 
-## 7. Analisador Sintático (Parser)
+## 7. Analisador Sintático (Parser) & Tabela de Caracteres Degiovani
 
 O parser da engine processa frases no formato:
 $$\text{[VERBO]} + \text{[OBJETO 1]} + \text{[OBJETO 2]}$$
@@ -193,12 +210,19 @@ $$\text{[VERBO]} + \text{[OBJETO 1]} + \text{[OBJETO 2]}$$
 1. **Palavras de Ruído Ignoradas:**  
    Artigos e preposições são automaticamente descartados: `O`, `A`, `OS`, `AS`, `UM`, `UMA`, `UNS`, `UMAS`, `DE`, `DO`, `DA`, `DOS`, `DAS`, `NO`, `NA`, `NOS`, `NAS`, `EM`, `COM`, `PARA`, `POR`, `AO`, `AOS`.
 2. **Sinônimos por Barra (`/`):**  
-   Verbos e objetos podem ter múltiplos sinônimos configurados na história separados por barra (ex: `PEGUE/PEGAR/TOME/CATE/APAPANHE`). O parser reconhece qualquer um deles e mapeia para o ID canônico.
-3. **Verbos Pré-definidos do Sistema (IDs 1 a 34):**
-   - Movimentação: `NORTE (1)`, `SUL (2)`, `LESTE (3)`, `OESTE (4)`, `SUBIR (5)`, `DESCER (6)`, `ENTRAR (7)`, `SAIR (8)`.
-   - Ações Fundamentais: `PEGAR (9)`, `LARGAR (10)`, `INVENTARIO (11)`, `EXAMINAR (12)`, `ABRIR (13)`, `FECHAR (14)`, `ACENDER (15)`, `APAGAR (16)`, `LEIA (17)`, `FALE (18)`.
-   - Ações do Byte de Consistência: `GUARDAR (19)`, `TROCAR (20)`, `COMPRAR (21)`, `ROUBAR (22)`, `TIRAR (23)`, `QUEBRAR (24)`.
-   - Utilitários: `AJUDA (25)`, `FIM (26)`, `SALVAR (27)`, `CARREGAR (28)`, etc.
+   Verbos e objetos podem ter múltiplos sinônimos configurados na história separados por barra (ex: `PEGUE/PEGAR/APANHE`). O parser reconhece qualquer um deles e mapeia para o ID canônico.
+3. **Verbos Padrão da Engine (IDs 1 a 40):**
+   - **Navegação (1 a 4 e 36 a 39):** `NORTE/N` (1), `SUL/S` (2), `LESTE/L/E/ESTE` (3), `OESTE/O/W/WEST` (4), `NORDESTE/NE` (36), `NOROESTE/NO/NW` (37), `SUDESTE/SE` (38), `SUDOESTE/SO/SW` (39).
+   - **Movimento Vertical & Portas:** `ENTRE/ABRA/DESTRANQUE` (7), `SUBA` (8), `SAIA` (9), `DESCA/DESCER` (10).
+   - **Sistema & Inventário:** `GRAVE` (5), `RECUPERE` (6), `HORAS` (11), `QUANTO` (12), `TEMOS/INV/I` (13), `RECOMECE/REINICIE` (14), `HA` (15).
+   - **Interação Padrão:** `PEGUE` (20), `COLOQUE/PONHA/GUARDE` (21), `TROQUE` (22), `COMPRE` (23), `ROUBE` (24), `TIRE` (25), `QUEBRE` (26), `SOLTE/LARGUE/DEIXE` (27), `EXAMINE/OLHE/VER/EX` (28), `PROCURE/BUSQUE` (29), `OFERECA/DOE/DE` (30), `FACA/ACENDA/RISQUE` (31), `JOGUE/ATIRE` (32), `CONSERTE/REPARE` (33), `VENDA` (34), `BEBA/BEBER/TOME/TOMAR` (35), `ENCHA/ENCHER/ABASTECA` (40).
+
+### Tabela de Caracteres da Fonte Degiovani (Screen 0 / VRAM):
+A fonte gráfica original de Renato Degiovani (`vram.dat` / `vram.scr`) possui reorganização de glifos no padrão MSX:
+- **Exclamação (`!`):** O código ASCII `0x21` é ocupado pelo caractere `Á`. A exclamação genuína fica no código `0x5B` (caractere `[` padrão). O compilador e o decodificador UTF-8 mapeiam automaticamente `'!'` para `\133` (0x5B).
+- **Acentos em Português:** Vogais acentuadas e cedilha são mapeadas para os glifos gráficos do VRAM (`á, é, í, ó, ú, â, ê, ô, ã, õ, ç` e maiúsculas correspondentes). O caractere `õ` minúsculo está alocado em `0xB6` e `Õ` em `0xB5`.
+- **Bordas de Tela:** Coluna 2 usa o marcador vertical `0x18`. A divisória superior usa a meia-barra inferior `0x1B`. A divisória inferior usa a meia-barra superior `0x1A`.
+- **Debounce de Teclado:** A rotina de entrada do MSX (`UI_ReadLine`) lê a matriz de teclado `NEWKEY` nas linhas 0 a 8 e aguarda ativamente a liberação física da tecla antes de processar o próximo caractere, eliminando duplicatas e repetições involuntárias.
 
 ---
 
@@ -425,3 +449,63 @@ openmsx -machine MSX1 -cart MSXgl/projects/advent/out/advent.rom
 
 #### 4. Hardware Real (MSX1, MSX2, MSX2+, MSX turbo R)
 - Copie `advent.rom` para cartuchos regraváveis como Carnivore2, MegaFlashROM SCC+, Rookie Drive ou MFR.
+
+---
+
+## 13. Sistema Avançado de Acentuação e Teclado MSX
+
+O sistema implementa uma solução ergonômica e autêntica para o suporte a acentos no padrão MSX (Screen 0, 40 colunas), permitindo que o jogador digite caracteres da língua portuguesa com rapidez e conforto.
+
+### As 13 Letras Acentuadas
+A engine dá suporte a todo o conjunto essencial da língua portuguesa em letras maiúsculas:
+$$\text{À, Á, Â, Ã, Ç, É, Ê, Í, Ó, Ô, Õ, Ú, Ü}$$
+
+*O caractere `Ü` maiúsculo recebeu um glifo personalizado desenhado em VRAM (código `0x9F`), substituindo o caractere de libra esterlina da ROM padrão do MSX.*
+
+### 1. Inserção Rápida: Tecla [TAB]
+A qualquer momento durante a digitação de um comando, pressionar **[TAB]** abre uma janela de diálogo clássica centralizada na tela:
+- **Moldura Gráfica IBM-PC / MSX:** Desenhada com caracteres semigráficos (`0x81`, `0x9A`, `0xA6`, `0xA7`, `0x5F`, `0x5E`), proporcionando o visual limpo dos utilitários dos anos 1990.
+- **Ordem Alfabética Estrita:** As 13 letras são dispostas em uma grade de 5 colunas perfeitamente alinhadas:
+  ```text
+  À      Á      Â      Ã      Ç
+  É      Ê      Í      Ó      Ô
+  Õ      Ú      Ü
+  ```
+- **Navegação Interativa:** O jogador move o cursor entre as letras usando as **setas direcionais** ($\leftarrow, \rightarrow, \uparrow, \downarrow$). O cursor é indicado visualmente por colchetes (ex: `[Á]`).
+- **Confirmação:** Pressionar **ENTER** insere o caractere escolhido na linha de comando e fecha a janela. Pressionar **ESC** cancela.
+
+### 2. Configuração de Atalhos: Tecla [SELECT]
+Para digitar sem abrir menus, o jogador dispõe de 10 atalhos instantâneos: **Shift+1** até **Shift+9** e **Shift+0**.
+
+Pressionar **[SELECT]** abre a tela de configuração personalizada em dois níveis:
+1. **Fase 1 (Quadro Inferior - Atalhos):**
+   - O cursor percorre os 10 atalhos existentes (ex: `[1:Á]`, `[2:É]`, etc.).
+   - O jogador navega com as setas até o atalho que deseja reconfigurar e pressiona **ENTER** (ou digita diretamente o número `1` a `0`).
+2. **Fase 2 (Quadro Superior - Tabela de Acentos):**
+   - O atalho escolhido permanece realçado como `>1:Á<` e o foco passa para a grade de acentos.
+   - O jogador navega com as setas até a nova letra desejada e pressiona **ENTER**.
+   - A alteração tem efeito imediato durante a partida.
+   - Pressionar **ESC** retorna ao jogo.
+
+### 3. Otimização Inteligente pelo Compilador
+Ao compilar a história (`.yaml`), o compilador Go analisa estatisticamente a frequência de cada letra acentuada no vocabulário e textos do jogo. Os 10 atalhos padrão de fábrica já vêm pré-configurados com os acentos mais usados daquela aventura específica.
+
+---
+
+## 14. Comandos Especiais do Jogador (Padrão Renato Degiovani 1986)
+
+Além dos comandos narrativos do mundo (`PEGUE`, `SOLTE`, `EXAMINE`, etc.), a engine reconhece comandos canônicos de suporte ao jogador:
+
+- **`VERBO` ou `VERBOS`:** Lista na tela todos os verbos compreendidos pelo analisador sintático do jogo atual, auxiliando o jogador a entender o escopo de ações possíveis.
+- **`INSTRUCAO` ou `INSTRUCOES`:** Reexibe a tela inicial com as regras gerais do jogo e convenções de movimentação.
+- **`DICA` ou `DICAS`:** Fornece orientações ou pistas contextuais preparadas pelo autor do adventure para destravar situações de empasse.
+
+---
+
+## 15. Documentação Histórica & OCR do Manual Original
+
+Para pesquisadores, desenvolvedores e entusiastas da história da informática brasileira, o manual original de 1986 (*"Sistema Editor de Adventures Versão 3.4"* por Renato Degiovani) foi integralmente transcrito e digitalizado via OCR, preservando todas as seções técnicas, registradores e o jogo de exemplo *MANSÃO*.
+
+Consulte o documento completo em:
+📄 **[docs/editor_adventure.md](docs/editor_adventure.md)**
+

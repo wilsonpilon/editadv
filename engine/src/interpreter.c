@@ -13,19 +13,19 @@ static u8 GetRandom8(void) { s_rnd = (s_rnd * 17 + 53); return s_rnd; }
 // Mensagens padrão do sistema (Capítulo 9.2)
 static const char* const g_SystemMessages[] = {
     "",                                                                         // 0
-    "", "", "", "", "", "", "", "", "", "",                                     // 1..10
-    "Bem-vindo à aventura!",                                                    // 11: MSG_INTRO
-    "Achei o que você queria.",                                                 // 12: MSG_ACHEI
-    "Está muito escuro aqui. É melhor arranjar alguma luz ou teremos problemas.", // 13: MSG_ESCURO
-    "Perdão, não entendi...",                                                   // 14: MSG_NAO_ENTENDI
-    "É impossível ir nesta direção.",                                           // 15: MSG_MOVIMENTO_INVALIDO
-    "Isto não é possível.",                                                     // 16: MSG_NAO_POSSIVEL
-    "Nós não temos isso.",                                                      // 17: MSG_NAO_TEMOS
-    "Nós já temos isso.",                                                       // 18: MSG_JA_TEMOS
-    "Eu não estou vendo isso por aqui.",                                        // 19: MSG_NAO_ESTOU_VENDO
-    "É apenas um objeto comum.",                                                // 20: MSG_OBJETO_COMUM
-    "Não dá para carregar mais nada.",                                          // 21: MSG_CARGA_MAXIMA
-    "Não cabe mais nada dentro."                                                // 22: MSG_OBJ3_LOTADO
+    "", "", "", "", "", "", "", "", "",                                         // 1..9
+    "Bem-vindo à aventura!",                                                    // 10: MSG_INTRO
+    "Achei o que você queria.",                                                 // 11: MSG_ACHEI
+    "Está muito escuro aqui. É melhor arranjar alguma luz ou teremos problemas.", // 12: MSG_ESCURO
+    "Perdão, não entendi...",                                                   // 13: MSG_NAO_ENTENDI
+    "É impossível ir nesta direção.",                                           // 14: MSG_MOVIMENTO_INVALIDO
+    "Isto não é possível.",                                                     // 15: MSG_NAO_POSSIVEL
+    "Nós não temos isso.",                                                      // 16: MSG_NAO_TEMOS
+    "Nós já temos isso.",                                                       // 17: MSG_JA_TEMOS
+    "Eu não estou vendo isso por aqui.",                                        // 18: MSG_NAO_ESTOU_VENDO
+    "É apenas um objeto comum.",                                                // 19: MSG_OBJETO_COMUM
+    "Não dá para carregar mais nada.",                                          // 20: MSG_CARGA_MAXIMA
+    "Não cabe mais nada dentro."                                                // 21: MSG_OBJ3_LOTADO
 };
 
 // -----------------------------------------------------------------------------
@@ -45,8 +45,8 @@ const char* Interpreter_GetMessageText(u8 msg_id, const Game_Database* db)
             }
         }
     }
-    // Caso não encontre mensagem customizada, usa as mensagens de sistema (11..22)
-    if (msg_id >= 11 && msg_id <= 22)
+    // Caso não encontre mensagem customizada, usa as mensagens de sistema (10..21)
+    if (msg_id >= 10 && msg_id <= 21)
     {
         return g_SystemMessages[msg_id];
     }
@@ -115,6 +115,34 @@ void Interpreter_DescribeCurrentRoom(const Game_Database* db, Game_State* state)
     if (pos != NULL && pos->desc != NULL)
     {
         UI_PrintCenter(pos->desc);
+        UI_NewLineCenter();
+    }
+
+    // Saídas visíveis da posição
+    if (pos != NULL)
+    {
+        static const char* const dir_names[DIR_COUNT] = { "NORTE", "SUL", "LESTE", "OESTE" };
+        bool has_exit = FALSE;
+        u8 d;
+
+        UI_NewLineCenter();
+        UI_PrintCenter("Sa\241das vis\241veis: ");
+        for (d = 0; d < DIR_COUNT; d++)
+        {
+            if (pos->saidas[d] != 0)
+            {
+                if (has_exit)
+                {
+                    UI_PrintCenter(", ");
+                }
+                UI_PrintCenter(dir_names[d]);
+                has_exit = TRUE;
+            }
+        }
+        if (!has_exit)
+        {
+            UI_PrintCenter("NENHUMA");
+        }
         UI_NewLineCenter();
     }
 
@@ -194,6 +222,12 @@ void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const G
                 break;
 
             case OP_NVC:
+                // Se a próxima instrução for de término (FIM ou NEU), apenas insere nova linha e avança
+                if (pc + 1 < count && (instructions[pc + 1].op == OP_FIM || instructions[pc + 1].op == OP_NEU))
+                {
+                    UI_NewLineCenter();
+                    break;
+                }
                 state->flag_espera_cmd = TRUE;
                 return;
 
@@ -552,7 +586,17 @@ void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const G
                 continue;
 
             case OP_PAUSA:
-                UI_PauseSeconds(p1);
+                if (p1 == 0)
+                {
+                    UI_NewLineCenter();
+                    UI_PrintCenter("[ Pressione uma tecla ]");
+                    UI_WaitKey();
+                    UI_ClearCenter();
+                }
+                else
+                {
+                    UI_PauseSeconds(p1);
+                }
                 break;
 
             case OP_FLAG:

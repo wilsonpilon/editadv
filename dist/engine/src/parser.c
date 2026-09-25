@@ -28,11 +28,11 @@ static const char* const g_DefaultVerbs[NUM_DEFAULT_VERBS] = {
     "DESCA/DESCER",
     "HORAS",
     "QUANTO",
-    "TEMOS/INV/I",
-    "RECOMECE/REINICIE",
+    "TEMOS/INV/I/INVENTARIO/INVENTARIO",
+    "RECOMECE/REINICIE/REINICIAR/RESTART",
     "HA",
     "GARIMPE",
-    "PENSE",
+    "PENSE/PENSAR/DICA/DICAS/AJUDA",
     "GRITE",
     "CORRA",
     "PEGUE/PEGAR/APANHE",
@@ -75,8 +75,8 @@ static char NormalizeChar(char c)
     // O acentuado (Ó, ó, Ô, ô, Õ, õ)
     if (uc == 0x8A || uc == 0xA2 || uc == 0x8E || uc == 0x93 || uc == 0xB4 || uc == 0xB5 || uc == 0x95 ||
         uc == 0xD3 || uc == 0xF3 || uc == 0xD4 || uc == 0xF4 || uc == 0xD5 || uc == 0xF5) return 'O';
-    // U acentuado (Ú, ú)
-    if (uc == 0x8B || uc == 0xA3 || uc == 0xDA || uc == 0xFA) return 'U';
+    // U acentuado (Ú, ú, Ü, ü)
+    if (uc == 0x8B || uc == 0xA3 || uc == 0xDA || uc == 0xFA || uc == 0x81 || uc == 0x9A || uc == 0xDC || uc == 0xFC || uc == 0x9F) return 'U';
     // Letras minúsculas normais
     if (uc >= 'a' && uc <= 'z') return (char)(uc - ('a' - 'A'));
     return c;
@@ -171,9 +171,27 @@ bool Parser_IsNoiseWord(const char* word)
 // -----------------------------------------------------------------------------
 // Parser_FindVerb
 // -----------------------------------------------------------------------------
-static u8 Parser_FindVerb(const char* word)
+static u8 Parser_FindVerb(const char* word, const Game_Database* db)
 {
     u8 i;
+
+    // 1. Checa verbos customizados do banco de dados primeiro
+    if (db != NULL && db->verbos != NULL)
+    {
+        for (i = 0; i < db->num_verbos; i++)
+        {
+            const Game_Verb* v = db->verbos[i];
+            if (v != NULL && v->nome != NULL)
+            {
+                if (MatchWord(word, v->nome))
+                {
+                    return v->id;
+                }
+            }
+        }
+    }
+
+    // 2. Checa tabela de verbos padrão do sistema
     for (i = 0; i < NUM_DEFAULT_VERBS; i++)
     {
         if (MatchWord(word, g_DefaultVerbs[i]))
@@ -181,6 +199,7 @@ static u8 Parser_FindVerb(const char* word)
             return (i + 1);
         }
     }
+
     return 0;
 }
 
@@ -254,13 +273,30 @@ bool Parser_Parse(const char* input, const Game_Database* db, Game_State* state,
         // Primeira palavra significativa: VERBO
         if (meaningful_words == 0)
         {
-            state->verbo_atual = Parser_FindVerb(word);
+            state->verbo_atual = Parser_FindVerb(word, db);
             meaningful_words++;
 
             if (parsed_echo != NULL && state->verbo_atual > 0)
             {
-                // Copia o primeiro nome do verbo para o eco
-                const char* vname = g_DefaultVerbs[state->verbo_atual - 1];
+                // Obtém o nome canônico do verbo (customizado ou padrão)
+                const char* vname = "";
+                if (db != NULL && db->verbos != NULL)
+                {
+                    u8 vi;
+                    for (vi = 0; vi < db->num_verbos; vi++)
+                    {
+                        if (db->verbos[vi] != NULL && db->verbos[vi]->id == state->verbo_atual)
+                        {
+                            vname = db->verbos[vi]->nome;
+                            break;
+                        }
+                    }
+                }
+                if (vname[0] == '\0' && state->verbo_atual <= NUM_DEFAULT_VERBS)
+                {
+                    vname = g_DefaultVerbs[state->verbo_atual - 1];
+                }
+
                 u8 k = 0;
                 while (vname[k] && vname[k] != '/' && k < (echo_max_len - 1))
                 {

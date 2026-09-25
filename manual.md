@@ -21,6 +21,9 @@
 10. [Guia do Editor TUI (edadv.exe)](#10-guia-do-editor-tui-edadvexe)
 11. [Guia do Compilador CLI (edadvc.exe)](#11-guia-do-compilador-cli-edadvcexe)
 12. [Compilação da ROM para MSX e Emulação](#12-compilação-da-rom-para-msx-e-emulação)
+13. [Sistema Avançado de Acentuação e Teclado MSX](#13-sistema-avançado-de-acentuação-e-teclado-msx)
+14. [Comandos Especiais do Jogador (Padrão Renato Degiovani 1986)](#14-comandos-especiais-do-jogador-padrão-renato-degiovani-1986)
+15. [Documentação Histórica & OCR do Manual Original](#15-documentação-histórica--ocr-do-manual-original)
 
 ---
 
@@ -446,3 +449,63 @@ openmsx -machine MSX1 -cart MSXgl/projects/advent/out/advent.rom
 
 #### 4. Hardware Real (MSX1, MSX2, MSX2+, MSX turbo R)
 - Copie `advent.rom` para cartuchos regraváveis como Carnivore2, MegaFlashROM SCC+, Rookie Drive ou MFR.
+
+---
+
+## 13. Sistema Avançado de Acentuação e Teclado MSX
+
+O sistema implementa uma solução ergonômica e autêntica para o suporte a acentos no padrão MSX (Screen 0, 40 colunas), permitindo que o jogador digite caracteres da língua portuguesa com rapidez e conforto.
+
+### As 13 Letras Acentuadas
+A engine dá suporte a todo o conjunto essencial da língua portuguesa em letras maiúsculas:
+$$\text{À, Á, Â, Ã, Ç, É, Ê, Í, Ó, Ô, Õ, Ú, Ü}$$
+
+*O caractere `Ü` maiúsculo recebeu um glifo personalizado desenhado em VRAM (código `0x9F`), substituindo o caractere de libra esterlina da ROM padrão do MSX.*
+
+### 1. Inserção Rápida: Tecla [TAB]
+A qualquer momento durante a digitação de um comando, pressionar **[TAB]** abre uma janela de diálogo clássica centralizada na tela:
+- **Moldura Gráfica IBM-PC / MSX:** Desenhada com caracteres semigráficos (`0x81`, `0x9A`, `0xA6`, `0xA7`, `0x5F`, `0x5E`), proporcionando o visual limpo dos utilitários dos anos 1990.
+- **Ordem Alfabética Estrita:** As 13 letras são dispostas em uma grade de 5 colunas perfeitamente alinhadas:
+  ```text
+  À      Á      Â      Ã      Ç
+  É      Ê      Í      Ó      Ô
+  Õ      Ú      Ü
+  ```
+- **Navegação Interativa:** O jogador move o cursor entre as letras usando as **setas direcionais** ($\leftarrow, \rightarrow, \uparrow, \downarrow$). O cursor é indicado visualmente por colchetes (ex: `[Á]`).
+- **Confirmação:** Pressionar **ENTER** insere o caractere escolhido na linha de comando e fecha a janela. Pressionar **ESC** cancela.
+
+### 2. Configuração de Atalhos: Tecla [SELECT]
+Para digitar sem abrir menus, o jogador dispõe de 10 atalhos instantâneos: **Shift+1** até **Shift+9** e **Shift+0**.
+
+Pressionar **[SELECT]** abre a tela de configuração personalizada em dois níveis:
+1. **Fase 1 (Quadro Inferior - Atalhos):**
+   - O cursor percorre os 10 atalhos existentes (ex: `[1:Á]`, `[2:É]`, etc.).
+   - O jogador navega com as setas até o atalho que deseja reconfigurar e pressiona **ENTER** (ou digita diretamente o número `1` a `0`).
+2. **Fase 2 (Quadro Superior - Tabela de Acentos):**
+   - O atalho escolhido permanece realçado como `>1:Á<` e o foco passa para a grade de acentos.
+   - O jogador navega com as setas até a nova letra desejada e pressiona **ENTER**.
+   - A alteração tem efeito imediato durante a partida.
+   - Pressionar **ESC** retorna ao jogo.
+
+### 3. Otimização Inteligente pelo Compilador
+Ao compilar a história (`.yaml`), o compilador Go analisa estatisticamente a frequência de cada letra acentuada no vocabulário e textos do jogo. Os 10 atalhos padrão de fábrica já vêm pré-configurados com os acentos mais usados daquela aventura específica.
+
+---
+
+## 14. Comandos Especiais do Jogador (Padrão Renato Degiovani 1986)
+
+Além dos comandos narrativos do mundo (`PEGUE`, `SOLTE`, `EXAMINE`, etc.), a engine reconhece comandos canônicos de suporte ao jogador:
+
+- **`VERBO` ou `VERBOS`:** Lista na tela todos os verbos compreendidos pelo analisador sintático do jogo atual, auxiliando o jogador a entender o escopo de ações possíveis.
+- **`INSTRUCAO` ou `INSTRUCOES`:** Reexibe a tela inicial com as regras gerais do jogo e convenções de movimentação.
+- **`DICA` ou `DICAS`:** Fornece orientações ou pistas contextuais preparadas pelo autor do adventure para destravar situações de empasse.
+
+---
+
+## 15. Documentação Histórica & OCR do Manual Original
+
+Para pesquisadores, desenvolvedores e entusiastas da história da informática brasileira, o manual original de 1986 (*"Sistema Editor de Adventures Versão 3.4"* por Renato Degiovani) foi integralmente transcrito e digitalizado via OCR, preservando todas as seções técnicas, registradores e o jogo de exemplo *MANSÃO*.
+
+Consulte o documento completo em:
+📄 **[docs/editor_adventure.md](docs/editor_adventure.md)**
+

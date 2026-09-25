@@ -1,19 +1,19 @@
-======================================================================
+﻿======================================================================
   EDITOR DE ADVENTURES - MSX Clean-Room Edition
   Desenvolvido em Go (PC) e C / MSXgl (MSX)
 ======================================================================
 
 COMO EXECUTAR:
-  1. Dê dois cliques em 'iniciar.bat' (ou execute 'edadv.exe' no terminal).
-  2. O editor abrirá a aventura de demonstração 'games/demo.yaml'.
+  1. DÃª dois cliques em 'iniciar.bat' (ou execute 'edadv.exe' no terminal).
+  2. O editor abrirÃ¡ a aventura de demonstraÃ§Ã£o 'games/demo.yaml'.
 
 ATALHOS DE TECLADO (Interface Estilo Turbo Vision):
-  [1]           : Aba de Salas e Mapa de Conexões
-  [2]           : Aba de Objetos e Byte de Consistência
-  [3]           : Aba de Comandos e Instruções Bytecode
+  [1]           : Aba de Salas e Mapa de ConexÃµes
+  [2]           : Aba de Objetos e Byte de ConsistÃªncia
+  [3]           : Aba de Comandos e InstruÃ§Ãµes Bytecode
   [4]           : Aba de Mensagens
-  [5]           : Aba de Build e Compilação
-  [Tab]         : Alternar foco entre listas e formulários
+  [5]           : Aba de Build e CompilaÃ§Ã£o
+  [Tab]         : Alternar foco entre listas e formulÃ¡rios
   [Enter]       : Editar ou selecionar item
   [F1]          : Ajuda na tela
   [F2]          : Salvar aventura em arquivo YAML
@@ -24,9 +24,9 @@ ATALHOS DE TECLADO (Interface Estilo Turbo Vision):
 ESTRUTURA DE PASTAS:
   - edadv.exe   : Editor TUI Interativo
   - edadvc.exe  : Compilador de Linha de Comando (CLI)
-  - games/      : Histórias em formato YAML ou JSON
-  - engine/src/ : Código-fonte da Engine em C para MSX
-  - iniciar.bat : Atalho rápido para iniciar o editor
+  - games/      : HistÃ³rias em formato YAML ou JSON
+  - engine/src/ : CÃ³digo-fonte da Engine em C para MSX
+  - iniciar.bat : Atalho rÃ¡pido para iniciar o editor
 
 LINHA DE COMANDO:
   edadv.exe -f games/sua_historia.yaml
