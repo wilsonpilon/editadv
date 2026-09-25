@@ -13,18 +13,19 @@
     #include <ctype.h>
 #endif
 
-// Tabela de nomes padrão dos 34 verbos pré-definidos do sistema (Capítulo 4.1)
-static const char* const g_DefaultVerbs[34] = {
+// Tabela de nomes padrão dos verbos do sistema (Capítulo 4.1 + 8 Direções Cardeais)
+#define NUM_DEFAULT_VERBS 40
+static const char* const g_DefaultVerbs[NUM_DEFAULT_VERBS] = {
     "NORTE/N",
     "SUL/S",
-    "LESTE/L",
-    "OESTE/O",
+    "LESTE/L/E/ESTE",
+    "OESTE/O/W/WEST",
     "GRAVE",
     "RECUPERE",
-    "ENTRE",
+    "ENTRE/ABRA/DESTRANQUE",
     "SUBA",
     "SAIA",
-    "DESCA",
+    "DESCA/DESCER",
     "HORAS",
     "QUANTO",
     "TEMOS/INV/I",
@@ -35,21 +36,51 @@ static const char* const g_DefaultVerbs[34] = {
     "GRITE",
     "CORRA",
     "PEGUE/PEGAR/APANHE",
-    "COLOQUE/PONHA/GUARDE",
+    "COLOQUE/PONHA/GUARDE/USE/AMARRE",
     "TROQUE",
     "COMPRE",
     "ROUBE",
     "TIRE",
     "QUEBRE",
     "SOLTE/LARGUE/DEIXE",
-    "EXAMINE/OLHE/VER/L",
+    "EXAMINE/OLHE/VER/EX",
     "PROCURE/BUSQUE",
     "OFERECA/DOE/DE",
-    "FACA/CONSTRUA",
+    "FACA/CONSTRUA/ACENDA/RISQUE",
     "JOGUE/ATIRE",
     "CONSERTE/REPARE",
-    "VENDA"
+    "VENDA",
+    "BEBA/BEBER/TOME/TOMAR",
+    "NORDESTE/NE",
+    "NOROESTE/NO/NW",
+    "SUDESTE/SE",
+    "SUDOESTE/SO/SW",
+    "ENCHA/ENCHER/ABASTECA"
 };
+
+// Normaliza caracteres acentuados e cedilha para comparação case-insensitive
+static char NormalizeChar(char c)
+{
+    u8 uc = (u8)c;
+    // Cedilha (Ç, ç, Latin-1 e CP437)
+    if (uc == 0x80 || uc == 0x87 || uc == 0xC7 || uc == 0xE7) return 'C';
+    // A acentuado (Á, á, À, à, Ã, ã, Â, â)
+    if (uc == 0x84 || uc == 0xA0 || uc == 0x8F || uc == 0x85 || uc == 0xB0 || uc == 0xB1 || uc == 0x8C || uc == 0x83 ||
+        uc == 0xC1 || uc == 0xE1 || uc == 0xC0 || uc == 0xE0 || uc == 0xC3 || uc == 0xE3 || uc == 0xC2 || uc == 0xE2) return 'A';
+    // E acentuado (É, é, Ê, ê)
+    if (uc == 0x90 || uc == 0x82 || uc == 0x8D || uc == 0x88 ||
+        uc == 0xC9 || uc == 0xE9 || uc == 0xCA || uc == 0xEA) return 'E';
+    // I acentuado (Í, í)
+    if (uc == 0x89 || uc == 0xA1 || uc == 0xCD || uc == 0xED) return 'I';
+    // O acentuado (Ó, ó, Ô, ô, Õ, õ)
+    if (uc == 0x8A || uc == 0xA2 || uc == 0x8E || uc == 0x93 || uc == 0xB4 || uc == 0xB5 || uc == 0x95 ||
+        uc == 0xD3 || uc == 0xF3 || uc == 0xD4 || uc == 0xF4 || uc == 0xD5 || uc == 0xF5) return 'O';
+    // U acentuado (Ú, ú)
+    if (uc == 0x8B || uc == 0xA3 || uc == 0xDA || uc == 0xFA) return 'U';
+    // Letras minúsculas normais
+    if (uc >= 'a' && uc <= 'z') return (char)(uc - ('a' - 'A'));
+    return c;
+}
 
 // Compara uma palavra com uma lista de sinônimos separados por barra: "NOME/SIN1/SIN2"
 static bool MatchWord(const char* word, const char* synonyms)
@@ -76,7 +107,7 @@ static bool MatchWord(const char* word, const char* synonyms)
             bool match = TRUE;
             for (i = 0; i < wlen; i++)
             {
-                if (word[i] != start[i])
+                if (NormalizeChar(word[i]) != NormalizeChar(start[i]))
                 {
                     match = FALSE;
                     break;
@@ -123,7 +154,7 @@ static void StrCat(char* dest, const char* src, u8 max_len)
 bool Parser_IsNoiseWord(const char* word)
 {
     static const char* const noise[] = {
-        "A", "O", "AS", "OS", "UM", "UMA", "UNS", "UMAS",
+        "AS", "OS", "UM", "UMA", "UNS", "UMAS",
         "DE", "DO", "DA", "DOS", "DAS",
         "EM", "NO", "NA", "NOS", "NAS",
         "PARA", "PRA", "COM", "POR", NULL
@@ -143,7 +174,7 @@ bool Parser_IsNoiseWord(const char* word)
 static u8 Parser_FindVerb(const char* word)
 {
     u8 i;
-    for (i = 0; i < 34; i++)
+    for (i = 0; i < NUM_DEFAULT_VERBS; i++)
     {
         if (MatchWord(word, g_DefaultVerbs[i]))
         {

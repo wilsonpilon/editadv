@@ -36,19 +36,28 @@
 // - CAMPO CENTRAL: Descrições de posições, objetos e mensagens de resposta.
 // - CAMPO INFERIOR: Entrada interativa de comandos do jogador.
 // =============================================================================
-#define SCREEN_TEXT_WIDTH           40      // Modo texto Screen 0 padrão (ou 32 no Screen 1)
-#define SCREEN_TEXT_HEIGHT          24
+#define SCREEN_TEXT_WIDTH           40      // Modo texto Screen 0 padrão (40 colunas)
+#define SCREEN_TEXT_HEIGHT          24      // 24 linhas
 
-#define SCREEN_ROW_TOP_START        0       // Linha inicial do Campo Superior
-#define SCREEN_ROW_TOP_END          0       // Linha final do Campo Superior
+#define SCREEN_ROW_TOP_START        0       // Linha do Campo Superior (Título e Eco)
+#define SCREEN_ROW_TOP_END          0
 #define SCREEN_ROW_DIVIDER_1        1       // Barra divisória superior horizontal
 
 #define SCREEN_ROW_CENTER_START     2       // Linha inicial do Campo Central
-#define SCREEN_ROW_CENTER_END       20      // Linha final do Campo Central
-#define SCREEN_ROW_DIVIDER_2        21      // Barra divisória inferior horizontal
+#define SCREEN_ROW_CENTER_END       21      // Linha final do Campo Central (linhas 2 a 21)
+#define SCREEN_ROW_DIVIDER_2        22      // Barra divisória inferior horizontal
 
-#define SCREEN_ROW_BOTTOM_START     22      // Linha inicial do Campo Inferior (Prompt)
-#define SCREEN_ROW_BOTTOM_END       23      // Linha final do Campo Inferior
+#define SCREEN_ROW_BOTTOM_START     23      // Linha do Campo Inferior (Prompt / Comandos)
+#define SCREEN_ROW_BOTTOM_END       23
+
+#define SCREEN_MARGIN_LEFT          2       // Margem esquerda da área de texto útil (coluna 2)
+#define SCREEN_MARGIN_RIGHT         37      // Margem direita da área de texto útil (coluna 37)
+#define SCREEN_BAR_WIDTH            36      // 36 caracteres de barra divisória (colunas 2 a 37)
+
+#define SCREEN_CHAR_MARKER          0x18    // Marcador vertical na coluna 2 (linhas 0 e 23)
+#define SCREEN_CHAR_DIVIDER_TOP     0x1B    // Meia-barra inferior usada na linha 1 (colunas 2 a 37)
+#define SCREEN_CHAR_DIVIDER_BOTTOM  0x1A    // Meia-barra superior usada na linha 22 (colunas 2 a 37)
+
 
 // =============================================================================
 // 2. REGISTRADORES (Capítulo 3)
@@ -127,7 +136,13 @@ typedef enum {
     VERBO_JOGUE        = 32,
     VERBO_CONSERTE     = 33,
     VERBO_VENDA        = 34,
-    VERBO_CUSTOM_START = 35
+    VERBO_BEBA         = 35,
+    VERBO_NORDESTE     = 36,
+    VERBO_NOROESTE     = 37,
+    VERBO_SUDESTE      = 38,
+    VERBO_SUDOESTE     = 39,
+    VERBO_ENCHA        = 40,
+    VERBO_CUSTOM_START = 41
 } Game_VerbId;
 
 // =============================================================================
@@ -172,10 +187,10 @@ typedef struct {
 } Game_Object;
 
 // =============================================================================
-// 5. POSIÇÕES / SALAS (Capítulo 6)
+// 5. POSIÇÕES / SALAS (Capítulo 6 - Suporte a 8 Pontos Cardeais)
 // =============================================================================
 // O sistema suporta até 99 posições indexadas de 1 a 99.
-// Cada sala possui 4 saídas cardeais na ordem N / S / L / O.
+// Cada sala possui 8 saídas cardeais na ordem N / S / L / O / NE / NO / SE / SO.
 // Regras das saídas:
 // - 0: Sem passagem naquela direção (emite mensagem MSG 15: "É impossível ir...")
 // - 1 a 99: Passagem direta para a posição correspondente (Reg 1 = valor).
@@ -185,16 +200,20 @@ typedef struct {
 #define POSICAO_COND_OFFSET         100
 
 typedef enum {
-    DIR_NORTE = 0,
-    DIR_SUL   = 1,
-    DIR_LESTE = 2,
-    DIR_OESTE = 3,
-    DIR_COUNT = 4
+    DIR_NORTE    = 0,
+    DIR_SUL      = 1,
+    DIR_LESTE    = 2,
+    DIR_OESTE    = 3,
+    DIR_NORDESTE = 4,
+    DIR_NOROESTE = 5,
+    DIR_SUDESTE  = 6,
+    DIR_SUDOESTE = 7,
+    DIR_COUNT    = 8
 } Game_Direction;
 
 typedef struct {
     u8          id;                 // Identificador da posição (1..99)
-    u8          saidas[DIR_COUNT];  // Saídas [Norte, Sul, Leste, Oeste]
+    u8          saidas[DIR_COUNT];  // Saídas [Norte, Sul, Leste, Oeste, Nordeste, Noroeste, Sudeste, Sudoeste]
     const char* desc;               // Descrição do ambiente (impressa em DESC ou ENTER)
 } Game_Position;
 

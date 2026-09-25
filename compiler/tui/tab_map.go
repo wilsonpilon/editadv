@@ -70,8 +70,9 @@ func (tab *MapTab) Refresh() {
 		if i < 9 {
 			shortcut = rune('a' + i)
 		}
-		exitsSummary := fmt.Sprintf("N:%d S:%d L:%d O:%d",
-			pos.Exits.North, pos.Exits.South, pos.Exits.East, pos.Exits.West)
+		exitsSummary := fmt.Sprintf("N:%d S:%d L:%d O:%d NE:%d NO:%d SE:%d SO:%d",
+			pos.Exits.North, pos.Exits.South, pos.Exits.East, pos.Exits.West,
+			pos.Exits.Northeast, pos.Exits.Northwest, pos.Exits.Southeast, pos.Exits.Southwest)
 		tab.RoomList.AddItem(
 			fmt.Sprintf("[%d] %s", pos.ID, pos.Name),
 			exitsSummary,
@@ -112,15 +113,6 @@ func (tab *MapTab) loadRoomToForm(index int) {
 		pos.Description = text
 	})
 
-	exitHint := func(val int) string {
-		if val == 0 {
-			return "(Sem saída)"
-		} else if val <= compiler.MaxPositions {
-			return fmt.Sprintf("(-> Sala %d)", val)
-		}
-		return fmt.Sprintf("(Condicional: Função %d)", val-compiler.PositionCondOffset)
-	}
-
 	tab.RoomForm.AddInputField("Norte (N):", strconv.Itoa(pos.Exits.North), 6, nil, func(text string) {
 		if v, err := strconv.Atoi(text); err == nil {
 			pos.Exits.North = v
@@ -135,16 +127,44 @@ func (tab *MapTab) loadRoomToForm(index int) {
 		}
 	})
 
-	tab.RoomForm.AddInputField("Leste (L):", strconv.Itoa(pos.Exits.East), 6, nil, func(text string) {
+	tab.RoomForm.AddInputField("Leste (L/E):", strconv.Itoa(pos.Exits.East), 6, nil, func(text string) {
 		if v, err := strconv.Atoi(text); err == nil {
 			pos.Exits.East = v
 			tab.renderMapVisual(index)
 		}
 	})
 
-	tab.RoomForm.AddInputField("Oeste (O):", strconv.Itoa(pos.Exits.West), 6, nil, func(text string) {
+	tab.RoomForm.AddInputField("Oeste (O/W):", strconv.Itoa(pos.Exits.West), 6, nil, func(text string) {
 		if v, err := strconv.Atoi(text); err == nil {
 			pos.Exits.West = v
+			tab.renderMapVisual(index)
+		}
+	})
+
+	tab.RoomForm.AddInputField("Nordeste (NE):", strconv.Itoa(pos.Exits.Northeast), 6, nil, func(text string) {
+		if v, err := strconv.Atoi(text); err == nil {
+			pos.Exits.Northeast = v
+			tab.renderMapVisual(index)
+		}
+	})
+
+	tab.RoomForm.AddInputField("Noroeste (NO):", strconv.Itoa(pos.Exits.Northwest), 6, nil, func(text string) {
+		if v, err := strconv.Atoi(text); err == nil {
+			pos.Exits.Northwest = v
+			tab.renderMapVisual(index)
+		}
+	})
+
+	tab.RoomForm.AddInputField("Sudeste (SE):", strconv.Itoa(pos.Exits.Southeast), 6, nil, func(text string) {
+		if v, err := strconv.Atoi(text); err == nil {
+			pos.Exits.Southeast = v
+			tab.renderMapVisual(index)
+		}
+	})
+
+	tab.RoomForm.AddInputField("Sudoeste (SO):", strconv.Itoa(pos.Exits.Southwest), 6, nil, func(text string) {
+		if v, err := strconv.Atoi(text); err == nil {
+			pos.Exits.Southwest = v
 			tab.renderMapVisual(index)
 		}
 	})
@@ -159,8 +179,6 @@ func (tab *MapTab) loadRoomToForm(index int) {
 		tab.SelectedIdx = len(tab.Editor.Compiler.Game.Positions) - 1
 		tab.Refresh()
 	})
-
-	_ = exitHint
 }
 
 func (tab *MapTab) renderMapVisual(index int) {
@@ -184,14 +202,18 @@ func (tab *MapTab) renderMapVisual(index int) {
 	s := formatExit(pos.Exits.South)
 	l := formatExit(pos.Exits.East)
 	o := formatExit(pos.Exits.West)
+	ne := formatExit(pos.Exits.Northeast)
+	no := formatExit(pos.Exits.Northwest)
+	se := formatExit(pos.Exits.Southeast)
+	so := formatExit(pos.Exits.Southwest)
 
 	visual := fmt.Sprintf(
-		"\n            N: %s\n"+
-			"                  ▲\n"+
-			"  O: %s ◄───[yellow] Sala %d [white]───► L: %s\n"+
-			"                  ▼\n"+
-			"            S: %s\n",
-		n, o, pos.ID, l, s,
+		"\n        NO: %s   ▲ N: %s   ▲ NE: %s\n"+
+			"                   ╲     │     ╱\n"+
+			"         O: %s ◄───[yellow] Sala %d [white]───► L: %s\n"+
+			"                   ╱     │     ╲\n"+
+			"        SO: %s   ▼ S: %s   ▼ SE: %s\n",
+		no, n, ne, o, pos.ID, l, so, s, se,
 	)
 
 	tab.MapVisual.SetText(visual)

@@ -185,18 +185,25 @@ func (o Object) FullName() string {
 }
 
 // =============================================================================
-// 4. POSIÇÕES / SALAS (Capítulo 6)
+// 4. POSIÇÕES / SALAS (Capítulo 6 - Suporte a 8 Pontos Cardeais)
 // =============================================================================
 type Exits struct {
-	North int `json:"norte" yaml:"norte"`
-	South int `json:"sul" yaml:"sul"`
-	East  int `json:"leste" yaml:"leste"`
-	West  int `json:"oeste" yaml:"oeste"`
+	North     int `json:"norte" yaml:"norte"`
+	South     int `json:"sul" yaml:"sul"`
+	East      int `json:"leste" yaml:"leste"`
+	West      int `json:"oeste" yaml:"oeste"`
+	Northeast int `json:"nordeste,omitempty" yaml:"nordeste,omitempty"`
+	Northwest int `json:"noroeste,omitempty" yaml:"noroeste,omitempty"`
+	Southeast int `json:"sudeste,omitempty" yaml:"sudeste,omitempty"`
+	Southwest int `json:"sudoeste,omitempty" yaml:"sudoeste,omitempty"`
 }
 
-// ToArray converte as saídas para a ordem fixa da engine [Norte, Sul, Leste, Oeste].
-func (e Exits) ToArray() [4]uint8 {
-	return [4]uint8{uint8(e.North), uint8(e.South), uint8(e.East), uint8(e.West)}
+// ToArray converte as saídas para a ordem fixa da engine [Norte, Sul, Leste, Oeste, NE, NO, SE, SO].
+func (e Exits) ToArray() [8]uint8 {
+	return [8]uint8{
+		uint8(e.North), uint8(e.South), uint8(e.East), uint8(e.West),
+		uint8(e.Northeast), uint8(e.Northwest), uint8(e.Southeast), uint8(e.Southwest),
+	}
 }
 
 // Position representa um local onde o jogador pode estar fisicamente.

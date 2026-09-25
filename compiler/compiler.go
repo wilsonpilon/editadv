@@ -69,6 +69,94 @@ func CompileInstructions(instructions []Instruction) ([]CompiledInstruction, err
 	return compiled, nil
 }
 
+// EscapeCStringMSX converte uma string UTF-8 para um literal C com caracteres acentuados
+// codificados no charset da fonte customizada do MSX (vram.dat) usando sequências de escape octais.
+func EscapeCStringMSX(s string) string {
+	var sb strings.Builder
+	for _, r := range s {
+		switch r {
+		case '"':
+			sb.WriteString("\\\"")
+		case '\\':
+			sb.WriteString("\\\\")
+		case '\n':
+			sb.WriteString("\\n")
+		case '\r':
+			sb.WriteString("\\r")
+		case '\t':
+			sb.WriteString("\\t")
+		// Mapeamento UTF-8 -> Códigos da Fonte SCREEN 0 (vram.dat)
+		case 'Ç':
+			sb.WriteString("\\200") // 0x80
+		case 'ç':
+			sb.WriteString("\\207") // 0x87
+		case 'é':
+			sb.WriteString("\\202") // 0x82
+		case 'É':
+			sb.WriteString("\\220") // 0x90
+		case 'á':
+			sb.WriteString("\\240") // 0xA0
+		case 'Á':
+			sb.WriteString("\\204") // 0x84
+		case 'à':
+			sb.WriteString("\\205") // 0x85
+		case 'À':
+			sb.WriteString("\\217") // 0x8F
+		case 'ã':
+			sb.WriteString("\\261") // 0xB1
+		case 'Ã':
+			sb.WriteString("\\260") // 0xB0
+		case 'â':
+			sb.WriteString("\\203") // 0x83
+		case 'Â':
+			sb.WriteString("\\214") // 0x8C
+		case 'ê':
+			sb.WriteString("\\210") // 0x88
+		case 'Ê':
+			sb.WriteString("\\215") // 0x8D
+		case 'í':
+			sb.WriteString("\\241") // 0xA1
+		case 'Í':
+			sb.WriteString("\\211") // 0x89
+		case 'ó':
+			sb.WriteString("\\242") // 0xA2
+		case 'Ó':
+			sb.WriteString("\\212") // 0x8A
+		case 'õ':
+			sb.WriteString("\\266") // 0xB6 (õ minúsculo na fonte vram.dat)
+		case 'Õ':
+			sb.WriteString("\\264") // 0xB4
+		case 'ô':
+			sb.WriteString("\\223") // 0x93
+		case 'Ô':
+			sb.WriteString("\\216") // 0x8E
+		case 'ú':
+			sb.WriteString("\\243") // 0xA3
+		case 'Ú':
+			sb.WriteString("\\213") // 0x8B
+		case '’', '‘':
+			sb.WriteString("'")
+		case '“', '”':
+			sb.WriteString("\\\"")
+		case '–', '—':
+			sb.WriteString("-")
+		case '…':
+			sb.WriteString("...")
+		case '!':
+			sb.WriteString("\\133") // 0x5B é o glifo de ponto de exclamação na fonte vram.dat (0x21 é Á)
+		default:
+			if r >= 32 && r <= 126 {
+				sb.WriteRune(r)
+			} else if r <= 255 {
+				sb.WriteString(fmt.Sprintf("\\%03o", r))
+			} else {
+				sb.WriteRune(r)
+			}
+		}
+	}
+	return sb.String()
+}
+
 // GenerateCData gera os arquivos C (game_data.h e game_data.c) para serem linkados com a Engine.
 func (c *Compiler) GenerateCData(outputDir string) error {
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
@@ -109,9 +197,7 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 	// 1. Mensagens
 	cBuf.WriteString("// --- Mensagens ---\n")
 	for i, msg := range c.Game.Messages {
-		escaped := strings.ReplaceAll(msg.Text, "\"", "\\\"")
-		escaped = strings.ReplaceAll(escaped, "\n", "\\n")
-		cBuf.WriteString(fmt.Sprintf("static const Game_Message s_msg_%d = { %d, \"%s\" };\n", i, msg.ID, escaped))
+		cBuf.WriteString(fmt.Sprintf("static const Game_Message s_msg_%d = { %d, \"%s\" };\n", i, msg.ID, EscapeCStringMSX(msg.Text)))
 	}
 	cBuf.WriteString("static const Game_Message* const s_messages[] = {\n")
 	for i := range c.Game.Messages {
@@ -123,9 +209,8 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 	cBuf.WriteString("// --- Objetos ---\n")
 	for i, obj := range c.Game.Objects {
 		fullName := obj.FullName()
-		escapedDesc := strings.ReplaceAll(obj.Description, "\"", "\\\"")
 		cBuf.WriteString(fmt.Sprintf("static const Game_Object s_obj_%d = { %d, %d, 0x%02X, \"%s\", \"%s\" };\n",
-			i, obj.ID, obj.InitialSituation, obj.Consistency.ToByte(), fullName, escapedDesc))
+			i, obj.ID, obj.InitialSituation, obj.Consistency.ToByte(), EscapeCStringMSX(fullName), EscapeCStringMSX(obj.Description)))
 	}
 	cBuf.WriteString("static const Game_Object* const s_objects[] = {\n")
 	for i := range c.Game.Objects {
@@ -133,12 +218,14 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 	}
 	cBuf.WriteString("};\n\n")
 
-	// 3. Posições (Salas)
+	// 3. Posições (Salas - 8 Direções Cardeais)
 	cBuf.WriteString("// --- Posições ---\n")
 	for i, pos := range c.Game.Positions {
-		escapedDesc := strings.ReplaceAll(pos.Description, "\"", "\\\"")
-		cBuf.WriteString(fmt.Sprintf("static const Game_Position s_pos_%d = { %d, { %d, %d, %d, %d }, \"%s\" };\n",
-			i, pos.ID, pos.Exits.North, pos.Exits.South, pos.Exits.East, pos.Exits.West, escapedDesc))
+		ex := pos.Exits.ToArray()
+		cBuf.WriteString(fmt.Sprintf("static const Game_Position s_pos_%d = { %d, { %d, %d, %d, %d, %d, %d, %d, %d }, \"%s\" };\n",
+			i, pos.ID,
+			ex[0], ex[1], ex[2], ex[3], ex[4], ex[5], ex[6], ex[7],
+			EscapeCStringMSX(pos.Description)))
 	}
 	cBuf.WriteString("static const Game_Position* const s_positions[] = {\n")
 	for i := range c.Game.Positions {
@@ -210,7 +297,7 @@ func (c *Compiler) GenerateCData(outputDir string) error {
 
 	cBuf.WriteString("// --- Base de Dados do Jogo ---\n")
 	cBuf.WriteString("const Game_Database g_GameDatabase = {\n")
-	cBuf.WriteString(fmt.Sprintf("    \"%s\",\n", strings.ReplaceAll(c.Game.Meta.Title, "\"", "\\\"")))
+	cBuf.WriteString(fmt.Sprintf("    \"%s\",\n", EscapeCStringMSX(c.Game.Meta.Title)))
 	cBuf.WriteString(fmt.Sprintf("    %d, // posicao_inicial\n", initialPos))
 	cBuf.WriteString(fmt.Sprintf("    %d, // max_carregados\n", maxCarried))
 	cBuf.WriteString(fmt.Sprintf("    %d, // max_no_obj3\n", maxInObj3))

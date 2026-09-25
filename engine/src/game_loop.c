@@ -281,12 +281,24 @@ void Game_Run(const Game_Database* db, Game_State* state)
             }
 
             // -----------------------------------------------------------------
-            // 5.2 Se for verbo direcional (1=Norte, 2=Sul, 3=Leste, 4=Oeste)
+            // 5.2 Se for verbo direcional (Norte, Sul, Leste, Oeste, NE, NO, SE, SO)
             // -----------------------------------------------------------------
-            if (state->verbo_atual >= VERBO_NORTE && state->verbo_atual <= VERBO_OESTE)
+            if ((state->verbo_atual >= VERBO_NORTE && state->verbo_atual <= VERBO_OESTE) ||
+                (state->verbo_atual >= VERBO_NORDESTE && state->verbo_atual <= VERBO_SUDOESTE))
             {
-                Game_Direction dir = (Game_Direction)(state->verbo_atual - 1);
-                u8 saida = GetRoomExit(db, state->registers[REG_POSICAO], dir);
+                Game_Direction dir;
+                u8 saida;
+
+                if (state->verbo_atual <= VERBO_OESTE)
+                {
+                    dir = (Game_Direction)(state->verbo_atual - VERBO_NORTE);
+                }
+                else
+                {
+                    dir = (Game_Direction)(DIR_NORDESTE + (state->verbo_atual - VERBO_NORDESTE));
+                }
+
+                saida = GetRoomExit(db, state->registers[REG_POSICAO], dir);
 
                 if (saida == 0)
                 {

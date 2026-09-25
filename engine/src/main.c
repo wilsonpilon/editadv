@@ -17,9 +17,18 @@ static Game_State g_GameState;
 
 void main(void)
 {
-    Game_Run(&g_GameDatabase, &g_GameState);
+    while (1)
+    {
+        Game_Run(&g_GameDatabase, &g_GameState);
 
+        // Quando a partida termina (vitória ou derrota), nunca reinicie o hardware abruptamente
+        UI_NewLineCenter();
+        UI_PrintCenter("[ Pressione tecla para recome\207ar ]");
 #if defined(MSXGL)
-    BIOS_Exit(0);
+        BIOS_GetCharacter();
+#elif defined(__SDCC)
+        Bios_Chget();
 #endif
+    }
 }
+

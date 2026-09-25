@@ -243,6 +243,10 @@ void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const G
                         }
                         UI_PrintCenter("- ");
                         UI_PrintCenter(Interpreter_GetObjectName(i, db));
+                        if (i == OBJ_ID_CONTAINER && state->registers[REG_OBJETOS_NO_OBJ3] > 0)
+                        {
+                            UI_PrintCenter(" (com itens)");
+                        }
                         UI_NewLineCenter();
                     }
                 }
@@ -363,7 +367,10 @@ void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const G
             case OP_TEMOS:
             {
                 u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
-                if (state->registers[REG_OBJETO_OFFSET + target] == OBJ_SIT_CARREGADO)
+                u8 sit = state->registers[REG_OBJETO_OFFSET + target];
+                if (sit == OBJ_SIT_CARREGADO ||
+                    ((sit == OBJ_SIT_EM_OBJ3_ABERTO || sit == OBJ_SIT_EM_OBJ3_FECHADO) &&
+                     state->registers[REG_OBJETO_OFFSET + OBJ_ID_CONTAINER] == OBJ_SIT_CARREGADO))
                 {
                     pc = p2;
                     continue;
@@ -388,12 +395,21 @@ void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const G
                 else
                 {
                     u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
-                    if (state->registers[REG_OBJETO_OFFSET + target] == OBJ_SIT_CARREGADO)
+                    u8 sit = state->registers[REG_OBJETO_OFFSET + target];
+                    if (sit == OBJ_SIT_CARREGADO)
                     {
                         state->registers[REG_OBJETO_OFFSET + target] = state->registers[REG_POSICAO];
                         if (state->registers[REG_OBJETOS_CARREGADOS] > 0)
                         {
                             state->registers[REG_OBJETOS_CARREGADOS]--;
+                        }
+                    }
+                    else if (sit == OBJ_SIT_EM_OBJ3_ABERTO || sit == OBJ_SIT_EM_OBJ3_FECHADO)
+                    {
+                        state->registers[REG_OBJETO_OFFSET + target] = state->registers[REG_POSICAO];
+                        if (state->registers[REG_OBJETOS_NO_OBJ3] > 0)
+                        {
+                            state->registers[REG_OBJETOS_NO_OBJ3]--;
                         }
                     }
                 }
@@ -403,6 +419,14 @@ void Interpreter_Execute(const Game_Instruction* instructions, u8 count, const G
             case OP_PEGA:
             {
                 u8 target = (p1 != 0) ? p1 : state->obj_evidencia;
+                u8 old_sit = state->registers[REG_OBJETO_OFFSET + target];
+                if (old_sit == OBJ_SIT_EM_OBJ3_ABERTO || old_sit == OBJ_SIT_EM_OBJ3_FECHADO)
+                {
+                    if (state->registers[REG_OBJETOS_NO_OBJ3] > 0)
+                    {
+                        state->registers[REG_OBJETOS_NO_OBJ3]--;
+                    }
+                }
                 state->registers[REG_OBJETO_OFFSET + target] = OBJ_SIT_CARREGADO;
                 state->registers[REG_OBJETOS_CARREGADOS]++;
                 break;
